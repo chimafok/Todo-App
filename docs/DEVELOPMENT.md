@@ -9,6 +9,10 @@
 
 下載並開啟專案，讓 Android Studio 設定本機 SDK，或自行設定 JAVA_HOME／ANDROID_HOME。local.properties 不入 Git。首次需要連線下載 SDK、Gradle 與 Maven 依賴；App 執行本身不做雲端同步。
 
+## 分支與檢查
+
+一般功能從最新 `dev` 開工作分支，PR 合併到 `dev` 整合，再 PR 合併到 `main`；純文件小修的例外與合併權限見[貢獻指南](../CONTRIBUTING.md#分支與合併)。CI 目前會建置、執行單元測試與 Lint，並編譯裝置測試 APK；不會執行裝置測試、完成真機驗收、正式簽署或發布 APK。
+
 ## 命令
 
 Windows PowerShell：

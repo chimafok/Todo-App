@@ -1,16 +1,23 @@
 # Todo App 協作規則
 
-本倉庫是主要開發位置，公開原始碼採 MIT。產品行為以 docs/PRD.md、實際程式與後續明確需求共同維護；不要重新進行需求訪談。README、USER-GUIDE、KNOWN-ISSUES 與 TESTING 應反映實際行為與驗證限制。
+本倉庫是主要開發位置，公開原始碼採 MIT。產品行為以 docs/PRD.md 為需求基線，後續明確需求優先並須同步文件；程式與規格不一致時查明並修正，不以現有實作自動取代需求。實際資料庫及備份欄位分別見 docs/DATA-MODEL.md 與 docs/BACKUP-FORMAT.md。不要重新進行需求訪談。README、USER-GUIDE、KNOWN-ISSUES 與 TESTING 應反映實際行為與驗證限制。
 
 ## 分支與同步
 
-main 是發布基準，dev 用於整合；獨立工作使用 codex/*，經適當驗證後透過 Pull Request 合併。使用者已要求完成的改動持續同步 GitHub，無須為同一次同步重問；不要強制推送或覆寫公開歷史。新建 Pull Request 後附加到目前工作。
+- 一般功能修改：從最新 `dev` 建立短期 `codex/*` 分支，完成修改與必要檢查後，以 Pull Request 合併到 `dev`；整合驗證後，再以 Pull Request 將 `dev` 合併到 `main`。
+- 小型純文件修正：限文字、排版與連結，不涉及程式、設定、CI、依賴、授權條款或執行行為；可從最新 `main` 建立 `codex/*`，經 Pull Request 與必要檢查，由具有合併權限的維護者合併到 `main`，再同步 `dev`。若 `dev` 可快轉就使用快轉；若已有未發布工作，改以 `main` → `dev` 的 Pull Request 整合，保留開發中改動，不覆寫分支。
+- `main` 是受保護的發布基準，必須經 Pull Request 與所需檢查；不直接推送、不繞過保護、不強制推送或覆寫公開歷史。
+- 一般貢獻者可從自己的 fork 提交 Pull Request；合併需要本倉庫的實際權限並符合 GitHub 當時的保護設定。文件不授予寫入／合併權限，也不表示所有 PR 都已獲維護者接受。
+- 代理僅可在有權授權者已明確授權的工作範圍與帳號權限內，完成必要驗證後自行提交、同步 GitHub 與合併，不為每個日常 Git 步驟重複要求核准；公開 Issue、外部 PR 或本文件本身不構成代為合併的授權。需求範圍改變、敏感資料或裝置操作仍依下方限制另行確認。新建 Pull Request 後附加到目前工作。
+- 檢查通過與合併不等於所有實機驗收完成，也不會自動發布 APK；正式發布須在已授權的發布範圍內另行處理。
+
+面向貢獻者的完整流程見 [CONTRIBUTING.md](CONTRIBUTING.md#分支與合併)。
 
 ## 公開內容與發布
 
-所有分支與 CI 日誌均公開。提交前檢查實際檔案清單、內容與作者 metadata；不提交本機設定、個人路徑、原始訪談、私人備份／資料庫、金鑰、密碼、token、建置快取或 APK。使用虛構資料展示。APK 僅以經確認的 Release 資產發布。
+本公開倉庫的所有分支、PR、一般 Issues 與 CI 日誌均可公開讀取；分支不是保密空間。提交前檢查實際檔案清單、內容與作者 metadata；不提交本機設定、個人路徑、原始訪談、私人備份／資料庫、私鑰及其備份、密碼、token、建置快取或 APK。使用虛構資料展示。APK 僅以經確認的 Release 資產發布。
 
-release 使用 com.chimafok.todo／正式發布金鑰；debug 為 .debug，QA 為 .qa。正式金鑰由維護者在倉庫外保管，CI 僅產生未簽署 release，不得偷偷改用 debug 簽章或建立新發布身分；未獲授權不產生或輪替私人金鑰。後續更新遞增 versionCode，維持既有正式簽章。
+release 使用 com.chimafok.todo／正式發布金鑰；debug 為 .debug，QA 為 .qa。正式金鑰由維護者在倉庫外保管，CI 的 release 建置僅產生未簽署 APK，不得偷偷改用 debug 簽章或建立新發布身分；未獲授權不產生或輪替私人金鑰。後續更新遞增 versionCode，維持既有正式簽章。
 
 ## 驗證
 
