@@ -40,7 +40,7 @@
 
 使用 Android Studio 開啟本資料夾。所需版本、建置及測試步驟見[開發指南](docs/DEVELOPMENT.md)，產品行為見[產品規格](docs/PRD.md)。
 
-本倉庫是主要開發位置：`main` 保留經檢查的發布基準，`dev` 用於整合，獨立工作使用短期 `codex/*` 分支；測試後以 Pull Request 合併。所有分支均公開。
+本倉庫是主要開發位置：`main` 保留經檢查的發布基準，`dev` 用於整合，獨立工作使用短期 `codex/*` 分支；測試後以 Pull Request 合併。所有分支均公開。 一般開發與文件小修的合併方式見[分支與合併流程](CONTRIBUTING.md#分支與合併)。
 
 ## 文件與回報
 

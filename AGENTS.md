@@ -4,7 +4,12 @@
 
 ## 分支與同步
 
-main 是發布基準，dev 用於整合；獨立工作使用 codex/*，經適當驗證後透過 Pull Request 合併。使用者已要求完成的改動持續同步 GitHub，無須為同一次同步重問；不要強制推送或覆寫公開歷史。新建 Pull Request 後附加到目前工作。
+- 一般功能修改：從最新 `dev` 建立短期 `codex/*` 分支，完成修改與必要檢查後，以 Pull Request 合併到 `dev`；整合驗證後，再以 Pull Request 將 `dev` 合併到 `main`。
+- 小型純文件修正：可從最新 `main` 建立 `codex/*`，經 Pull Request 與必要檢查直接合併到 `main`，再同步 `dev`。若 `dev` 可快轉就使用快轉；若已有未發布工作，改以 `main` → `dev` 的 Pull Request 整合，保留開發中改動，不覆寫分支。
+- `main` 是受保護的發布基準，必須經 Pull Request 與所需檢查；不直接推送、不繞過保護、不強制推送或覆寫公開歷史。
+- 使用者已授權且範圍明確的常規修改，完成必要驗證後自行提交、同步 GitHub 與合併，不為每個日常 Git 步驟重複要求核准；需求範圍改變、敏感資料或裝置操作仍依下方限制另行確認。新建 Pull Request 後附加到目前工作。
+
+面向貢獻者的完整流程見 [CONTRIBUTING.md](CONTRIBUTING.md#分支與合併)。
 
 ## 公開內容與發布
 
