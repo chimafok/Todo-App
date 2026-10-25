@@ -8,9 +8,9 @@
 
 下載 Todo-1.0.5.apk；SHA256SUMS.txt 是檔案校驗值。GitHub 自動產生的 Source code.zip／tar.gz 是原始碼，不是手機安裝包。
 
-## 舊開發版使用者先看
+## 安裝與更新
 
-本版使用全新正式金鑰，不能直接覆蓋舊開發簽章版。**先在舊 App 匯出並確認 JSON 備份，再自行卸載舊版、安裝本版並預覽還原。** 備份不包含垃圾桶、未建立草稿、排序、一般設定與 Android 權限；需要的垃圾桶先復原、草稿先建立，還原後重新確認提醒能力。完整步驟見 [安裝與更新](https://github.com/chimafok/Todo-App/blob/main/docs/INSTALL.md)。正式版之後沿用此金鑰與遞增版本碼。
+首次使用請下載並安裝 APK，再按需要設定通知與精確提醒能力。後續正式版可直接安裝更新，保留既有資料；更新前建議匯出重要內容。完整步驟見 [安裝與更新](https://github.com/chimafok/Todo-App/blob/main/docs/INSTALL.md)。
 
 ## 驗證與限制
 
