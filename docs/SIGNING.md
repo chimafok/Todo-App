@@ -6,6 +6,8 @@
 
 `a4b166d522cf41ce213923ef054da8e9b4644abf1888580f502002e2aadfd197`
 
+公開憑證與上述憑證指紋可用於辨識簽署者，不包含用來簽署 APK 的私鑰。它們不能代替私鑰與密碼的備份，也不能僅憑指紋重新建立相同更新身分。
+
 每個 APK 的檔案 SHA-256 見該 Release 的 SHA256SUMS.txt；原始碼中的公開驗證摘要見 verification/release-1.0.5.json。
 
 官方後續版本沿用此正式金鑰並遞增版本碼，讓既有安裝可直接更新。安裝與更新流程見 [INSTALL.md](INSTALL.md)。

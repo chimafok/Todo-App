@@ -47,7 +47,7 @@ status：一般只 OPEN／COMPLETED；作業只 NOT_STARTED／IN_PROGRESS／DONE
 
 ## 已實作 migration 1→2
 
-只 CREATE tags／task_tags 與索引，不重建／刪除／回填 tasks 或 categories。既有 ID、截止、時區、狀態、revision 原樣保留；不使用 destructive fallback。裝置測試使用匯出 schema 1 JSON 建立真實 v1 檔案，插入舊任務後由 Room 開啟升級，再驗證其資料與新標籤關聯能保存；最終結果見 TEST-REPORT。
+只 CREATE tags／task_tags 與索引，不重建／刪除／回填 tasks 或 categories。既有 ID、截止、時區、狀態、revision 原樣保留；不使用 destructive fallback。裝置測試使用匯出 schema 1 JSON 建立真實 v1 檔案，插入舊任務後由 Room 開啟升級，再驗證其資料與新標籤關聯能保存。歷史測試不等於本次重跑；公開版本的驗證範圍見 [TESTING](TESTING.md)。
 
 ## 已實作 migration 2→3 與系列契約
 
@@ -91,7 +91,7 @@ schedule_outbox：taskId 主鍵、generation、processedAt；任務或提醒定�
 
 任務保存與提醒全量定義、標籤、dirty marker 同交易，非法相對日期或第二筆提醒寫入失敗全部回滾；revision 擋過期草稿。畫面讀取加入 reminders 表，完整資料仍以 Room 同交易快照呈現。單筆提醒的編輯草稿保存 ID／未完成輸入／IANA zone／參考 Instant；固定提醒未改動時保留毫秒精度，不因 UI 只顯示分鐘而漂移。
 
-系列模板、背景生成及永久清理取消契約見後續已實作章節；明示限制及恢復策略見 [PHASE5](./USER-GUIDE.md#提醒)。不能因有 schema 5 而宣稱 F06 全部完成。
+系列模板、背景生成及永久清理取消契約見後續已實作章節；提醒操作與恢復說明見 [USER-GUIDE](USER-GUIDE.md#提醒)，驗證缺口見 [KNOWN-ISSUES](KNOWN-ISSUES.md)。不能因有 schema 5 而宣稱 F06 全部完成。
 
 ## 提醒編輯修正（0.5.1，schema 仍為 5）
 
