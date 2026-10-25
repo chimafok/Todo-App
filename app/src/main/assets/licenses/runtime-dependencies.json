@@ -1,0 +1,745 @@
+[
+  {
+    "group": "androidx.activity",
+    "name": "activity",
+    "version": "1.13.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.activity",
+    "name": "activity-compose",
+    "version": "1.13.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.activity",
+    "name": "activity-ktx",
+    "version": "1.13.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.annotation",
+    "name": "annotation-experimental",
+    "version": "1.5.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.annotation",
+    "name": "annotation-jvm",
+    "version": "1.9.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.arch.core",
+    "name": "core-common",
+    "version": "2.2.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.arch.core",
+    "name": "core-runtime",
+    "version": "2.2.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.autofill",
+    "name": "autofill",
+    "version": "1.0.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.collection",
+    "name": "collection-jvm",
+    "version": "1.5.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.collection",
+    "name": "collection-ktx",
+    "version": "1.5.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.compose.animation",
+    "name": "animation-android",
+    "version": "1.12.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.compose.animation",
+    "name": "animation-core-android",
+    "version": "1.12.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.compose.foundation",
+    "name": "foundation-android",
+    "version": "1.12.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.compose.foundation",
+    "name": "foundation-layout-android",
+    "version": "1.12.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.compose.material3",
+    "name": "material3-android",
+    "version": "1.4.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.compose.material",
+    "name": "material-ripple-android",
+    "version": "1.12.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.compose.runtime",
+    "name": "runtime-android",
+    "version": "1.12.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.compose.runtime",
+    "name": "runtime-annotation-android",
+    "version": "1.12.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.compose.runtime",
+    "name": "runtime-retain-android",
+    "version": "1.12.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.compose.runtime",
+    "name": "runtime-saveable-android",
+    "version": "1.12.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.compose.ui",
+    "name": "ui-android",
+    "version": "1.12.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.compose.ui",
+    "name": "ui-geometry-android",
+    "version": "1.12.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.compose.ui",
+    "name": "ui-graphics-android",
+    "version": "1.12.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.compose.ui",
+    "name": "ui-text-android",
+    "version": "1.12.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.compose.ui",
+    "name": "ui-tooling-preview-android",
+    "version": "1.12.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.compose.ui",
+    "name": "ui-unit-android",
+    "version": "1.12.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.compose.ui",
+    "name": "ui-util-android",
+    "version": "1.12.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.concurrent",
+    "name": "concurrent-futures",
+    "version": "1.1.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.core",
+    "name": "core",
+    "version": "1.18.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.core",
+    "name": "core-ktx",
+    "version": "1.18.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.core",
+    "name": "core-viewtree",
+    "version": "1.0.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.customview",
+    "name": "customview-poolingcontainer",
+    "version": "1.0.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.emoji2",
+    "name": "emoji2",
+    "version": "1.4.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.graphics",
+    "name": "graphics-path",
+    "version": "1.0.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.interpolator",
+    "name": "interpolator",
+    "version": "1.0.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.lifecycle",
+    "name": "lifecycle-common-java8",
+    "version": "2.9.4",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.lifecycle",
+    "name": "lifecycle-common-jvm",
+    "version": "2.9.4",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.lifecycle",
+    "name": "lifecycle-livedata-core",
+    "version": "2.9.4",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.lifecycle",
+    "name": "lifecycle-process",
+    "version": "2.9.4",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.lifecycle",
+    "name": "lifecycle-runtime-android",
+    "version": "2.9.4",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.lifecycle",
+    "name": "lifecycle-runtime-compose-android",
+    "version": "2.9.4",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.lifecycle",
+    "name": "lifecycle-runtime-ktx-android",
+    "version": "2.9.4",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.lifecycle",
+    "name": "lifecycle-viewmodel-android",
+    "version": "2.9.4",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.lifecycle",
+    "name": "lifecycle-viewmodel-compose-android",
+    "version": "2.9.4",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.lifecycle",
+    "name": "lifecycle-viewmodel-ktx",
+    "version": "2.9.4",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.lifecycle",
+    "name": "lifecycle-viewmodel-savedstate-android",
+    "version": "2.9.4",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.navigationevent",
+    "name": "navigationevent-android",
+    "version": "1.0.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.navigationevent",
+    "name": "navigationevent-compose-android",
+    "version": "1.0.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.profileinstaller",
+    "name": "profileinstaller",
+    "version": "1.4.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.room",
+    "name": "room-common-jvm",
+    "version": "2.8.5",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.room",
+    "name": "room-runtime-android",
+    "version": "2.8.5",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.savedstate",
+    "name": "savedstate-android",
+    "version": "1.3.2",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.savedstate",
+    "name": "savedstate-compose-android",
+    "version": "1.3.2",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.savedstate",
+    "name": "savedstate-ktx",
+    "version": "1.3.2",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.sqlite",
+    "name": "sqlite-android",
+    "version": "2.6.2",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.sqlite",
+    "name": "sqlite-framework-android",
+    "version": "2.6.2",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.startup",
+    "name": "startup-runtime",
+    "version": "1.1.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.tracing",
+    "name": "tracing",
+    "version": "1.2.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.versionedparcelable",
+    "name": "versionedparcelable",
+    "version": "1.1.1",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.window",
+    "name": "window",
+    "version": "1.5.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "androidx.window",
+    "name": "window-core-android",
+    "version": "1.5.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "com.google.guava",
+    "name": "listenablefuture",
+    "version": "1.0",
+    "declaredLicenses": []
+  },
+  {
+    "group": "org.jetbrains.kotlin",
+    "name": "kotlin-stdlib",
+    "version": "2.2.10",
+    "declaredLicenses": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "org.jetbrains.kotlinx",
+    "name": "kotlinx-coroutines-android",
+    "version": "1.9.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "org.jetbrains.kotlinx",
+    "name": "kotlinx-coroutines-core-jvm",
+    "version": "1.9.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "org.jetbrains.kotlinx",
+    "name": "kotlinx-serialization-core-jvm",
+    "version": "1.7.3",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "org.jetbrains",
+    "name": "annotations",
+    "version": "23.0.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  },
+  {
+    "group": "org.jspecify",
+    "name": "jspecify",
+    "version": "1.0.0",
+    "declaredLicenses": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    ]
+  }
+]

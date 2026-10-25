@@ -1,0 +1,16 @@
+name: 功能建議
+description: 說明需求與希望的使用方式
+title: "[Feature] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 想解決的問題
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 希望的行為與例子
+    validations:
+      required: true

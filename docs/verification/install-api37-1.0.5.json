@@ -1,0 +1,13 @@
+{
+  "api": 37,
+  "dedicatedDisposableAvd": true,
+  "previousCode": 26,
+  "formalCode": 27,
+  "differentSignatureUpdateRejected": true,
+  "rejectedUpdateKeptInstallMetadata": true,
+  "freshFormalInstallAfterRemovingOnlyOwnedDisposableInstall": true,
+  "sameFormalApkReinstallPreservedUidAndFirstInstallTime": true,
+  "launchSucceeded": true,
+  "phoneOperated": false,
+  "note": "No user phone or existing daily AVD touched. Same-version reinstall is not a later-version upgrade test. Backup/restore UI is tested separately in isolated QA."
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <provider android:name="com.chimafok.todo.QaBackupDocuments" android:authorities="${applicationId}.backup-test" android:exported="false" android:grantUriPermissions="true" />
+        <provider android:name="com.chimafok.todo.QaSystemProbe" android:authorities="${applicationId}.system-test" android:exported="true" android:permission="android.permission.DUMP" />
+    </application>
+</manifest>

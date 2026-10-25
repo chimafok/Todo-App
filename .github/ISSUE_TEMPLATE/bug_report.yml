@@ -1,0 +1,30 @@
+name: 問題回報
+description: 回報可以重現的錯誤
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: 請勿附私人任務備份、裝置識別碼、密碼或金鑰；截圖請先遮蔽私人內容。安全漏洞請使用私人漏洞回報。
+  - type: input
+    id: version
+    attributes:
+      label: Todo 與 Android 版本
+      placeholder: "例如 Todo 1.0.5、Android 15"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 重現步驟
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 預期與實際結果
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: 補充與已遮蔽的畫面

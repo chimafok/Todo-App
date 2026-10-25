@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Todo</string>
+    <string name="agenda">日程</string>
+    <string name="unscheduled">未安排</string>
+    <string name="completed">已完成</string>
+    <string name="recurring_records">重複紀錄</string>
+    <string name="completed_tasks">已完成任務</string>
+    <string name="organize">分類與標籤</string>
+    <string name="trash">垃圾桶</string>
+    <string name="settings">設定</string>
+    <string name="open_menu">開啟選單</string>
+    <string name="add_task">新增任務</string>
+    <string name="choose_date">選擇日期</string>
+    <string name="jump_date">跳至日期</string>
+    <string name="recurring_empty_title">還沒有重複紀錄</string>
+    <string name="recurring_empty_message">循環待辦的每次紀錄，會依系列整理在這裡。</string>
+</resources>

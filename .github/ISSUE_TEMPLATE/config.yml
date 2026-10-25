@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 使用說明
+    url: https://github.com/chimafok/Todo-App/blob/main/docs/USER-GUIDE.md
+    about: 安裝、任務、提醒、備份及還原

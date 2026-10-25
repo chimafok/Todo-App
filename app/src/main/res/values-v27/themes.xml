@@ -1,0 +1,5 @@
+<resources>
+    <style name="Theme.Todo" parent="Theme.Todo.Base">
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+</resources>

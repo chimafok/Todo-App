@@ -1,0 +1,49 @@
+name: Android CI
+on:
+  push:
+    branches: [main, dev, 'codex/**']
+  pull_request:
+    branches: [main, dev]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: android-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  android:
+    name: Android build & unit tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - name: Check public content
+        run: python3 tools/check-public-content.py
+      - name: Install Android SDK packages
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-37.0" "build-tools;36.0.0" "platform-tools"
+      - name: Build, unit tests and Lint
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon --console=plain assembleDebug assembleQaAndroidTest assembleRelease testQaUnitTest lintDebug lintRelease
+      - name: Upload verification reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: android-verification
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            app/build/reports/tests/
+            app/build/test-results/
+            app/build/reports/lint-results-*.html
+            app/build/reports/lint-results-*.txt
