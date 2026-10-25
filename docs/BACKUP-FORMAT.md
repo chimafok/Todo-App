@@ -1,6 +1,6 @@
 # 備份格式與還原契約
 
-格式1／Room schema7。輸出為未加密JSON；一般操作見 USER-GUIDE，簽章搬移見 INSTALL。
+格式1／Room schema7。輸出為未加密JSON；一般操作見 USER-GUIDE，安裝與更新見 INSTALL。
 
 ## 檔案範圍
 

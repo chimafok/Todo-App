@@ -32,7 +32,7 @@
 
 到 [GitHub Releases](https://github.com/chimafok/Todo-App/releases) 下載 APK，依 Android 指示允許該下載來源安裝。`Source code.zip` 是原始碼，不是手機安裝檔。
 
-**舊開發簽章版本使用者**：首次改用正式發布簽章前，請先在舊 App 匯出並妥善保存 JSON 備份，再自行卸載舊版、安裝新版並預覽還原。垃圾桶、未建立草稿、排序及一般設定不在備份內。之後相同正式簽章的新版可直接更新，詳見[安裝與更新](docs/INSTALL.md)。
+後續正式版可直接安裝更新，保留既有資料；更新前建議匯出重要內容。操作步驟見[安裝與更新](docs/INSTALL.md)。
 
 提醒需要通知權限；精確提醒能力另由 Android 管理。手機省電、強制停止或背景限制可能影響送達，詳見[提醒說明](docs/USER-GUIDE.md#提醒)。
 

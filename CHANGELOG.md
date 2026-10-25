@@ -4,7 +4,7 @@
 
 首次公開原始碼與 APK。功能沿用 1.0.4，增加 MIT 授權、公開文件、建置檢查及正式發布簽章；versionCode 27，Room schema 7／JSON 格式 1 不變。
 
-首次從舊開發簽章版搬移需要先備份，再卸載舊版、安裝正式版並預覽還原。尚未完成的品質門檻見 KNOWN-ISSUES。
+尚未完成的品質門檻見 [KNOWN-ISSUES](docs/KNOWN-ISSUES.md)。
 
 ## 1.0.4
 
