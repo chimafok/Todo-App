@@ -13,17 +13,27 @@
 1. 從最新 `dev` 建立短期 `codex/*` 或其他清楚命名的工作分支。
 2. 完成程式、文件與必要檢查後，建立以 `dev` 為目標的 Pull Request。
 3. 由具有合併權限的維護者確認改動範圍與檢查結果，合併到 `dev` 進行整合驗證。
-4. 確認符合發布基準後，由具有合併權限的維護者透過 Pull Request 將 `dev` 合併到 `main`。
+4. 整合驗證後交付開發簽章的測試 APK，待 chimafok 明確同意對應測試版本後，才正式簽署，並由具有合併權限的維護者透過 Pull Request 將對應原始碼合併到 `main`，再發布正式 APK。
 
 小型純文件修正限文字、排版與連結，不涉及程式、設定、CI、依賴、授權條款或執行行為。這類修改可從最新 `main` 開分支，經 Pull Request 與必要檢查，由具有合併權限的維護者合併到 `main`，再同步 `dev`。`dev` 可快轉時使用快轉；如果已有未發布工作，使用 `main` → `dev` 的 Pull Request 整合，不覆寫分支。
 
 `main` 必須經 Pull Request 與所需檢查，不直接推送或繞過保護。提交 PR 不保證會被接受，CI 通過也不會自動合併或發布 APK。正式 APK 在確認發布時另以 Release 提供；合併文件或原始碼不會更新已安裝的 App。
 
-截至 2026-10-25，`main` 要求 PR 與 `Android build & unit tests` 檢查，但未要求指定人或至少一人的 approving review。因此，具有合併權限的協作者可能在符合檢查與其他保護要求後合併；不保證每個 PR 必須經 chimafok 本人批准。實際操作以 GitHub 當時的權限與保護設定為準，本文件不會變更設定；設定調整時須同步此說明。相關機制見 [GitHub 分支保護說明](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)。
+截至 2026-10-25，`main` 要求 PR 與 `Android build & unit tests` 檢查，但未要求指定人或至少一人的 approving review。這是 GitHub 的技術保護狀態，不會自動強制下方的測試 APK 確認流程。具有合併權限的協作者技術上可能在檢查通過後合併，但專案規則要求：App 改動須先取得 chimafok 對測試版本的明確同意，才可合併 `main`；純文件小修沿用上方例外。實際操作以 GitHub 當時的權限與保護設定為準，本文件不會變更設定；設定調整時須同步此說明。相關機制見 [GitHub 分支保護說明](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)。
 
 - `main`：經檢查的發布基準，禁止強制推送或直接刪除。
 - `dev`：日常整合；全部內容同樣公開。
 - `codex/*`：獨立工作分支，也可使用其他清楚命名的短期分支。
+
+## 測試 APK 與發布確認
+
+App 改動先完成必要檢查並在 `dev` 整合，再交付使用開發簽章的 `.debug` 測試 APK，讓 chimafok 自行安裝與測試；`.qa` 保留給隔離自動測試。交付須列出版本、來源 commit、APK SHA-256、變更重點、已驗證範圍與已知限制，讓測試結果能對應實際檔案。測試版與正式版分開安裝、分開儲存資料。
+
+待 chimafok 明確同意該測試版本後，才可使用既有正式金鑰簽署、將對應原始碼經 PR 合併到 `main`，並發布正式 APK。確認可在對話或 PR 中表達；發布記錄保留對應測試版與確認日期，不公開私人對話。未回覆、CI 通過或要求繼續開發，都不能代替發布確認。
+
+同意僅涵蓋所測試的 App 改動；若之後再改 App 內容，須重新交付測試 APK 並確認。正式建置仍須核對與已同意來源的對應，並完成 release 變體的必要檢查；開發簽章的測試成功不能取代正式包的簽章、安裝或更新驗證。APK 作為交付檔案，不加入 Git 歷史；PR 合併的是原始碼。
+
+已授權的分支、修改、測試、提交、推送、PR、合併 `dev` 與測試 APK 交付等常規操作，不逐步重複詢問。純文件小修仍可依上方流程直接經 PR 合併 `main`，不需產生 APK 或另取 App 發布確認。
 
 ## 修改與驗證
 
@@ -31,4 +41,4 @@
 
 純文件小修檢查文字、連結與公開內容，無須在本機重跑全部 App 測試；PR 仍須通過倉庫要求的 CI。程式修改執行適合範圍的單元測試、建置與 Lint；涉及 UI／交易／排程的修改須補必要 QA 驗證。裝置測試明確使用 `.qa`，只操作自己的模擬器或已獲授權的測試裝置。新增測試需驗證實際行為，避免只複製實作。
 
-不提交私鑰、含私鑰的憑證儲存檔／備份、密碼、登入 token、本機路徑設定、真實資料庫或備份。公開憑證及其指紋用於驗證，與私鑰不同；本倉庫使用文件中的公開指紋，參閱[簽章說明](docs/SIGNING.md)。公開截圖使用虛構資料。APK 僅隨確認的 Releases 發布，不放入 Git 歷史；CI 不接收正式簽章金鑰。
+不提交私鑰、含私鑰的憑證儲存檔／備份、密碼、登入 token、本機路徑設定、真實資料庫或備份。公開憑證及其指紋用於驗證，與私鑰不同；本倉庫使用文件中的公開指紋，參閱[簽章說明](docs/SIGNING.md)。公開截圖使用虛構資料。正式 APK 僅隨已確認的正式 Releases 發布；測試 APK 可本地交付或清楚標示為測試的 Pre-release，均不放入 Git 歷史；CI 不接收正式簽章金鑰。
