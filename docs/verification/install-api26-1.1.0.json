@@ -1,0 +1,14 @@
+{
+  "api": 26,
+  "dedicatedEmptyOwnedAvd": true,
+  "newVersion": "1.1.0",
+  "newCode": 29,
+  "freshInstallSucceeded": true,
+  "nonDebuggable": true,
+  "launchSucceeded": true,
+  "phoneOperated": false,
+  "limits": [
+    "Fresh install and launch only; API26 upgrade migration not exercised in this release check."
+  ],
+  "apkSha256": "a98c1f16a1cc37a5cd864523460713de7d68e9c2a96ecad0133ed39630292815"
+}

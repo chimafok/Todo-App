@@ -1,12 +1,22 @@
 # 驗證與回歸
 
-## 1.1.0-dev02 欄位位置修正（尚未合併）
+## 1.1.0 正式發布驗證
+
+維護者於 2026-10-26 明確同意 1.1.0-dev02 正式簽署及合併 main；測試來源 commit 與 APK SHA-256 見 [確認紀錄](verification/approval-1.1.0.json)。App／建置來源與確認版相同，正式與開發變體的識別碼、旗標及簽章不同；來源核對見 [source-parity](verification/source-parity-1.1.0.json)。
+
+本發布輪重新執行 91 項單元測試，核對新 XML 時間、案例數、類別與零 failure／error／skipped；release 建置與 Release Lint 通過（0 errors／10 warnings）。正式包為 1.1.0／code29，非 debuggable，沿用 1.0.5 的正式憑證，不含 QA provider 或網路權限。
+
+在新建的專用背景模擬器完成 API37 的正式 1.0.5 → 1.1.0 覆蓋更新、啟動與虛構任務保留，安裝 UID／首次安裝時間不變；API26 完成正式新安裝與啟動，未宣稱該環境亦完成升級遷移。下方 dev01／dev02 裝置回歸是前輪紀錄，沒有當成本輪重跑。未操作使用者手機，長時間背景、隔夜、無障礙與大量資料缺口仍保留。
+
+結果見 [正式包](verification/release-1.1.0.json)、[本輪測試](verification/tests-1.1.0.json)、[API37 更新](verification/install-api37-1.1.0.json)及 [API26 安裝](verification/install-api26-1.1.0.json)。
+
+## 1.1.0-dev02 欄位位置修正（歷史測試）
 
 學習開始日期／時間移到「分類與狀態」的分類按鈕下方。Debug／QA／QA 測試 APK 建置成功，Debug Lint 通過（0 errors／10 warnings，Gradle 判定報告為最新並沿用）。API37 專用背景模擬器重新執行 2 項新增表單測試，核對本輪 XML 時間、類別、案例數及零 failure／error／skipped；包含開始欄位在學習分類按鈕下方的位置斷言，以及日期／時間停用、清除與保存行為。另保留虛構測試畫面供位置檢查。
 
-本輪局部驗證不是全套回歸；以下 dev01 的 91 項單元與 38 項裝置測試是前輪紀錄。沒有操作使用者手機。交付版本為 1.1.0-dev02／code29，沿用 dev01 的 `.debug` 識別碼與開發憑證，可覆蓋安裝。依最新指示保留工作分支與未合併 PR，未正式簽署，也未合併 dev 或 main。摘要見 [development-1.1.0-dev02.json](verification/development-1.1.0-dev02.json)。
+本輪局部驗證不是全套回歸；以下 dev01 的 91 項單元與 38 項裝置測試是前輪紀錄。沒有操作使用者手機。交付版本為 1.1.0-dev02／code29，沿用 dev01 的 `.debug` 識別碼與開發憑證，可覆蓋安裝。當時依指示暫緩合併與正式簽署；2026-10-26 已取得此測試版的發布同意，納入上方正式發布紀錄。摘要見 [development-1.1.0-dev02.json](verification/development-1.1.0-dev02.json)。
 
-## 1.1.0-dev01 既有驗證（等待使用者同意）
+## 1.1.0-dev01 既有驗證（歷史測試）
 
 本輪 91 項單元測試通過，核對新 XML 時間、類別與案例數；Debug／QA／未簽署 Release 建置及 Debug／Release Lint 通過（各 0 errors／10 warnings）。API37 隔離模擬器分兩組執行 28 項資料／遷移／新增表單及 10 項草稿／備份介面測試，合計 38 個不同案例，最後均無 failure／error／skipped；不是一次完整裝置測試全套。
 
@@ -14,7 +24,7 @@
 
 Gradle 裝置測試在獨立連線環境未產生有效案例，未當作成功；改用明確指定隔離連線與模擬器的 AndroidJUnitRunner，保留原始狀態輸出並轉成 JUnit XML，核對兩組實際案例、類別及零失敗。沒有操作使用者手機。本輪尚未重跑 API26 裝置矩陣；真機、背景／隔夜、TalkBack、大量資料限制仍明示。
 
-交付 .debug 開發簽章 APK，schema8／格式2；可匯入格式1／schema7。尚未正式簽署、合併 main 或取得使用者對本測試版的發布同意。
+交付 .debug 開發簽章 APK，schema8／格式2；可匯入格式1／schema7。以上是 dev01 交付當時的工程紀錄；本次正式發布的確認對象是後續 dev02，不把此紀錄推定為完整手機驗收。
 
 
 公開倉庫提供原始測試與 CI。請區分單元、隔離裝置、手動實機及效能驗證；版本名稱與成功建置不代表全部驗收完成。
@@ -34,13 +44,13 @@ Gradle 裝置測試在獨立連線環境未產生有效案例，未當作成功�
 
 使用者確認與 CI／模擬器結果分開記錄，不推定未回報的手機驗收已通過。後續修改 App 內容須重新交付並確認；release 變體的簽章、安裝／更新與資料安全檢查仍須完成。流程見[發布確認](../CONTRIBUTING.md#測試-apk-與發布確認)。純文件小修沿用貢獻指南的例外。
 
-## 本次公開版本
+## 1.0.5 歷史公開版本
 
 1.0.5 的功能程式沿用 1.0.4，變更版本與公開發布設定。公開前實際完成 86 項純規則測試、7 項備份還原 UI 與 1 項展示 UI（分開選取）、release 建置與 Debug／Release Lint（各 0 errors／10 warnings）。在專用空白 API26／37 模擬器確認正式 APK 新安裝及啟動成功、相同 APK 重裝保留安裝識別；相同版本重裝不是未來版本升級測試。完整安裝驗證事實保留於 verification 原始摘要。
 
 先前 1.0.4 開發驗證涵蓋 97 個不同案例：84 UI／輸入、8 批次資料、5 分頁資料；完整 UI 初輪 84 有 2 項失敗，修正測試與補驗 24 項後各案例最後通過，最低 API 26 重點 24 項通過。這些是歷史摘要，不是宣稱本次重新跑過全部案例；原內部輸出留在私人歷史，不公開整批診斷檔。
 
-當前發布的實際結果另見 [verification](verification/tests-1.0.5.json)；具體缺口見 KNOWN-ISSUES。手機端的資料還原、通知與背景行為仍由使用者自行確認。
+1.0.5 的歷史結果另見 [verification](verification/tests-1.0.5.json)；具體缺口見 KNOWN-ISSUES。手機端的資料還原、通知與背景行為仍由使用者自行確認。
 
 ## 展示截圖
 
