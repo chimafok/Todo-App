@@ -11,7 +11,7 @@
 
 ## 分支與檢查
 
-一般功能從最新 `dev` 開工作分支，PR 合併到 `dev` 整合，再 PR 合併到 `main`；純文件小修的例外與合併權限見[貢獻指南](../CONTRIBUTING.md#分支與合併)。CI 目前會建置、執行單元測試與 Lint，並編譯裝置測試 APK；不會執行裝置測試、完成真機驗收、正式簽署或發布 APK。
+一般功能從最新 `dev` 開工作分支，PR 合併到 `dev` 整合；交付開發簽章的測試 APK 並獲 chimafok 明確同意後，才正式簽署、PR 合併對應原始碼到 `main` 及發布；純文件小修的例外與合併權限見[貢獻指南](../CONTRIBUTING.md#分支與合併)。CI 目前會建置、執行單元測試與 Lint，並編譯裝置測試 APK；不會執行裝置測試、完成真機驗收、正式簽署或發布 APK。
 
 ## 命令
 
@@ -47,9 +47,15 @@ SDK／JDK 不在預設位置時可使用 build.ps1 的 -SdkPath／-JavaPath。�
 
 CI 建置與測試不使用正式私鑰。自行簽署的 release 不會取得官方更新身分。
 
+## 測試 APK 交付
+
+App 有改動時，先完成必要檢查並從待驗證的 `dev` 來源建置 `assembleDebug`，提供 `com.chimafok.todo.debug` 測試 APK；使用開發簽章並與正式 App 的資料隔離，`.qa` 僅用於自動化。記錄來源 commit、版本與檔案 SHA-256，並提供改動摘要、測試範圍與限制。測試版可在本地交付或放入明確標示的測試 Pre-release，不提交至 Git。
+
+目前 CI 不會自動上傳可下載的測試 APK，交付仍由開發流程另行完成。等待維護者明確同意測試版本期間，可繼續已授權的開發、檢查與同步，但不得正式簽署、合併相關 App 改動到 `main` 或發布正式版；具體流程見[發布確認](../CONTRIBUTING.md#測試-apk-與發布確認)。
+
 ## 正式 APK
 
-執行 `assembleRelease` 產生未簽署 APK。維護者在安全環境設定 TODO_KEYSTORE、TODO_KEY_ALIAS、TODO_STORE_PASSWORD 與 TODO_KEY_PASSWORD，然後執行 tools/sign-release.ps1；密碼只經環境變數交給 apksigner，不寫入專案或日誌。先完成 zipalign 檢查，再簽署並驗證；任何 APK 內容變更都必須重新簽署。
+正式簽署前須已取得對應測試 APK 的明確同意；`assembleRelease` 可預先產生未簽署 APK 供工程檢查。維護者在安全環境設定 TODO_KEYSTORE、TODO_KEY_ALIAS、TODO_STORE_PASSWORD 與 TODO_KEY_PASSWORD，然後執行 tools/sign-release.ps1；密碼只經環境變數交給 apksigner，不寫入專案或日誌。先完成 zipalign 檢查，再簽署並驗證；任何 APK 內容變更都必須重新簽署。
 
 正式發布需使用既有官方金鑰、遞增版本碼、核對 package／不可偵錯／schema／權限、核對 XML 及 SHA-256，並執行適當的安裝或更新驗證。APK、雜湊檔與版本說明以 GitHub Releases 提供。
 
