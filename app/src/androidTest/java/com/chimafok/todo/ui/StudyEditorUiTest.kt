@@ -40,7 +40,15 @@ class StudyEditorUiTest {
     }
     @Test fun studyStartTimeRequiresDateAndSavingDoesNotSetDeadline(){
         compose.onNodeWithTag("add_task").performClick();compose.onNodeWithTag("task_title").performTextInput(prefix+"-study")
-        category("學習");compose.onNodeWithTag("task_start_time").performScrollTo().assertIsNotEnabled()
+        category("學習")
+        compose.onNodeWithTag("task_start_time").performScrollTo().assertIsNotEnabled()
+        val categoryBounds=compose.onNodeWithText("分類：學習").getUnclippedBoundsInRoot()
+        val startBounds=compose.onNodeWithTag("task_start_date").getUnclippedBoundsInRoot()
+        assertTrue("開始欄位應在分類選擇下方",startBounds.top>=categoryBounds.bottom)
+        val screenshot=androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
+        java.io.FileOutputStream(java.io.File(compose.activity.cacheDir,"study-dev02-start-fields.png")).use{
+            assertTrue(screenshot.compress(android.graphics.Bitmap.CompressFormat.PNG,100,it))
+        };screenshot.recycle()
         compose.onNodeWithTag("task_start_date").performTextInput("20600103")
         compose.onNodeWithTag("task_start_time").assertIsEnabled().performTextInput("0930")
         keyboard();compose.onNodeWithText("清除開始日期與時間").performScrollTo().performClick()

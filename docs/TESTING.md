@@ -1,6 +1,12 @@
 # 驗證與回歸
 
-## 1.1.0 開發版驗證（等待使用者同意）
+## 1.1.0-dev02 欄位位置修正（尚未合併）
+
+學習開始日期／時間移到「分類與狀態」的分類按鈕下方。Debug／QA／QA 測試 APK 建置成功，Debug Lint 通過（0 errors／10 warnings，Gradle 判定報告為最新並沿用）。API37 專用背景模擬器重新執行 2 項新增表單測試，核對本輪 XML 時間、類別、案例數及零 failure／error／skipped；包含開始欄位在學習分類按鈕下方的位置斷言，以及日期／時間停用、清除與保存行為。另保留虛構測試畫面供位置檢查。
+
+本輪局部驗證不是全套回歸；以下 dev01 的 91 項單元與 38 項裝置測試是前輪紀錄。沒有操作使用者手機。交付版本為 1.1.0-dev02／code29，沿用 dev01 的 `.debug` 識別碼與開發憑證，可覆蓋安裝。依最新指示保留工作分支與未合併 PR，未正式簽署，也未合併 dev 或 main。摘要見 [development-1.1.0-dev02.json](verification/development-1.1.0-dev02.json)。
+
+## 1.1.0-dev01 既有驗證（等待使用者同意）
 
 本輪 91 項單元測試通過，核對新 XML 時間、類別與案例數；Debug／QA／未簽署 Release 建置及 Debug／Release Lint 通過（各 0 errors／10 warnings）。API37 隔離模擬器分兩組執行 28 項資料／遷移／新增表單及 10 項草稿／備份介面測試，合計 38 個不同案例，最後均無 failure／error／skipped；不是一次完整裝置測試全套。
 

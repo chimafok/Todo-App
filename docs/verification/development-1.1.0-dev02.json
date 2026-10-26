@@ -1,0 +1,42 @@
+{
+  "versionName": "1.1.0-dev02",
+  "versionCode": 29,
+  "applicationId": "com.chimafok.todo.debug",
+  "change": "Study start date/time moved directly below the category selector in category and status section.",
+  "builds": [
+    "assembleDebug",
+    "assembleQa",
+    "assembleQaAndroidTest"
+  ],
+  "deviceApi": 37,
+  "deviceTests": {
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "deviceTestClass": "com.chimafok.todo.ui.StudyEditorUiTest",
+  "deviceTestTimestamp": "2026-10-26T05:50:51.182983+00:00",
+  "positionAssertion": "start-date top is below learning category selector bottom",
+  "debugLint": {
+    "warning": 10
+  },
+  "lintNote": "Gradle lintDebug passed; final report reused by Gradle as up-to-date.",
+  "apk": {
+    "name": "Todo-1.1.0-dev02.apk",
+    "bytes": 13022383,
+    "sha256": "198f6a6a143bc818db751e525c2ec3b51dea5f7310aaca08fccee5e989ed0834",
+    "certificateSha256": "61e51e2dce7d422d046cd6b4a41ea6ac15ef298bf6e4ced05bd9355f6cc63c62",
+    "signing": "Android development key",
+    "versionName": "1.1.0-dev02",
+    "versionCode": 29
+  },
+  "sameDevelopmentCertificateAsDev01": true,
+  "officialSigningPerformed": false,
+  "branchMergePerformed": false,
+  "limits": [
+    "Two selected editor UI tests, not a full regression suite.",
+    "Previous dev01 unit and device results are historical; not rerun as part of this local check.",
+    "No phone testing, API26 matrix, background or accessibility acceptance claimed."
+  ]
+}

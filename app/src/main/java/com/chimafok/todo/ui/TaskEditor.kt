@@ -253,29 +253,6 @@ fun TaskEditor(
                     if(draftReferencesChanged) Text("草稿中的部分分類或標籤已不存在，已移除失效標籤並使用可用分類，請重新確認。",
                         color=MaterialTheme.colorScheme.onSurfaceVariant,style=MaterialTheme.typography.bodySmall)
                     Text("日期與時間", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                    if (study) {
-                        DeadlineTextField(startDateInput, {
-                            startDateInput = it; startReference = System.currentTimeMillis(); startZone = ZoneId.systemDefault().id
-                            if (it.isBlank()) startTimeInput = ""
-                        }, label = "開始日期（選填）", placeholder = "YYYY-MM-DD",
-                            supportingText = if (startDatePreview != null) { { Text(startDatePreview) } } else null,
-                            trailingIcon = { DatePickerButton(runCatching { resolvedStartDate() }.getOrNull() ?: LocalDate.now(), R.string.choose_date, enabled = !saving) {
-                                startDateInput = it.toString(); startReference = System.currentTimeMillis(); startZone = ZoneId.systemDefault().id
-                            } }, colors = fieldColors, modifier = Modifier.fillMaxWidth().testTag("task_start_date"), enabled = !saving)
-                        DeadlineTextField(startTimeInput, {
-                            startTimeInput = it; startReference = System.currentTimeMillis(); startZone = ZoneId.systemDefault().id
-                        }, label = "開始時間（選填）", placeholder = "HH:mm",
-                            supportingText = if (startTimePreview != null) { { Text(startTimePreview) } } else null,
-                            trailingIcon = { TextButton(enabled = startDateInput.isNotBlank() && !saving, onClick = { showStartTimePicker = true },
-                                modifier = Modifier.testTag("open_start_time")) { Text("選擇") } },
-                            modifier = Modifier.fillMaxWidth().testTag("task_start_time"), colors = fieldColors,
-                            enabled = !saving && startDateInput.isNotBlank())
-                        if (startDateInput.isNotBlank()) {
-                            Text("開始時區：${startZone.orEmpty()}" + if (startTimeInput.isBlank()) "（只有日期，不指定時刻）" else "",
-                                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            TextButton(onClick = { startDateInput = ""; startTimeInput = ""; startZone = null }, enabled = !saving) { Text("清除開始日期與時間") }
-                        }
-                    }
                     DeadlineTextField(date, {
                         date = it; deadlineReference = System.currentTimeMillis(); zone = ZoneId.systemDefault().id
                         if (it.isBlank() && !applyRecurrence) time = ""
@@ -322,6 +299,29 @@ fun TaskEditor(
                                 }
                                 categoryMenu = false
                             }) }
+                        }
+                    }
+                    if (study) {
+                        DeadlineTextField(startDateInput, {
+                            startDateInput = it; startReference = System.currentTimeMillis(); startZone = ZoneId.systemDefault().id
+                            if (it.isBlank()) startTimeInput = ""
+                        }, label = "開始日期（選填）", placeholder = "YYYY-MM-DD",
+                            supportingText = if (startDatePreview != null) { { Text(startDatePreview) } } else null,
+                            trailingIcon = { DatePickerButton(runCatching { resolvedStartDate() }.getOrNull() ?: LocalDate.now(), R.string.choose_date, enabled = !saving) {
+                                startDateInput = it.toString(); startReference = System.currentTimeMillis(); startZone = ZoneId.systemDefault().id
+                            } }, colors = fieldColors, modifier = Modifier.fillMaxWidth().testTag("task_start_date"), enabled = !saving)
+                        DeadlineTextField(startTimeInput, {
+                            startTimeInput = it; startReference = System.currentTimeMillis(); startZone = ZoneId.systemDefault().id
+                        }, label = "開始時間（選填）", placeholder = "HH:mm",
+                            supportingText = if (startTimePreview != null) { { Text(startTimePreview) } } else null,
+                            trailingIcon = { TextButton(enabled = startDateInput.isNotBlank() && !saving, onClick = { showStartTimePicker = true },
+                                modifier = Modifier.testTag("open_start_time")) { Text("選擇") } },
+                            modifier = Modifier.fillMaxWidth().testTag("task_start_time"), colors = fieldColors,
+                            enabled = !saving && startDateInput.isNotBlank())
+                        if (startDateInput.isNotBlank()) {
+                            Text("開始時區：${startZone.orEmpty()}" + if (startTimeInput.isBlank()) "（只有日期，不指定時刻）" else "",
+                                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            TextButton(onClick = { startDateInput = ""; startTimeInput = ""; startZone = null }, enabled = !saving) { Text("清除開始日期與時間") }
                         }
                     }
                     if (assignment) Box {
