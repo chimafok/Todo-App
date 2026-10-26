@@ -28,7 +28,8 @@ class NewTaskDraftStoreTest {
     @Test fun freshStoreRoundTripsAllRawInputsWithoutCreatingDatabaseRecords() {
         val draft=NewTaskDraft(UUID.randomUUID().toString()," 尚未完成 ","第一行\n第二行","1332","2", "Asia/Hong_Kong",123456789L,
             listOf("tag-a","tag-b"),"category-a","IN_PROGRESS","WEEKDAYS","N",listOf(1,7),"COUNT","261332","2026-10-25","invalid",
-            "[]","[]","captured template stamp",listOf("inherited-a"))
+            "[]","[]","captured template stamp",listOf("inherited-a"),
+            startDate="260230",startTime="2",startZoneId="Asia/Hong_Kong",startReference=123456789L)
         NewTaskDraftStore(directory).save(draft)
         assertEquals(draft,NewTaskDraftStore(directory).read())
         NewTaskDraftStore(directory).clear()

@@ -10,10 +10,11 @@ import kotlin.coroutines.coroutineContext
 
 data class TaskIndexRow(val id: String, val categoryId: String, val dueDate: LocalDate?, val dueTime: LocalTime?,
     val zoneId: String?, val status: TaskStatus, val completedAt: Long?, val createdAt: Long, val revision: Long,
-    val seriesId: String?, val sequence: Int?, val excludedByRule: Boolean?) {
+    val seriesId: String?, val sequence: Int?, val excludedByRule: Boolean?,
+    val startDate: LocalDate?, val startTime: LocalTime?, val startZoneId: String?) {
     // A transient ordering projection, never displayed or persisted as a task.
     fun orderingTask() = TaskEntity(id,"","",categoryId,dueDate,dueTime,zoneId,status,completedAt,
-        createdAt=createdAt,updatedAt=createdAt,revision=revision)
+        createdAt=createdAt,updatedAt=createdAt,revision=revision,startDate=startDate,startTime=startTime,startZoneId=startZoneId)
 }
 data class TaskTextRow(val id: String, val title: String, val notes: String, val categoryId: String)
 data class TaskPageRows(val tasks: List<TaskEntity> = emptyList(), val links: List<TaskTagEntity> = emptyList(),
@@ -25,7 +26,7 @@ data class TaskPageWindow(val rows: TaskPageRows = TaskPageRows(), val revisions
 
 @Dao
 interface TaskPageDao {
-    @Query("SELECT t.id,t.categoryId,t.dueDate,t.dueTime,t.zoneId,t.status,t.completedAt,t.createdAt,t.revision,o.seriesId,o.sequence,o.excludedByRule FROM tasks t LEFT JOIN occurrences o ON o.taskId=t.id WHERE t.deletedAt IS NULL AND ((:scope=0 AND t.status<>'COMPLETED') OR (:scope=1 AND t.status<>'COMPLETED' AND t.dueDate IS NULL AND o.taskId IS NULL) OR (:scope=2 AND t.status='COMPLETED' AND o.taskId IS NULL)) ORDER BY t.createdAt,t.id")
+    @Query("SELECT t.id,t.categoryId,t.dueDate,t.dueTime,t.zoneId,t.status,t.completedAt,t.createdAt,t.revision,t.startDate,t.startTime,t.startZoneId,o.seriesId,o.sequence,o.excludedByRule FROM tasks t LEFT JOIN occurrences o ON o.taskId=t.id WHERE t.deletedAt IS NULL AND ((:scope=0 AND t.status<>'COMPLETED') OR (:scope=1 AND t.status<>'COMPLETED' AND t.dueDate IS NULL AND o.taskId IS NULL) OR (:scope=2 AND t.status='COMPLETED' AND o.taskId IS NULL)) ORDER BY t.createdAt,t.id")
     suspend fun index(scope: Int): List<TaskIndexRow>
     @Query("SELECT id FROM tasks") suspend fun allIds(): List<String>
     @Query("SELECT t.id,t.title,t.notes,t.categoryId FROM tasks t WHERE t.id IN (:ids)") suspend fun text(ids: List<String>): List<TaskTextRow>
@@ -78,7 +79,7 @@ class TaskPageRepository(private val db: TodoDatabase) {
             val groups=when(scope) {
                 TaskScope.AGENDA->agendaGroups(candidates,clock,jumpDate)
                 TaskScope.COMPLETED->completedGroups(candidates)
-                else->listOf(TaskGroup(null,candidates.sortedByDescending { it.createdAt }))
+                else->listOf(TaskGroup(null,candidates.sortedWith(unscheduledTaskOrder)))
             }
             val dated=groups.filter { it.date!=null }.flatMap { it.tasks }
             val undated=groups.filter { it.date==null }.flatMap { it.tasks }

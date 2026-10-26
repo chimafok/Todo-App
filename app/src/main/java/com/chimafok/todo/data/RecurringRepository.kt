@@ -31,7 +31,9 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
         require(rule.maxCount == null || rule.maxCount >= effectiveFrom) { "總次數不可早於本次序號 $effectiveFrom" }
         return SeriesRuleEntity(UUID.randomUUID().toString(), seriesId, version, effectiveFrom, rule.anchor, rule.frequency,
             rule.intervalDays, rule.weekdays.fold(0) { mask, day -> mask or (1 shl (day.value - 1)) },
-            draft.dueTime, rule.zoneId, rule.endDate, rule.maxCount, clock.millis())
+            draft.dueTime, rule.zoneId, rule.endDate, rule.maxCount, clock.millis(),
+            draft.startDate?.let { Math.toIntExact(java.time.temporal.ChronoUnit.DAYS.between(requireNotNull(draft.dueDate), it)) },
+            draft.startTime, draft.startZoneId)
     }
 
     private suspend fun validate(draft: TaskDraft) {
@@ -67,7 +69,9 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
             require(!draft.resetSeriesReminders && (draft.inheritSingleReminders || draft.reminders.isNullOrEmpty())) { "請先明確沿用單筆提醒" }
             require(draft.dueDate == stored.rule().dateAt(1) && draft.zoneId == stored.zoneId) { "重複日期或時區與預覽不一致" }
             require(old.title == validatedTitle(draft.title) && old.notes == draft.notes && old.categoryId == draft.categoryId &&
-                stored.rule() == draft.recurrence && stored.dueTime == draft.dueTime && dao.seriesTagIds(old.id).toSet() == draft.tagIds &&
+                stored.rule() == draft.recurrence && stored.dueTime == draft.dueTime &&
+                stored.startDayOffset == draft.startDate?.let { Math.toIntExact(java.time.temporal.ChronoUnit.DAYS.between(requireNotNull(draft.dueDate), it)) } &&
+                stored.startTime == draft.startTime && stored.startZoneId == draft.startZoneId && dao.seriesTagIds(old.id).toSet() == draft.tagIds &&
                 (draft.seriesReminders == null || db.reminders().templatesFor(old.id).filter { it.enabled }.map { it.spec() }.toSet() == draft.seriesReminders.toSet())) { "新增識別碼衝突" }
             if (draft.inheritSingleReminders) require(db.reminders().overridden(draft.id) &&
                 db.reminders().forTask(draft.id).filter { it.enabled }.map { it.spec() }.toSet() == draft.reminders?.toSet()) { "新增提醒識別碼衝突" }
@@ -150,6 +154,8 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
                 } else convertStatus(task.status, false)
                 dao.update(task.copy(title = validatedTitle(draft.title), notes = draft.notes, categoryId = draft.categoryId,
                     dueDate = change.date, dueTime = draft.dueTime, zoneId = draft.zoneId, status = status,
+                    startDate = draft.startDate?.plusDays(java.time.temporal.ChronoUnit.DAYS.between(requireNotNull(draft.dueDate), change.date)),
+                    startTime = draft.startTime, startZoneId = draft.startZoneId,
                     updatedAt = clock.millis(), revision = task.revision + 1))
                 dao.clearTaskTags(task.id)
                 dao.insertTaskTags(draft.tagIds.map { TaskTagEntity(task.id, it) })
@@ -217,7 +223,9 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
             val sequence = slot.sequence + storedRule.effectiveFrom - 1
             val taskId = occurrenceId(id, sequence)
             dao.insert(TaskEntity(taskId, series.title, series.notes, series.categoryId, slot.date, storedRule.dueTime, storedRule.zoneId,
-                status = if (assignment) TaskStatus.NOT_STARTED else TaskStatus.OPEN, createdAt = now, updatedAt = now))
+                status = if (assignment) TaskStatus.NOT_STARTED else TaskStatus.OPEN, createdAt = now, updatedAt = now,
+                startDate = storedRule.startDayOffset?.let { slot.date.plusDays(it.toLong()) },
+                startTime = storedRule.startTime, startZoneId = storedRule.startZoneId))
             dao.insertOccurrence(OccurrenceEntity(taskId, id, sequence, storedRule.id))
             dao.insertTaskTags(tags.map { TaskTagEntity(taskId, it) })
             applySeriesReminders(db, requireNotNull(dao.task(taskId)), templates, now)

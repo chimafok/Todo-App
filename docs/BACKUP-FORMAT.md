@@ -1,59 +1,43 @@
 # 備份格式與還原契約
 
-格式1／Room schema7。輸出為未加密JSON；一般操作見 USER-GUIDE，安裝與更新見 INSTALL。
+1.1.0 開發版使用格式2／Room schema8，仍可匯入格式1／schema7。以下是本輪待使用者測試的實作契約，正式發布須依確認流程。JSON 為未加密明文，一般操作見 [USER-GUIDE](USER-GUIDE.md#備份與還原)。
 
 ## 檔案範圍
 
-UTF-8 明文 JSON，最外層必須恰好有 format="Todo-App"、formatVersion=1、schemaVersion=7、exportedAt（UTC 毫秒）、appVersion、data。data 包含下列十一個陣列；陣列次序不影響識別，以穩定主鍵／複合鍵比對。不同格式／schema 版本明確拒絕，不猜測或清庫。
+UTF-8 JSON 根物件恰好包含 `format="Todo-App"`、`formatVersion=2`、`schemaVersion=8`、`exportedAt`（UTC epoch 毫秒）、`appVersion` 與 `data`。data 包含十二個陣列，以穩定主鍵／複合鍵識別。
 
-| 陣列 | 匯出欄位 |
+| 陣列 | 內容 |
 |---|---|
-| tasks | id, title, notes, categoryId, dueDate, dueTime, zoneId, status, completedAt, createdAt, updatedAt |
-| categories | id, name, systemKind, createdAt, updatedAt |
-| tags | id, name, createdAt, updatedAt |
-| task_tags | taskId, tagId |
-| recurring_series | id, title, notes, categoryId, lifecycle, cursor, createdAt, updatedAt |
-| series_rules | id, seriesId, version, effectiveFrom, anchor, frequency, intervalDays, weekdayMask, dueTime, zoneId, endDate, maxCount, createdAt |
-| series_tags | seriesId, tagId |
-| occurrences | taskId, seriesId, sequence, ruleId, snapshot, excludedByRule |
-| reminders | id, taskId, kind, zoneId, fixedAt, offsetMinutes, baseTime, enabled, state, resolvedAt, createdAt, updatedAt |
-| series_reminders | id, seriesId, kind, offsetMinutes, dayOffset, time, baseTime, enabled, createdAt, updatedAt |
-| reminder_overrides | taskId |
+| tasks | 名稱、備註、分類、截止日期／時間／時區、開始日期／時間／時區、狀態、完成／刪除／建立／修改時間 |
+| categories、tags | 名稱、系統分類識別、建立／修改時間、sortOrder；標籤不含可重算的 nameKey |
+| task_tags、series_tags | 任務／系列與標籤關聯 |
+| recurring_series | 系列內容、分類、生命週期、生成游標、刪除時間與刪除前生命週期 |
+| series_rules | 版本、頻率、日期、截止時刻／時區、結束條件；開始日相對截止日偏移、開始時刻及時區 |
+| occurrences | 任務與系列／規則關聯、序號、歷史快照、規則取消標記、deletedWithSeriesAt 復原關聯 |
+| reminders、series_reminders | 固定／相對／系列提醒規則、時區、基準、啟用狀態及可攜送達紀錄 |
+| reminder_overrides | 單次自訂提醒標記 |
+| settings | `id="general"`、`completedRetentionDays`（null 為永久）與 updatedAt；目前唯一可調的一般設定為完成紀錄保留期限 |
 
-只匯出未刪任務及未刪系列；已完成也包含。關聯、歷史快照、規則版本、游標、停用的提醒定義及單次 override 一併保留。已刪單次留在游標中的空位，不為匯出補造紀錄；還原不能倒退游標重新生成這些 ID。整組垃圾桶不包含在檔案。分類／標籤同名不同 ID 仍是不同資料；系統分類按 systemKind 轉成本機固定 ID，轉換後重查重複及外鍵；匯入也不可繞過「未分類」不可改名的保護。
+匯出包含未完成、已完成及垃圾桶資料，不再排除已刪任務／系列。原刪除時間、系列刪除前狀態與同次刪除關聯均保留；還原系列只帶回同次刪除的剩餘紀錄，較早個別刪除者仍在垃圾桶。垃圾桶期限仍從原刪除時間計算，匯入不延長 30 天。已永久刪除而無紀錄的內容不會憑空補回，但舊備份仍可能重新帶入。
 
-不匯出排序、nameKey、本機 revision、保留政策、復原 anchor、outbox、待取消平台佇列、alarmKey 或 alarmMode。提醒 state／resolvedAt 是可攜的送達歷史資訊，不是平台權限；只有 DELIVERED／MISSED 且與重新解析的時刻相同才可保留終態，未來未送達點重新安排、過去未送達點標 MISSED。不匯出 Android 原始資料庫檔。
+不包含未建立草稿、Android 權限、手機背景／省電設定、原始資料庫、快取、revision、outbox、待取消平台佇列、alarmKey 或 alarmMode。提醒 state／resolvedAt 只作可攜歷史，未來提醒依還原資料重新安排，過去點不大量補發。
 
-## 輸入驗證與上限 [A/T]
+## 舊格式與相容性
 
-由有位元組上限的串流與嚴格 JsonReader 讀取，不先配置整份輸入緩衝。上限 64 MiB、200,000 資料列、巢狀 12 層及 5,000,000 個值；拒絕無效 UTF-8／代理字元、重複 JSON key、尾隨內容、分數／溢位整數、未知欄位及錯誤型別。這些是第一版工程界線，不宣稱極大量記憶體／效能已達正式驗收。
+格式1／schema7 使用原十一個陣列，沒有垃圾桶、排序、設定或學習開始資料。嚴格讀取後補為未知／空值；還原時未知排序沿用本機既有順序，新項附加，缺少一般設定時保留本機設定。舊檔完整取代仍會移除本機未在檔案中的資料（含垃圾桶），必須先看預覽。其他格式／schema 組合明確拒絕。
 
-任務、分類、標籤名稱／日期／狀態／時區與提醒使用現有規則；外鍵及複合鍵全部驗證。系列的版本、effectiveFrom、cursor、次序／規則引用與單次 override 必須完整一致；cursor 0–10,000,000 為匯入保護上限。不自動補無效父列或套假預設。非獨立的系列提醒必須能追溯至該系列保留的模板 ID。歷史快照也經嚴格解析。
+1.0.5 不能讀格式2；新開發版可讀舊備份，不代表舊版可讀新備份。
 
-createdAt 必須存在；updatedAt 缺少／null 則標記為 0（未知），保存時不換成匯入時間。同 ID 異內容遇未知時間必須選版本。相同內容忽略建立／修改時間差及平台排程狀態，保留本機資料，不為重匯做無效寫入。
+## 驗證與合併
 
-## 合併與確認
+維持 64 MiB、200,000 資料列、12 層與 5,000,000 個值上限。嚴格拒絕無效 UTF-8、重複鍵、尾隨內容、未知欄位、錯誤型別／日期／時區／狀態、外鍵及主鍵矛盾。資料庫修改前先驗證完整圖；開始時間須有開始日期與時區，系列垃圾桶標記須與父系列及任務刪除時間一致。排序為非負整數，一般保留期限為正整數或 null。
 
-預設合併。一般任務連同標籤及提醒定義比較，已知修改時間較新者勝；父任務與子提醒的較新方向矛盾時須明確選版本。同時／未知時間、垃圾桶同 ID 均須選擇，沒有預選檔案版；同名不同 ID 不以名稱去重。
+預設合併，以 ID、內容與已知修改時間比較；同名不同 ID 不合併。單筆任務的關聯與提醒、整系列的規則／紀錄／提醒依既有聚合處理。任一側有垃圾桶且內容不同時須明確選擇，不自動復原或刪除；不同的一般設定也須明確選擇。分類／標籤排序隨其選定資料保存，同順位仍以 ID 穩定顯示。
 
-系列以模板、規則、實例、歷史快照與提醒作一致性聚合。槽位或關聯集合有差異、各部分時間方向不一致，以及普通任務轉系列／跨任務重用提醒 ID 造成的所有權交叉，都合併為整組衝突，只能明確保留整組本機或採用整組檔案，避免混出孤兒或兩個目前指標。明細可查看任務狀態、日期、筆記、分類標籤、規則與提醒；長串明細用虛擬清單延後格式化。
+完整取代以檔案任務／垃圾桶／排序／一般設定為準，僅舊格式未知欄位沿用本機。預覽列出任務、系列、垃圾桶數量、設定與衝突；可取消或先匯出目前資料。
 
-預覽列出本機／檔案筆數、新增／更新／移除任務、分類／標籤／系列總數及同名異 ID 提示。完整取代明示會清本機垃圾桶，提供「先匯出目前資料」。已永久刪除且無 tombstone 的 ID 可由舊檔重新加入，畫面有說明。
+預覽凍結本機與檔案指紋，確認後在同一 Room 交易重新讀取、規劃與驗證；過期或故障全數回滾。一般完成項重新加入／取代或套用不同保留期限時，設新的復原寬限，保留原 completedAt；未變合併沿用寬限。重新安排前保留舊原生提醒的獨立取消工作，設定、排序與任務同交易套用。
 
-預覽同時捕捉本機指紋與檔案資料指紋；本機指紋包含業務資料、revision、排序、政策及 anchor，排除純排程 bookkeeping。確認後同交易重新讀取、比對指紋、重算選擇並重驗完整圖。過期或故障全回滾；重新預覽會清除舊衝突選擇，須重新核對。取消、選檔取消、錯檔都不寫任務資料。
+## 檔案與驗證限制
 
-## 寫入、提醒與本機偏好
-
-取代清舊業務資料及垃圾桶；合併保留未被明確替換的有效／垃圾桶資料。分類／標籤既有排序按 ID 保留，新項附加；保留政策與既有獨立取消佇列不清。未變合併是 no-op；改動任務／系列／提醒遞增本機 revision，完整取代也遞增同 ID 的本機 revision，避免舊通知或表單因重設版本而重新有效。
-
-刪掉舊提醒前，同交易保存舊 taskId／reminderId／alarmKey 到既有獨立取消佇列；成功校正才清佇列，取消故障可重試且不阻擋其他提醒。保留相符的已發終態、不補發過去點；提交後由既有 Runtime 觀察資料並校正，不在檔案驗證前動平台鬧鐘。
-
-一般完成任務由檔案真正加入／取代後，用現在作新的復原寬限起點，completedAt 原樣保留，避免本機有限保留政策立即把剛還原紀錄清走。合併未變者沿用原 anchor；系列歷史不受完成保留期限影響。
-
-## 檔案選擇與接續
-
-使用 CreateDocument(application/json) 與 OpenDocument，讀寫 ContentResolver；不要求廣泛儲存權限。使用者自行選目的地，App 不新增網路同步。App-private cache 暫存檔案，Bundle 只放 token／指紋／選擇，不放整份 JSON；新建暫存時清除逾 24 小時舊檔。暫存被系統收回時要求重新選擇，不自行套用。
-
-檔案選擇器回來保持設定／預覽；一般背景重返仍回日程。旋轉保留未提交模式、衝突選擇及原預覽指紋。程序重建只恢復可檢查狀態，沒有自動執行還原；再次確認仍做資料版本檢查。外部供應商的讀寫失敗可顯示錯誤；匯出目的地可能留下未完整檔案，但匯入嚴格驗證不會先傷原庫。
-
-QA-only provider 只放 src/qa，非公開且不包進正常 App；測試攔截系統選檔 Intent 後，以真正 ContentResolver／provider 完成讀寫。這不等於已操作所有系統檔案選擇器或雲端供應商，實機流程仍留整合驗收。
+使用系統選檔讀寫 ContentResolver，不要求廣泛儲存權限；App 自身不新增雲端同步。App 私有快取只用於接續匯入／匯出；程序重建不會自行提交還原。實機檔案供應商、長時間背景與極大量效能仍依 [TESTING](TESTING.md) 與 [KNOWN-ISSUES](KNOWN-ISSUES.md) 明示，不以編譯成功代替驗收。
