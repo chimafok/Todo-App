@@ -31,7 +31,7 @@ object BackupFormat {
 
     fun encode(graph: BackupGraph, now: Long, appVersion: String): String {
         val portable=graph.portable();validateBackup(portable,false)
-        return canonical(mapOf("format" to "Todo-App", "formatVersion" to 1, "schemaVersion" to 7,
+        return canonical(mapOf("format" to "Todo-App", "formatVersion" to 2, "schemaVersion" to 8,
             "exportedAt" to now,"appVersion" to appVersion,"data" to portable.normalized()))
     }
     fun decode(text: String): BackupDocument {
@@ -41,13 +41,15 @@ object BackupFormat {
     private fun fromRoot(value:Any?):BackupDocument {
         val root=value as? Map<*,*> ?: error("備份須為 JSON 物件")
         require(root.keys==setOf("format","formatVersion","schemaVersion","exportedAt","appVersion","data")){"備份欄位不完整或版本不支援"}
-        require(root["format"]=="Todo-App" && root["formatVersion"]==1L && root["schemaVersion"]==7L){"不支援此備份格式或資料版本（本版支援格式 1／資料版本 7）"}
+        val legacy = root["formatVersion"] == 1L && root["schemaVersion"] == 7L
+        require(root["format"]=="Todo-App" && (legacy || (root["formatVersion"]==2L && root["schemaVersion"]==8L))){"不支援此備份格式或資料版本（本版支援格式 2／資料版本 8，並可匯入格式 1／資料版本 7）"}
+        val inputTables = if (legacy) legacyBackupTables else backupTables
         val exported=root["exportedAt"] as? Long ?: error("缺少匯出時間")
         val version=root["appVersion"] as? String ?: error("缺少 App 版本");require(version.length in 1..80)
         val raw=root["data"] as? Map<*,*> ?: error("缺少備份資料")
-        require(raw.keys==backupTables.keys){"備份資料表不完整或含不支援的內容"}
+        require(raw.keys==inputTables.keys){"備份資料表不完整或含不支援的內容"}
         var count=0
-        val graph=BackupGraph(backupTables.mapValues { (table,spec) ->
+        val parsed=BackupGraph(inputTables.mapValues { (table,spec) ->
             val rows=raw[table] as? List<*> ?: error("資料必須為陣列：$table")
             count+=rows.size;require(count<=BACKUP_MAX_ROWS){"備份最多支援 200,000 筆資料列"}
             rows.map { value ->
@@ -60,6 +62,9 @@ object BackupFormat {
                     f.name to v
                 }
             }
+        })
+        val graph = if (!legacy) parsed else BackupGraph(backupTables.mapValues { (table, spec) ->
+            parsed.rows(table).map { row -> spec.fields.associate { it.name to row[it.name] } }
         })
         val canonical=canonicalSystems(graph);validateBackup(canonical,false)
         return BackupDocument(canonical,exported,version)
@@ -133,12 +138,18 @@ fun validateBackup(g:BackupGraph, allowTrash:Boolean) {
         require(r.text("title")==validatedTitle(r.text("title")))
         require(status==TaskStatus.COMPLETED || r["completedAt"]==null){"未完成任務不能帶完成時間"}
         r.optionalLong("completedAt")?.let(Instant::ofEpochMilli)
-        require(allowTrash || r["deletedAt"]==null){"備份不能包含垃圾桶"}
+        validateDraft(TaskDraft(r.text("id"),r.text("title"),startDate=r.optionalText("startDate")?.let(LocalDate::parse),
+            startTime=r.optionalText("startTime")?.let(LocalTime::parse),startZoneId=r.optionalText("startZoneId")), false)
+        r.optionalLong("deletedAt")?.let(Instant::ofEpochMilli)
     }
     series.values.forEach { r ->
         require(categories.containsKey(r.text("categoryId")) && r.int("cursor") in 0..10_000_000){"系列分類或游標無效"}
         require(r.text("title")==validatedTitle(r.text("title")) && r.text("notes").length<=20_000)
-        val life=SeriesLifecycle.valueOf(r.text("lifecycle"));require(allowTrash || (r["deletedAt"]==null && life!=SeriesLifecycle.TRASHED)){"備份不能包含已刪系列"}
+        val life=SeriesLifecycle.valueOf(r.text("lifecycle"))
+        require((r["deletedAt"] != null) == (life == SeriesLifecycle.TRASHED)) { "系列刪除狀態不一致" }
+        r.optionalLong("deletedAt")?.let(Instant::ofEpochMilli)
+        val previous=r.optionalText("previousLifecycle")?.let(SeriesLifecycle::valueOf)
+        require(if(life==SeriesLifecycle.TRASHED) previous!=null && previous!=SeriesLifecycle.TRASHED else previous==null) { "系列復原狀態不完整" }
         val rr=rulesBySeries[r.text("id")].orEmpty();require(rr.isNotEmpty() && rr.map { it.int("version") }.distinct().size==rr.size){"系列規則缺失或版本重複"}
         val ordered=rr.sortedBy { it.int("version") };require(ordered.first().int("effectiveFrom")==1 && ordered.last().int("effectiveFrom").toLong()<=r.long("cursor")+1){"系列游標早於目前規則"}
         require(ordered.zipWithNext().all { (a,b) -> a.int("effectiveFrom")<=b.int("effectiveFrom") }){"系列規則順序不一致"}
@@ -150,6 +161,12 @@ fun validateBackup(g:BackupGraph, allowTrash:Boolean) {
         RecurrenceRule(LocalDate.parse(r.text("anchor")),RecurrenceFrequency.valueOf(r.text("frequency")),r.text("zoneId"),r.int("intervalDays"),
             DayOfWeek.entries.filter { mask and (1 shl(it.value-1))!=0 }.toSet(),r.optionalText("endDate")?.let(LocalDate::parse),max?.let { it-r.int("effectiveFrom")+1 })
         r.optionalText("dueTime")?.let(LocalTime::parse)
+        val offset=r.optionalLong("startDayOffset")?.let(Math::toIntExact)
+        require(offset == null || offset in -3_652_058..3_652_058) { "開始日期偏移超出範圍" }
+        require(r["startTime"] == null || offset != null) { "開始時間缺少日期規則" }
+        require(offset != null || r["startZoneId"] == null) { "開始時區缺少日期規則" }
+        r.optionalText("startZoneId")?.let(ZoneId::of)
+        r.optionalText("startTime")?.let { LocalTime.parse(it);require(r["startZoneId"]!=null) { "開始時間缺少時區" } }
     }
     g.rows("task_tags").forEach { require(it.text("taskId") in tasks && it.text("tagId") in tags){"任務標籤關聯不存在"} }
     g.rows("series_tags").forEach { require(it.text("seriesId") in series && it.text("tagId") in tags){"系列標籤關聯不存在"} }
@@ -158,6 +175,10 @@ fun validateBackup(g:BackupGraph, allowTrash:Boolean) {
         val task=requireNotNull(tasks[r.text("taskId")]){"實例任務不存在"};val s=requireNotNull(series[r.text("seriesId")]){"實例系列不存在"}
         val rule=requireNotNull(rules[r.text("ruleId")]){"實例規則不存在"}
         require(rule["seriesId"]==s["id"] && r.int("sequence") in 1..s.int("cursor") && r.int("sequence")>=rule.int("effectiveFrom") && task["dueDate"]!=null){"實例序號／游標／規則不一致"}
+        if (s["deletedAt"] != null) require(task["deletedAt"] != null) { "已刪系列含有效任務" }
+        r.optionalLong("deletedWithSeriesAt")?.let { marker ->
+            require(task["deletedAt"] == marker && s["deletedAt"] == marker) { "系列垃圾桶關聯不一致" }
+        }
         require(slots.add(r.text("seriesId") to r.int("sequence"))){"系列次數重複"}
         r.optionalText("snapshot")?.let { json ->
             require(json.length<=1_000_000);val snap=strictJson(json) as? Map<*,*> ?: error("歷史快照格式錯誤")
@@ -182,6 +203,14 @@ fun validateBackup(g:BackupGraph, allowTrash:Boolean) {
             r.optionalLong("dayOffset")?.let(Math::toIntExact),r.optionalText("time")?.let(LocalTime::parse),LocalTime.parse(r.text("baseTime"))))
     }
     g.rows("series_reminders").groupBy { it.text("seriesId") }.values.forEach { require(it.count { r -> r["enabled"]==true }<=32) }
+    listOf("categories", "tags").forEach { table -> g.rows(table).forEach { r ->
+        r.optionalLong("sortOrder")?.let { require(it in 0..Int.MAX_VALUE.toLong()) { "排序超出範圍" } }
+    } }
+    require(g.rows("settings").size <= 1) { "一般設定重複" }
+    g.rows("settings").forEach { r ->
+        require(r.text("id") == "general") { "一般設定識別碼無效" }
+        r.optionalLong("completedRetentionDays")?.let { require(it in 1..Int.MAX_VALUE.toLong()) { "保留期限無效" } }
+    }
     val independent=g.rows("reminder_overrides").map { it.text("taskId") }.toSet()
     val templateIds=g.rows("series_reminders").groupBy { it.text("seriesId") }.mapValues { (_,rows)->rows.map { it.text("id") } }
     g.rows("reminders").filter { it["enabled"]==true }.forEach { r -> refs[r.text("taskId")]?.let { ref ->

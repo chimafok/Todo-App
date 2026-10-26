@@ -42,6 +42,9 @@ data class TaskEntity(
     val createdAt: Long,
     val updatedAt: Long,
     val revision: Long = 1,
+    val startDate: LocalDate? = null,
+    val startTime: LocalTime? = null,
+    val startZoneId: String? = null,
 )
 
 @Entity(tableName = "tags", indices = [Index("nameKey")])
@@ -116,7 +119,7 @@ interface TodoDao {
 }
 
 @Database(entities = [TaskEntity::class, CategoryEntity::class, TagEntity::class, TaskTagEntity::class,
-    RecurringSeriesEntity::class, SeriesRuleEntity::class, SeriesTagEntity::class, OccurrenceEntity::class, ReminderEntity::class, ScheduleOutboxEntity::class, SeriesReminderEntity::class, ReminderOverrideEntity::class, RetentionPolicyEntity::class, RetentionAnchorEntity::class, PurgeCancellationEntity::class], version = 7, exportSchema = true)
+    RecurringSeriesEntity::class, SeriesRuleEntity::class, SeriesTagEntity::class, OccurrenceEntity::class, ReminderEntity::class, ScheduleOutboxEntity::class, SeriesReminderEntity::class, ReminderOverrideEntity::class, RetentionPolicyEntity::class, RetentionAnchorEntity::class, PurgeCancellationEntity::class], version = 8, exportSchema = true)
 @TypeConverters(TodoConverters::class)
 abstract class TodoDatabase : RoomDatabase() {
     abstract fun dao(): TodoDao
@@ -128,7 +131,7 @@ abstract class TodoDatabase : RoomDatabase() {
     companion object {
         fun create(context: Context, name: String = "todo.db"): TodoDatabase =
             Room.databaseBuilder(context.applicationContext, TodoDatabase::class.java, name)
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
                 .addCallback(seedCallback())
                 // No destructive migration fallback: future versions must provide a migration.
                 .build()
@@ -204,12 +207,23 @@ abstract class TodoDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE tasks ADD COLUMN startDate TEXT")
+                db.execSQL("ALTER TABLE tasks ADD COLUMN startTime TEXT")
+                db.execSQL("ALTER TABLE tasks ADD COLUMN startZoneId TEXT")
+                db.execSQL("ALTER TABLE series_rules ADD COLUMN startDayOffset INTEGER")
+                db.execSQL("ALTER TABLE series_rules ADD COLUMN startTime TEXT")
+                db.execSQL("ALTER TABLE series_rules ADD COLUMN startZoneId TEXT")
+            }
+        }
+
         fun seedCallback(): Callback = object : Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 installReminderTriggers(db)
                 val now = System.currentTimeMillis()
                 listOf(
-                    CategoryEntity("00000000-0000-4000-8000-000000000003", "學習", sortOrder = 0, createdAt = now, updatedAt = now),
+                    CategoryEntity(STUDY_ID, "學習", sortOrder = 0, createdAt = now, updatedAt = now),
                     CategoryEntity("00000000-0000-4000-8000-000000000004", "生活", sortOrder = 1, createdAt = now, updatedAt = now),
                     CategoryEntity(ASSIGNMENTS_ID, "作業", SystemCategory.ASSIGNMENTS, 2, now, now),
                     CategoryEntity(UNCATEGORIZED_ID, "未分類", SystemCategory.UNCATEGORIZED, 3, now, now),

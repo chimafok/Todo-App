@@ -16,6 +16,7 @@ data class NewTaskDraft(
     val endMode: String = "NONE", val endDate: String = "", val endReference: String = "", val count: String = "10",
     val reminderInputs: String = "[]", val seriesReminderInputs: String = "[]",
     val inheritedReminderStamp: String? = null, val inheritedTemplateIds: List<String> = emptyList(),
+    val startDate: String = "", val startTime: String = "", val startZoneId: String? = null, val startReference: Long = 0,
 )
 
 class NewTaskDraftStore(directory: File) {
@@ -44,7 +45,8 @@ class NewTaskDraftStore(directory: File) {
             strings("tagIds"),j.getString("categoryId"),if(j.isNull("statusName")) null else j.getString("statusName"),
             j.getString("frequency"),j.getString("interval"),days,j.getString("endMode"),j.getString("endDate"),
             j.getString("endReference"),j.getString("count"),j.getString("reminderInputs"),j.getString("seriesReminderInputs"),
-            if(j.isNull("inheritedReminderStamp")) null else j.getString("inheritedReminderStamp"),strings("inheritedTemplateIds"))
+            if(j.isNull("inheritedReminderStamp")) null else j.getString("inheritedReminderStamp"),strings("inheritedTemplateIds"),j.optString("startDate",""),j.optString("startTime",""),
+            if(j.isNull("startZoneId")) null else j.getString("startZoneId"),j.optLong("startReference",0))
     }
 
     @Synchronized fun save(d: NewTaskDraft) {
@@ -56,6 +58,7 @@ class NewTaskDraftStore(directory: File) {
             .put("endReference",d.endReference).put("count",d.count).put("reminderInputs",d.reminderInputs)
             .put("seriesReminderInputs",d.seriesReminderInputs)
             .put("inheritedReminderStamp",d.inheritedReminderStamp ?: JSONObject.NULL).put("inheritedTemplateIds",JSONArray(d.inheritedTemplateIds))
+        j.put("startDate",d.startDate).put("startTime",d.startTime).put("startZoneId",d.startZoneId ?: JSONObject.NULL).put("startReference",d.startReference)
         val bytes = j.toString().toByteArray(Charsets.UTF_8)
         require(bytes.size <= MAX_BYTES) { "草稿太大，請縮短輸入後重試。" }
         val output = atomic.startWrite()

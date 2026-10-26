@@ -25,6 +25,9 @@ class TaskRepository(private val db: TodoDatabase, private val clock: Clock = De
         require(draft.tagIds.all { db.dao().tag(it) != null }) { "標籤已更新，請重新開啟表單" }
         require(draft.seriesReminders == null && !draft.inheritSingleReminders) { "系列提醒須透過系列編輯保存" }
         val old = db.dao().task(draft.id)
+        require(old != null || category.systemKind != SystemCategory.ASSIGNMENTS || draft.status != TaskStatus.COMPLETED) {
+            "新增作業不能直接選擇已完成，請建立後再更新進度"
+        }
         db.dao().occurrence(draft.id)?.let {
             require(!it.excludedByRule) { "這次已由規則取消，請從有效項目延長系列規則" }
             require(draft.dueDate != null) { "重複紀錄須保留本次日期" }
@@ -37,7 +40,7 @@ class TaskRepository(private val db: TodoDatabase, private val clock: Clock = De
             // A retried create request uses the same ID, never inserts a second task.
             require(old.title == validatedTitle(draft.title) && old.notes == draft.notes &&
                 old.categoryId == draft.categoryId && old.dueDate == draft.dueDate &&
-                old.dueTime == draft.dueTime && old.zoneId == (if (draft.dueDate != null) draft.zoneId else null) && old.status == draft.status &&
+                old.dueTime == draft.dueTime && old.startDate == draft.startDate && old.startTime == draft.startTime && old.startZoneId == draft.startZoneId && old.zoneId == (if (draft.dueDate != null) draft.zoneId else null) && old.status == draft.status &&
                 db.dao().taskTagIds(old.id).toSet() == draft.tagIds) { "新增識別碼衝突，請重新開啟表單" }
             require(draft.reminders == null || db.reminders().forTask(old.id).filter { it.enabled }.map { it.spec() }.toSet() == draft.reminders.toSet()) { "新增提醒識別碼衝突，請重新開啟表單" }
             return@withTransaction
@@ -57,6 +60,7 @@ class TaskRepository(private val db: TodoDatabase, private val clock: Clock = De
             zoneId = if (draft.dueDate != null) draft.zoneId else null, status = draft.status,
             completedAt = if (draft.status == TaskStatus.COMPLETED) old?.completedAt ?: now else null,
             createdAt = old?.createdAt ?: now, updatedAt = now, revision = (old?.revision ?: 0) + 1,
+            startDate = draft.startDate, startTime = draft.startTime, startZoneId = draft.startZoneId,
         )
         if (old == null) db.dao().insert(task) else db.dao().update(task)
         val ref = db.dao().occurrence(task.id)

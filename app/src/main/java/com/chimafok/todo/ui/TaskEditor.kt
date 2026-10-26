@@ -60,10 +60,18 @@ fun TaskEditor(
     var time by rememberSaveable { mutableStateOf(restoredDraft?.time ?: existing?.dueTime?.format(DateTimeFormatter.ofPattern("HH:mm")) ?: "") }
     var zone by rememberSaveable { mutableStateOf<String?>(restoredDraft?.zoneId ?: existing?.zoneId ?: if (expectedExisting) null else ZoneId.systemDefault().id) }
     var deadlineReference by rememberSaveable { mutableLongStateOf(restoredDraft?.deadlineReference ?: System.currentTimeMillis()) }
+    var startDateInput by rememberSaveable { mutableStateOf(restoredDraft?.startDate ?: existing?.startDate?.toString().orEmpty()) }
+    var startTimeInput by rememberSaveable { mutableStateOf(restoredDraft?.startTime ?: existing?.startTime?.format(DateTimeFormatter.ofPattern("HH:mm")).orEmpty()) }
+    var startZone by rememberSaveable { mutableStateOf(restoredDraft?.startZoneId ?: existing?.startZoneId) }
+    var startReference by rememberSaveable { mutableLongStateOf(restoredDraft?.startReference?.takeIf { it > 0 } ?: System.currentTimeMillis()) }
+    var showStartTimePicker by rememberSaveable { mutableStateOf(false) }
     var selectedTags by rememberSaveable { mutableStateOf(restoredDraft?.tagIds?.filter { it in knownTags } ?: initialTagIds.toList()) }
     var categoryId by rememberSaveable { mutableStateOf(restoredDraft?.categoryId?.takeIf { restoredCategoryValid } ?: existing?.categoryId ?: UNCATEGORIZED_ID) }
     var statusName by rememberSaveable { mutableStateOf(when {
-        restoredDraft != null -> if(restoredCategoryValid) restoredDraft.statusName else TaskStatus.OPEN.name
+        restoredDraft != null -> if(restoredCategoryValid) {
+            if (!expectedExisting && categories.find { it.id == restoredDraft.categoryId }?.systemKind == SystemCategory.ASSIGNMENTS && restoredDraft.statusName == TaskStatus.COMPLETED.name)
+                TaskStatus.NOT_STARTED.name else restoredDraft.statusName
+        } else TaskStatus.OPEN.name
         else -> (existing?.status ?: TaskStatus.OPEN).name
     }) }
     val revision = rememberSaveable { existing?.revision ?: -1L }
@@ -100,6 +108,7 @@ fun TaskEditor(
     val scope = rememberCoroutineScope()
     val titleFocus = remember { FocusRequester() }
     LaunchedEffect(id) { titleFocus.requestFocus() }
+    val study = categoryId == STUDY_ID
     val assignment = categories.find { it.id == categoryId }?.systemKind == SystemCategory.ASSIGNMENTS
     val fieldColors = OutlinedTextFieldDefaults.colors(
         focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -133,6 +142,10 @@ fun TaskEditor(
     val datePreview = runCatching { resolvedDate()?.toString() }.getOrNull()?.takeIf { it != date.trim() }
     val timePreview = runCatching { parseTimeInput(time)?.format(DateTimeFormatter.ofPattern("HH:mm")) }.getOrNull()?.takeIf { it != time.trim() }
 
+    fun resolvedStartDate() = resolveDeadlineDate(startDateInput, parseTimeInput(startTimeInput), startZone, Instant.ofEpochMilli(startReference))
+    val startDatePreview = runCatching { resolvedStartDate()?.toString() }.getOrNull()?.takeIf { it != startDateInput.trim() }
+    val startTimePreview = runCatching { parseTimeInput(startTimeInput)?.format(DateTimeFormatter.ofPattern("HH:mm")) }.getOrNull()?.takeIf { it != startTimeInput.trim() }
+
     fun save(next: Boolean, pastConfirmed: Boolean = false, seriesConfirmed: Boolean = false, conversionConfirmed: Boolean = false) {
         if (saving) return
         try {
@@ -144,13 +157,16 @@ fun TaskEditor(
             require(recurringContext == null || dueDate != null) { "重複紀錄須保留本次日期" }
             require(!applyRecurrence || !hasSingleReminders || inheritedRemindersReady) { "請先按「沿用單筆提醒」，檢查系列提醒後再儲存" }
             val inherit = applyRecurrence && inheritedRemindersReady
+            require(expectedExisting || !assignment || statusName != TaskStatus.COMPLETED.name) { "新增作業不能直接選擇完成" }
+            val beginning = resolvedStartDate()
             val draft = TaskDraft(id, title, notes, categoryId, dueDate, dueTime,
                 if (dueDate != null) zone else null,
                 requireNotNull(statusName?.let(TaskStatus::valueOf)) { "請先選擇作業狀態" }, revision.takeIf { it >= 0 }, selectedTags.toSet(),
                 recurrence, seriesRevision.takeIf { it >= 0 }, occurrenceRevisions.takeIf { recurringContext != null },
                 if (applyRecurrence && !inherit) null else decodeReminderInputs(reminderInputs).map { it.spec(dueDate, dueTime, zone) },
                 if (applyRecurrence) decodeSeriesReminderInputs(seriesReminderInputs).map { it.spec() } else null,
-                resetSeriesReminders = !applyRecurrence && resetReminders, inheritSingleReminders = inherit)
+                resetSeriesReminders = !applyRecurrence && resetReminders, inheritSingleReminders = inherit,
+                startDate = beginning, startTime = parseTimeInput(startTimeInput), startZoneId = if (beginning != null) startZone else null)
             validateDraft(draft, assignment)
             draft.seriesReminders.orEmpty().forEach { template ->
                 resolveReminder(occurrenceReminder(template, id, requireNotNull(dueDate), dueTime, requireNotNull(zone)), dueDate, dueTime, zone)
@@ -197,11 +213,11 @@ fun TaskEditor(
     var showDraftExit by rememberSaveable { mutableStateOf(false) }
     fun snapshotDraft() = NewTaskDraft(id,title,notes,date,time,zone,deadlineReference,selectedTags,categoryId,statusName,
         frequency,interval,weekdays,endMode,endDate,endReference,count,reminderInputs,seriesReminderInputs,
-        inheritedReminderStamp,inheritedTemplateIds)
+        inheritedReminderStamp,inheritedTemplateIds,startDateInput,startTimeInput,startZone,startReference)
     fun requestExit() {
         if(saving) return
         if(!expectedExisting && (restoredDraft != null || title.isNotEmpty() || notes.isNotEmpty() || date.isNotEmpty() ||
-            time.isNotEmpty() || selectedTags.isNotEmpty() || categoryId != UNCATEGORIZED_ID || frequency != "NONE" ||
+            time.isNotEmpty() || startDateInput.isNotEmpty() || startTimeInput.isNotEmpty() || selectedTags.isNotEmpty() || categoryId != UNCATEGORIZED_ID || frequency != "NONE" ||
             reminderInputs != "[]" || seriesReminderInputs != "[]")) showDraftExit = true else onDismiss()
     }
     Dialog(onDismissRequest = ::requestExit,
@@ -285,13 +301,36 @@ fun TaskEditor(
                             }) }
                         }
                     }
+                    if (study) {
+                        DeadlineTextField(startDateInput, {
+                            startDateInput = it; startReference = System.currentTimeMillis(); startZone = ZoneId.systemDefault().id
+                            if (it.isBlank()) startTimeInput = ""
+                        }, label = "開始日期（選填）", placeholder = "YYYY-MM-DD",
+                            supportingText = if (startDatePreview != null) { { Text(startDatePreview) } } else null,
+                            trailingIcon = { DatePickerButton(runCatching { resolvedStartDate() }.getOrNull() ?: LocalDate.now(), R.string.choose_date, enabled = !saving) {
+                                startDateInput = it.toString(); startReference = System.currentTimeMillis(); startZone = ZoneId.systemDefault().id
+                            } }, colors = fieldColors, modifier = Modifier.fillMaxWidth().testTag("task_start_date"), enabled = !saving)
+                        DeadlineTextField(startTimeInput, {
+                            startTimeInput = it; startReference = System.currentTimeMillis(); startZone = ZoneId.systemDefault().id
+                        }, label = "開始時間（選填）", placeholder = "HH:mm",
+                            supportingText = if (startTimePreview != null) { { Text(startTimePreview) } } else null,
+                            trailingIcon = { TextButton(enabled = startDateInput.isNotBlank() && !saving, onClick = { showStartTimePicker = true },
+                                modifier = Modifier.testTag("open_start_time")) { Text("選擇") } },
+                            modifier = Modifier.fillMaxWidth().testTag("task_start_time"), colors = fieldColors,
+                            enabled = !saving && startDateInput.isNotBlank())
+                        if (startDateInput.isNotBlank()) {
+                            Text("開始時區：${startZone.orEmpty()}" + if (startTimeInput.isBlank()) "（只有日期，不指定時刻）" else "",
+                                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            TextButton(onClick = { startDateInput = ""; startTimeInput = ""; startZone = null }, enabled = !saving) { Text("清除開始日期與時間") }
+                        }
+                    }
                     if (assignment) Box {
                         OutlinedButton(onClick = { statusMenu = true }, enabled = !saving && (expectedExisting || frequency == "NONE"), shape = MaterialTheme.shapes.medium,
                             modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) {
                             Text(statusName?.let { "作業狀態：${statusLabel(TaskStatus.valueOf(it))}" } ?: "請選擇作業狀態")
                         }
                         DropdownMenu(statusMenu, onDismissRequest = { statusMenu = false }) {
-                            TaskStatus.entries.filter { it != TaskStatus.OPEN && (!convertingExisting || it != TaskStatus.COMPLETED) }.forEach { status ->
+                            TaskStatus.entries.filter { it != TaskStatus.OPEN && ((expectedExisting && !convertingExisting) || it != TaskStatus.COMPLETED) }.forEach { status ->
                                 DropdownMenuItem(text = { Text(statusLabel(status)) },
                                     leadingIcon = { AssignmentStatusIcon(status) },
                                     onClick = { statusName = status.name; statusMenu = false })
@@ -392,6 +431,11 @@ fun TaskEditor(
             }
         }
     }
+    if (showStartTimePicker) TodoTimePicker(
+        initial = runCatching { parseTimeInput(startTimeInput) }.getOrNull() ?: DEFAULT_REMINDER_TIME,
+        onDismiss = { showStartTimePicker = false },
+        onTime = { startTimeInput = it.format(DateTimeFormatter.ofPattern("HH:mm")); startReference = System.currentTimeMillis(); startZone = ZoneId.systemDefault().id; showStartTimePicker = false },
+    )
     if (showTimePicker) TodoTimePicker(
         initial = runCatching { parseTimeInput(time) }.getOrNull() ?: DEFAULT_REMINDER_TIME,
         onDismiss = { showTimePicker = false },

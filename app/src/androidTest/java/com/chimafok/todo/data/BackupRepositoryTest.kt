@@ -58,20 +58,21 @@ class BackupRepositoryTest {
         assertEquals(a.reminders().get("r")!!.fixedAt,b.reminders().get("r")!!.fixedAt)
         assertEquals("ok",b.openHelper.readableDatabase.query("PRAGMA integrity_check").use{it.moveToFirst();it.getString(0)})
     }
-    @Test fun exportOmitsTrashSortPolicyAnchorsAndNativeAlarmTokens()=databases{a,_->
+    @Test fun exportIncludesTrashSortAndPolicyButOmitsNativeAlarmTokens()=databases{a,_->
         seed(a,reminders=listOf(fixed()));seed(a,"gone");TaskRepository(a,now).trash("gone",a.dao().task("gone")!!.revision)
         HistoryRepository(a,now).apply(HistoryRepository(a,now).preview(30))
         ReminderEngine(a,Fake(),now).reconcile();val text=BackupRepository(a,now).export("test");val root=JSONObject(text);val data=root.getJSONObject("data")
-        assertEquals(1,data.getJSONArray("tasks").length());assertFalse(text.contains("alarmKey"));assertFalse(text.contains("sortOrder"));assertFalse(text.contains("retention_"));assertFalse(text.contains("schedule_outbox"));assertFalse(text.contains("purge_cancellations"))
+        assertEquals(2,data.getJSONArray("tasks").length());assertFalse(text.contains("alarmKey"));assertTrue(text.contains("sortOrder"));assertEquals(30,data.getJSONArray("settings").getJSONObject(0).getInt("completedRetentionDays"));assertFalse(text.contains("retention_"));assertFalse(text.contains("schedule_outbox"));assertFalse(text.contains("purge_cancellations"))
         assertFalse(data.getJSONArray("tasks").getJSONObject(0).has("revision"))
     }
-    @Test fun replaceKeepsLocalPreferencesSortAndOriginalCompletionThenGivesRestoreGrace()=databases{a,b->
+    @Test fun replaceRestoresFilePreferencesSortAndOriginalCompletionThenGivesRestoreGrace()=databases{a,b->
         seed(a,"complete",at=Clock.offset(now,Duration.ofDays(-45)),status=TaskStatus.COMPLETED)
+        HistoryRepository(a,now).apply(HistoryRepository(a,now).preview(90))
         OrganizationRepository(b,now).saveCategory("mine","本機分類",null);seed(b,"old")
         val h=HistoryRepository(b,now);h.apply(h.preview(30));val policy=h.policy();val sort=b.dao().category(UNCATEGORIZED_ID)!!.sortOrder
-        apply(b,doc(a));assertNull(b.dao().task("old"));assertEquals(policy,h.policy());assertEquals(sort,b.dao().category(UNCATEGORIZED_ID)!!.sortOrder)
+        apply(b,doc(a));assertNull(b.dao().task("old"));assertEquals(90,h.policy().days);assertTrue(h.policy().revision>policy.revision);assertEquals(a.dao().category(UNCATEGORIZED_ID)!!.sortOrder,b.dao().category(UNCATEGORIZED_ID)!!.sortOrder)
         assertEquals(a.dao().task("complete")!!.completedAt,b.dao().task("complete")!!.completedAt);assertNotNull(b.history().anchors().singleOrNull());h.maintain();assertNull(b.dao().task("complete")!!.deletedAt)
-        HistoryRepository(b,Clock.offset(now,Duration.ofDays(30))).maintain();assertNotNull(b.dao().task("complete")!!.deletedAt)
+        HistoryRepository(b,Clock.offset(now,Duration.ofDays(90))).maintain();assertNotNull(b.dao().task("complete")!!.deletedAt)
     }
     @Test fun olderMergeCannotOverwriteNewerProgressAndNewerFileCanUpdateIt()=databases{a,b->
         seed(a,title="較舊");seed(b,title="本機較新",at=Clock.offset(now,Duration.ofHours(1)))
@@ -147,7 +148,7 @@ class BackupRepositoryTest {
         seed(a);seed(b,"local");val text=BackupRepository(a,now).export("test");val before=snapshot(b)
         val mutations:List<(JSONObject)->Unit> = listOf(
             {r->val c=r.getJSONObject("data").getJSONArray("categories");for(i in 0 until c.length())if(c.getJSONObject(i).optString("systemKind")=="UNCATEGORIZED")c.getJSONObject(i).put("name","不可改名")},
-            {it.put("formatVersion",2)},{it.put("schemaVersion",99)},{it.getJSONObject("data").put("extra",JSONArray())},
+            {it.put("formatVersion",99)},{it.put("schemaVersion",99)},{it.getJSONObject("data").put("extra",JSONArray())},
             {it.getJSONObject("data").getJSONArray("tasks").getJSONObject(0).put("alarmKey","not portable")},
             {it.getJSONObject("data").getJSONArray("tasks").getJSONObject(0).put("dueDate","2026-02-30")},
             {it.getJSONObject("data").getJSONArray("tasks").getJSONObject(0).put("status","IN_PROGRESS")},

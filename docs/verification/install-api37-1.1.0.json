@@ -1,0 +1,18 @@
+{
+  "api": 37,
+  "dedicatedEmptyOwnedAvd": true,
+  "previousVersion": "1.0.5",
+  "previousCode": 27,
+  "newVersion": "1.1.0",
+  "newCode": 29,
+  "sameOfficialCertificateUpdateSucceeded": true,
+  "uidAndFirstInstallTimePreserved": true,
+  "syntheticTaskVisibleAfterMigration": true,
+  "nonDebuggable": true,
+  "launchSucceeded": true,
+  "phoneOperated": false,
+  "limits": [
+    "One synthetic task on a dedicated AVD; not full backup or notification acceptance."
+  ],
+  "apkSha256": "a98c1f16a1cc37a5cd864523460713de7d68e9c2a96ecad0133ed39630292815"
+}

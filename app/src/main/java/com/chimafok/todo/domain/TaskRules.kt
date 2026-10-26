@@ -26,10 +26,14 @@ data class TaskDraft(
     val seriesReminders: List<SeriesReminderSpec>? = null,
     val resetSeriesReminders: Boolean = false,
     val inheritSingleReminders: Boolean = false,
+    val startDate: LocalDate? = null,
+    val startTime: LocalTime? = null,
+    val startZoneId: String? = null,
 )
 
 const val UNCATEGORIZED_ID = "00000000-0000-4000-8000-000000000001"
 const val ASSIGNMENTS_ID = "00000000-0000-4000-8000-000000000002"
+const val STUDY_ID = "00000000-0000-4000-8000-000000000003"
 
 fun validatedTitle(title: String): String {
     val result = title.trim()
@@ -43,6 +47,12 @@ fun validateDraft(draft: TaskDraft, assignment: Boolean) {
     require(draft.dueTime == null || draft.dueDate != null) { "設定時間前請先選擇日期" }
     require(draft.dueTime == null || draft.zoneId != null) { "截止時間缺少時區" }
     draft.zoneId?.let(ZoneId::of)
+    require(draft.startDate == null || draft.startDate.year in 1..9999) { "開始日期超出範圍" }
+    require(draft.startTime == null || draft.startDate != null) { "設定開始時間前請先選擇開始日期" }
+    require(draft.startTime == null || draft.startZoneId != null) { "開始時間缺少時區" }
+    require(draft.startDate != null || draft.startZoneId == null) { "開始時區缺少日期" }
+    draft.startZoneId?.let(ZoneId::of)
+    if (draft.startDate != null && draft.startTime != null) deadlineInstant(draft.startDate, draft.startTime, requireNotNull(draft.startZoneId))
     val allowed = if (assignment) TaskStatus.entries.filter { it != TaskStatus.OPEN }
         else listOf(TaskStatus.OPEN, TaskStatus.COMPLETED)
     require(draft.status in allowed) { "任務狀態與分類不相符" }

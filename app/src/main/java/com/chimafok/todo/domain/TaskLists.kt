@@ -8,7 +8,16 @@ import java.time.ZoneId
 data class TaskGroup(val date: LocalDate?, val tasks: List<TaskEntity>)
 
 val taskTimeOrder: Comparator<TaskEntity> = compareBy<TaskEntity> { it.dueTime == null }
-    .thenBy { it.dueInstant() }.thenBy { it.createdAt }.thenBy { it.id }
+    .thenBy { it.dueInstant() }.thenBy { it.studyStartSortInstant() == null }
+    .thenBy { it.studyStartSortInstant() }.thenBy { it.createdAt }.thenBy { it.id }
+
+// Date-only starts retain their calendar meaning; timed starts retain their captured zone.
+fun TaskEntity.studyStartSortInstant() = startDate?.takeIf { categoryId == STUDY_ID }?.let { date ->
+    date.atTime(startTime ?: java.time.LocalTime.MAX).atZone(
+        if (startTime != null) ZoneId.of(requireNotNull(startZoneId)) else DeviceClock.zone).toInstant()
+}
+val unscheduledTaskOrder: Comparator<TaskEntity> = compareBy<TaskEntity> { it.studyStartSortInstant() == null }
+    .thenBy { it.studyStartSortInstant() }.thenByDescending { it.createdAt }.thenBy { it.id }
 
 // atZone also preserves the previous interpretation of any legacy DST-gap value.
 fun TaskEntity.dueInstant() = dueTime?.let { requireNotNull(dueDate).atTime(it).atZone(ZoneId.of(requireNotNull(zoneId))).toInstant() }
@@ -39,7 +48,7 @@ fun agendaGroups(tasks: List<TaskEntity>, clock: Clock, jumpDate: LocalDate? = n
     jumpDate?.takeIf { it != today }?.let(dates::add)
     return listOf(TaskGroup(today, todayTasks)) + dates.sorted().map { date ->
         TaskGroup(date, dated[date].orEmpty().sortedWith(taskTimeOrder))
-    } + TaskGroup(null, undated.sortedByDescending { it.createdAt })
+    } + TaskGroup(null, undated.sortedWith(unscheduledTaskOrder))
 }
 
 fun completedGroups(tasks: List<TaskEntity>): List<TaskGroup> {
