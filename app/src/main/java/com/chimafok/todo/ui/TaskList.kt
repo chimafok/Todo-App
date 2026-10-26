@@ -113,7 +113,7 @@ fun TaskList(
         Destination.AGENDA -> agendaGroups(displayedTasks, clock, jumpDate)
         Destination.UNSCHEDULED -> listOf(TaskGroup(null, displayedTasks.filter {
             it.deletedAt == null && it.status != TaskStatus.COMPLETED && it.dueDate == null
-        }.sortedByDescending { it.createdAt }))
+        }.sortedWith(unscheduledTaskOrder)))
         Destination.COMPLETED -> completedGroups(state.tasks)
         else -> listOf(TaskGroup(null, state.tasks.filter {
             it.deletedAt != null && !retentionExpired(it.deletedAt, TRASH_DAYS, clock.millis())
@@ -315,6 +315,12 @@ internal fun TaskCard(
                         MetadataPill(statusLabel(task.status), if (task.status == TaskStatus.DONE_UNSUBMITTED) assignmentStatusColor(task.status)
                             else MaterialTheme.colorScheme.onSurfaceVariant)
                     }
+                    }
+                    task.startDate?.takeIf { task.categoryId == STUDY_ID }?.let { date ->
+                        val localStart = task.startTime?.let { date.atTime(it).atZone(java.time.ZoneId.of(requireNotNull(task.startZoneId))).withZoneSameInstant(clock.zone) }
+                        Text("開始 ${displayDate(localStart?.toLocalDate() ?: date, LocalDate.now(clock))}${localStart?.format(DateTimeFormatter.ofPattern(" HH:mm")) ?: ""}",
+                            modifier = Modifier.testTag("task_start_${task.id}"), style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     task.dueDate?.let { date ->
                         val localDeadline = task.dueInstant()?.atZone(clock.zone)

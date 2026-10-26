@@ -62,7 +62,7 @@ fun BackupSettings(viewModel:TodoViewModel) {
         }
     }
     Text("備份與還原",style=MaterialTheme.typography.titleLarge)
-    Text("JSON 明文檔案，請選擇合適的儲存位置。包含有效任務、完成紀錄與重複系列；不包含垃圾桶、排序及保留期限偏好。",style=MaterialTheme.typography.bodySmall)
+    Text("JSON 明文檔案，請選擇合適的儲存位置。包含任務、完成紀錄、重複系列、垃圾桶、分類與標籤排序及一般設定；不含草稿與系統權限。",style=MaterialTheme.typography.bodySmall)
     FlowRow(horizontalArrangement=Arrangement.spacedBy(10.dp), verticalArrangement=Arrangement.spacedBy(8.dp)) {
         Button(enabled=!busy,onClick=::export,modifier=Modifier.testTag("export_backup")){Text("匯出備份")}
         OutlinedButton(enabled=!busy,onClick={error=null;try{viewModel.externalDocumentFlow=true;importLauncher.launch(arrayOf("*/*"))}
@@ -107,14 +107,16 @@ private fun RestoreBackupDialog(token:String,viewModel:TodoViewModel,files:Backu
                 val p=preview
                 LazyColumn(Modifier.weight(1f).testTag("backup_review_list"),verticalArrangement=Arrangement.spacedBy(12.dp)) {
                     item {
-                        Text(if(mode==RestoreMode.REPLACE.name)"完整取代會移除目前所有任務，包括垃圾桶，再放入檔案資料。保留本機保留期限與既有分類／標籤的顯示順序。" else "合併依 ID 及修改時間判斷。較舊備份不會自動蓋過較新的進度；垃圾桶同 ID 與系列衝突需要明確選擇。")
-                        Text("已永久刪除的 ID 可能由舊備份重新加入。匯入的一般完成項會獲得新的保留期限，原完成時間仍保留。過去提醒不補發。",style=MaterialTheme.typography.bodySmall)
+                        Text(if(mode==RestoreMode.REPLACE.name)"完整取代會移除目前所有任務與垃圾桶，再放入檔案資料（含檔案中的垃圾桶），並還原檔案排序及一般設定。舊格式未包含的設定會保留本機值。" else "合併依 ID 及修改時間判斷。較舊備份不會自動蓋過較新的進度；垃圾桶同 ID、系列衝突及不同的一般設定需要明確選擇。")
+                        Text("已永久刪除的 ID 可能由舊備份重新加入。匯入的一般完成項會獲得新的保留期限，原完成時間仍保留。垃圾桶沿用原刪除日期，不延長原本的 30 天期限。過去提醒不補發。",style=MaterialTheme.typography.bodySmall)
                     }
                     if(p!=null) {
                         item { Column(Modifier.testTag(if(busy)"backup_recalculating" else "backup_ready"),verticalArrangement=Arrangement.spacedBy(6.dp)) {
                             Text("本機 ${p.plan.localTaskCount} 項任務；檔案 ${p.plan.fileTaskCount} 項任務。")
                             Text("新增 ${p.plan.added}、更新 ${p.plan.changed}、移除 ${p.plan.removed} 項任務。")
                             Text("結果：${p.plan.graph.rows("categories").size} 個分類、${p.plan.graph.rows("tags").size} 個標籤、${p.plan.graph.rows("recurring_series").size} 個系列。")
+                            Text("結果垃圾桶：${p.plan.graph.rows("tasks").count { it["deletedAt"] != null }} 項任務、${p.plan.graph.rows("recurring_series").count { it["deletedAt"] != null }} 個系列。")
+                            Text("還原後完成紀錄保留：${p.plan.graph.rows("settings").singleOrNull()?.get("completedRetentionDays")?.let { "$it 天" } ?: "永久"}；分類與標籤排序按選定資料還原。")
                             if(p.plan.sameNames>0)Text("有 ${p.plan.sameNames} 組同名但不同 ID 的分類／標籤，會各自保留。")
                             Text("${p.plan.conflicts.size} 組衝突；每組選擇後才可確認。")
                         } }
@@ -133,9 +135,9 @@ private fun RestoreBackupDialog(token:String,viewModel:TodoViewModel,files:Backu
                             }
                         }
                     }
-                    error?.let { item { Text(it,Modifier.testTag("backup_preview_error"),color=MaterialTheme.colorScheme.error) } }
                     if(busy)item { Text("正在檢查…") }
                 }
+                error?.let { Text(it,Modifier.testTag("backup_preview_error"),color=MaterialTheme.colorScheme.error) }
                 TextButton(enabled=!busy && !exportBusy,onClick=onExport,modifier=Modifier.testTag("backup_export_before_restore")){Text("先匯出目前資料")}
                 transferStatus?.let { Text(it,Modifier.testTag("backup_transfer_status"),style=MaterialTheme.typography.bodySmall) }
                 if(error!=null)TextButton(enabled=!busy,onClick={acceptedFingerprint=null;choices=emptyMap();epoch++},modifier=Modifier.testTag("backup_refresh")){Text("重新預覽")}
@@ -165,11 +167,13 @@ private fun RestoreBackupDialog(token:String,viewModel:TodoViewModel,files:Backu
 private fun backupTime(value:Any?):String=(value as? Number)?.toLong()?.takeIf { it>0 }?.let {
     Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
 } ?: "未知"
-private fun backupSideSummary(g:BackupGraph):String = "${g.rows("tasks").size} 項任務、${g.rows("recurring_series").size} 個系列；"+
+private fun backupSideSummary(g:BackupGraph):String = if(g.rows("settings").isNotEmpty())
+    "完成紀錄保留：${g.rows("settings").single()["completedRetentionDays"]?.let { "$it 天" } ?: "永久"}"
+    else "${g.rows("tasks").size} 項任務、${g.rows("recurring_series").size} 個系列；"+
     (g.rows("tasks").firstOrNull()?.let { "${statusLabel(TaskStatus.valueOf(it.text("status")))}，修改 ${backupTime(it["updatedAt"])}" }
         ?: (g.rows("categories")+g.rows("tags")).firstOrNull()?.let { "${it.text("name")}，修改 ${backupTime(it["updatedAt"])}" } ?: "整組規則與關聯")
 private fun backupTaskDetail(r:BackupRow):String = "${r.text("title")}\n${statusLabel(TaskStatus.valueOf(r.text("status")))}"+
-    " · 截止 ${r["dueDate"] ?: "未安排"} ${r["dueTime"] ?: ""} ${r["zoneId"] ?: ""}\n修改 ${backupTime(r["updatedAt"])}"+
+    " · 開始 ${r["startDate"] ?: "未填"} ${r["startTime"] ?: ""} ${r["startZoneId"] ?: ""} · 截止 ${r["dueDate"] ?: "未安排"} ${r["dueTime"] ?: ""} ${r["zoneId"] ?: ""}\n修改 ${backupTime(r["updatedAt"])}"+
     (if(r["deletedAt"]!=null)" · 垃圾桶" else "")+"\n${r.text("notes") }"
 
 /** Keep text formatting lazy so opening a large series does not eagerly build every note string. */
@@ -197,5 +201,5 @@ private fun backupDetails(source:String,g:BackupGraph):List<()->String> = buildL
     g.rows("occurrences").forEach { r->r.optionalText("snapshot")?.let { json->add {
         val old=OccurrenceSnapshot.read(json);"第 ${r.long("sequence")} 次歷史快照：${old?.title} · ${old?.category} · ${old?.tags?.joinToString("、")}"+10.toChar()+(old?.notes ?: "")
     } } }
-    if(g.rows("tasks").isEmpty() && g.rows("recurring_series").isEmpty())(g.rows("categories")+g.rows("tags")).forEach { r->add { "${r.text("name")} · 修改 ${backupTime(r["updatedAt"])}" } }
+    if(g.rows("tasks").isEmpty() && g.rows("recurring_series").isEmpty())(g.rows("categories")+g.rows("tags")).forEach { r->add { "${r.text("name")} · 排序 ${r["sortOrder"] ?: "沿用本機"} · 修改 ${backupTime(r["updatedAt"])}" } }
 }

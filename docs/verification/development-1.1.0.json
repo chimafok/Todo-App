@@ -1,0 +1,188 @@
+{
+  "versionName": "1.1.0-dev01",
+  "versionCode": 28,
+  "applicationId": "com.chimafok.todo.debug",
+  "status": "development; awaiting maintainer testing approval",
+  "schemaVersion": 8,
+  "backupFormatVersion": 2,
+  "legacyBackupImport": {
+    "formatVersion": 1,
+    "schemaVersion": 7
+  },
+  "unitTests": [
+    {
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.BackupMergeTest"
+    },
+    {
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.DeadlineInputTest"
+    },
+    {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.DeviceClockTest"
+    },
+    {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ListScalingTest"
+    },
+    {
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.RecurrenceRulesTest"
+    },
+    {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ReminderConversionRulesTest"
+    },
+    {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ReminderDefaultsTest"
+    },
+    {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ReminderRulesTest"
+    },
+    {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.RetentionRulesTest"
+    },
+    {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.SeriesEditPlanTest"
+    },
+    {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.SeriesReminderRulesTest"
+    },
+    {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.StudyScheduleTest"
+    },
+    {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.TaskQueryTest"
+    },
+    {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.TaskRulesTest"
+    }
+  ],
+  "deviceGroups": [
+    {
+      "tests": 28,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "source": "AndroidJUnitRunner raw status converted to JUnit XML",
+      "timestamp": "2026-10-26T03:29:35.554597+00:00",
+      "classes": {
+        "com.chimafok.todo.data.StudyBackupV2Test": 7,
+        "com.chimafok.todo.data.BackupRepositoryTest": 19,
+        "com.chimafok.todo.ui.StudyEditorUiTest": 2
+      }
+    },
+    {
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "source": "AndroidJUnitRunner raw status converted to JUnit XML",
+      "timestamp": "2026-10-26T03:39:41.138785+00:00",
+      "classes": {
+        "com.chimafok.todo.data.NewTaskDraftStoreTest": 3,
+        "com.chimafok.todo.ui.BackupUiTest": 7
+      }
+    }
+  ],
+  "deviceTestsUnique": 38,
+  "deviceApi": 37,
+  "lint": {
+    "debug": {
+      "warning": 10
+    },
+    "release": {
+      "warning": 10
+    }
+  },
+  "apk": {
+    "name": "Todo-1.1.0-dev01.apk",
+    "bytes": 13751988,
+    "sha256": "b13b757e4c5540348005f0dbd2262f647e80997f50f8da22c0f9133ea749a4b5",
+    "certificateSha256": "61e51e2dce7d422d046cd6b4a41ea6ac15ef298bf6e4ced05bd9355f6cc63c62",
+    "signing": "Android development key"
+  },
+  "officialSigningPerformed": false,
+  "mainPromotionApproved": false,
+  "initialAttempts": [
+    {
+      "stage": "early compilation",
+      "attempts": 2,
+      "result": "failed; corrected UI parenthesis and backup validation argument; subsequent full build passed"
+    },
+    {
+      "stage": "initial device regression",
+      "tests": 27,
+      "failures": 1,
+      "reason": "Migration test fixture assumed every schema entity declared indices; corrected optional indices handling."
+    },
+    {
+      "stage": "backup UI follow-up",
+      "tests": 10,
+      "failures": 1,
+      "reason": "Stale-preview error was outside the visible scroll window; moved to fixed confirmation area and reran all 10."
+    },
+    {
+      "stage": "Gradle connected device attempts",
+      "tests": 0,
+      "result": "No device test success claimed; used explicit isolated ADB server and direct AndroidJUnitRunner with saved raw output and checked XML."
+    }
+  ],
+  "limits": [
+    "Device groups ran separately; not one full instrumentation suite.",
+    "No user phone operations or acceptance claimed.",
+    "API26 device regression not rerun this round.",
+    "Real device/background/overnight/accessibility/large-data gaps remain documented."
+  ]
+}

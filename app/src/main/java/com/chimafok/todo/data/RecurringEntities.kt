@@ -23,6 +23,7 @@ data class SeriesRuleEntity(
     @PrimaryKey val id: String, val seriesId: String, val version: Int, val effectiveFrom: Int,
     val anchor: LocalDate, val frequency: RecurrenceFrequency, val intervalDays: Int, val weekdayMask: Int,
     val dueTime: LocalTime?, val zoneId: String, val endDate: LocalDate?, val maxCount: Int?, val createdAt: Long,
+    val startDayOffset: Int? = null, val startTime: LocalTime? = null, val startZoneId: String? = null,
 ) {
     fun rule() = RecurrenceRule(anchor, frequency, zoneId, intervalDays,
         java.time.DayOfWeek.entries.filter { weekdayMask and (1 shl (it.value - 1)) != 0 }.toSet(),

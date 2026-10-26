@@ -1,5 +1,15 @@
 # 資料模型：實作狀態與演進
 
+## 1.1.0 開發版：學習開始時間與完整備份（schema8）
+
+tasks 新增 nullable `startDate`／`startTime`／`startZoneId`。開始時刻須有日期與時區，日期可獨立存在；輸入使用既有日期簡寫及 HH:mm／HHmm。學習入口依內建分類的穩定 ID 識別，改名不影響此能力；移分類不破壞已保存的開始資料，其他分類不以該資料排序。
+
+series_rules 新增 nullable `startDayOffset`／`startTime`／`startZoneId`。日偏移由表單開始日減本次截止日計算，未來各次依偏移生成；僅本次修改不覆寫模板，系列修改不回寫過去／已完成／已刪紀錄。新增作業僅允許三種未完成狀態，既有作業仍可完成；備份可保存已完成作業。
+
+MIGRATION_7_8 只 ALTER 新增六個 nullable 欄位，不清庫或重建原表；schema1–7 繼續保留。日程在原截止排序後以開始日期／時間破同值；未安排以開始日期／時間排序，未填放最後，時間依捕捉時區換算。分頁索引與畫面使用同一排序。
+
+備份格式升至2，加入垃圾桶刪除時間及系列復原關聯、分類／標籤 sortOrder、settings 一般設定，並包含開始欄位；settings 是匯出視圖，對應既有 retention_policy，沒有新增設定資料表。格式1可匯入，未知偏好保留本機，完整契約見 [BACKUP-FORMAT](BACKUP-FORMAT.md)。
+
 ## 1.0.4 選取與完整分組統計（schema7不變）
 
 TaskPageWindow新增記憶體groupCounts（LocalDate?→Int），與同交易的完整匹配／首頁投影分組一起計算，之後才載入前綴完整內容；不新建表或寫進備份。HistorySearchRow只讀投影加入revision／excludedByRule，歷史全選以512列批次掃描匹配並只保留ID／版本，排除唯讀項，不把首50筆當全結果。

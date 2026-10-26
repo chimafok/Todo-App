@@ -16,6 +16,10 @@ private data class BackupStore(val graph:BackupGraph,val anchors:List<RetentionA
 
 class BackupRepository(private val db:TodoDatabase,private val clock:Clock=DeviceClock) {
     private fun rows(table:String):List<BackupRow> {
+        if(table=="settings") return db.openHelper.readableDatabase.query("SELECT days,updatedAt FROM retention_policy WHERE id=1").use { c ->
+            listOf(if(c.moveToFirst()) mapOf("id" to "general", "completedRetentionDays" to if(c.isNull(0)) null else c.getLong(0), "updatedAt" to c.getLong(1))
+                else mapOf("id" to "general", "completedRetentionDays" to null, "updatedAt" to 0L))
+        }
         require(table in backupTables || table=="retention_policy" || table=="retention_anchors")
         return db.openHelper.readableDatabase.query("SELECT * FROM $table").use { c -> buildList {
             while(c.moveToNext())add(c.columnNames.associateWith { name -> val i=c.getColumnIndexOrThrow(name)
@@ -45,6 +49,10 @@ class BackupRepository(private val db:TodoDatabase,private val clock:Clock=Devic
         validateBackup(plan.graph,true)
         if(preview.mode==RestoreMode.MERGE && plan.graph.content()==local.graph.content())return@withTransaction
         val now=clock.millis();val before=local.graph;val target=plan.graph
+        val oldPolicy=db.history().policy() ?: RetentionPolicyEntity()
+        val restoredPolicy=target.rows("settings").singleOrNull()
+        val restoredDays=restoredPolicy?.optionalLong("completedRetentionDays")?.let(Math::toIntExact)
+        val policyChanged=restoredPolicy!=null && restoredDays!=oldPolicy.days
         fun byId(graph:BackupGraph,t:String)=graph.rows(t).associateBy { it.text("id") }
         val oldTasks=byId(before,"tasks");val desiredTasks=byId(target,"tasks")
         val oldSemantic=before.content();val desiredSemantic=target.content()
@@ -69,7 +77,7 @@ class BackupRepository(private val db:TodoDatabase,private val clock:Clock=Devic
                     else changed(t,id)
                 val revision=if(previous==null)1L else if(differs || preview.mode==RestoreMode.REPLACE)Math.incrementExact(previous.long("revision")) else previous.long("revision")
                 val extra=mutableMapOf<String,Any?>("revision" to revision)
-                if(t in listOf("categories","tags")){extra["sortOrder"]=previous?.get("sortOrder") ?: nextOrder.also { require(it<=Int.MAX_VALUE){"排序數量超出範圍"};nextOrder++ }}
+                if(t in listOf("categories","tags")){extra["sortOrder"]=r["sortOrder"] ?: previous?.get("sortOrder") ?: nextOrder.also { require(it<=Int.MAX_VALUE){"排序數量超出範圍"};nextOrder++ }}
                 if(t=="tags")extra["nameKey"]=r.text("name").trim().lowercase(Locale.ROOT)
                 if(t=="tasks")extra["deletedAt"]=r["deletedAt"]
                 if(t=="recurring_series"){extra["deletedAt"]=r["deletedAt"];extra["previousLifecycle"]=r["previousLifecycle"]}
@@ -109,11 +117,14 @@ class BackupRepository(private val db:TodoDatabase,private val clock:Clock=Devic
         val refs=target.rows("occurrences").map { it.text("taskId") }.toSet();val anchors=local.anchors.associateBy { it.taskId }
         finalTasks.values.forEach { task ->
             val id=task.text("id");val completed=task.optionalLong("completedAt")
-            if(!taskChanges.getValue(id) && preview.mode==RestoreMode.MERGE)anchors[id]?.let { db.history().anchor(it) }
+            if(!policyChanged && !taskChanges.getValue(id) && preview.mode==RestoreMode.MERGE)anchors[id]?.let { db.history().anchor(it) }
             else if(id !in refs && task["deletedAt"]==null && task["status"]==TaskStatus.COMPLETED.name && completed!=null)
                 db.history().anchor(RetentionAnchorEntity(id,completed,now))
         }
+        if (restoredPolicy != null && (policyChanged || preview.mode == RestoreMode.REPLACE)) {
+            db.history().policy(RetentionPolicyEntity(days=restoredDays, revision=Math.incrementExact(oldPolicy.revision), updatedAt=restoredPolicy.long("updatedAt")))
+        }
         // A missed reminder is never made PENDING merely because a file was imported.
-        // Existing cancellation work and local retention policy deliberately survive this transaction.
+        // Existing cancellation work survives; file preferences are applied in this same transaction.
     }
 }

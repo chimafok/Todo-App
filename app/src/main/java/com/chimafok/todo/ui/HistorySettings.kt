@@ -20,8 +20,8 @@ import java.time.Clock
 @Composable
 fun HistorySettings(state: TodoState, viewModel: TodoViewModel) {
     val current = state.retentionPolicy.days
-    var option by rememberSaveable { mutableStateOf(if (current == null) "FOREVER" else if (current in listOf(30,90,365)) current.toString() else "CUSTOM") }
-    var custom by rememberSaveable { mutableStateOf(current?.toString() ?: "30") }
+    var option by rememberSaveable(current) { mutableStateOf(if (current == null) "FOREVER" else if (current in listOf(30,90,365)) current.toString() else "CUSTOM") }
+    var custom by rememberSaveable(current) { mutableStateOf(current?.toString() ?: "30") }
     var showPreview by rememberSaveable { mutableStateOf(false) }
     var previewDays by rememberSaveable { mutableStateOf<Int?>(null) }
     var previewRevision by rememberSaveable { mutableLongStateOf(0L) }
