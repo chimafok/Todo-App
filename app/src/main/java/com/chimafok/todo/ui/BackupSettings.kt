@@ -170,9 +170,9 @@ private fun backupTime(value:Any?):String=(value as? Number)?.toLong()?.takeIf {
 private fun backupSideSummary(g:BackupGraph):String = if(g.rows("settings").isNotEmpty())
     "完成紀錄保留：${g.rows("settings").single()["completedRetentionDays"]?.let { "$it 天" } ?: "永久"}"
     else "${g.rows("tasks").size} 項任務、${g.rows("recurring_series").size} 個系列；"+
-    (g.rows("tasks").firstOrNull()?.let { "${statusLabel(TaskStatus.valueOf(it.text("status")))}，修改 ${backupTime(it["updatedAt"])}" }
+    (g.rows("tasks").firstOrNull()?.let { "${statusLabel(TaskStatus.valueOf(it.text("status")), it.optionalText("categoryId"))}，修改 ${backupTime(it["updatedAt"])}" }
         ?: (g.rows("categories")+g.rows("tags")).firstOrNull()?.let { "${it.text("name")}，修改 ${backupTime(it["updatedAt"])}" } ?: "整組規則與關聯")
-private fun backupTaskDetail(r:BackupRow):String = "${r.text("title")}\n${statusLabel(TaskStatus.valueOf(r.text("status")))}"+
+private fun backupTaskDetail(r:BackupRow):String = "${r.text("title")}\n${statusLabel(TaskStatus.valueOf(r.text("status")), r.optionalText("categoryId"))}"+
     " · 開始 ${r["startDate"] ?: "未填"} ${r["startTime"] ?: ""} ${r["startZoneId"] ?: ""} · 截止 ${r["dueDate"] ?: "未安排"} ${r["dueTime"] ?: ""} ${r["zoneId"] ?: ""}\n修改 ${backupTime(r["updatedAt"])}"+
     (if(r["deletedAt"]!=null)" · 垃圾桶" else "")+"\n${r.text("notes") }"
 

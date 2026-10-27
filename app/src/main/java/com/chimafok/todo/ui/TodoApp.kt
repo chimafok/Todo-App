@@ -276,8 +276,8 @@ fun TodoApp(viewModel: TodoViewModel) {
                             RecurringRecords(state, viewModel, clock, !actionBusy,
                                 onEdit = { task -> editExisting = true; editorId = task.id; editorDate = null },
                                 onComplete = { task -> updateStatus(task, TaskStatus.COMPLETED) },
-                                onReopen = { task -> if (task.categoryId == ASSIGNMENTS_ID) statusId = task.id else action { viewModel.status(task, TaskStatus.OPEN) } },
-                                onStatus = { statusId = it.id }, onAdvance = { task -> updateStatus(task, nextAssignmentStatus(task.status)) },
+                                onReopen = { task -> if (task.categoryId in setOf(ASSIGNMENTS_ID, STUDY_ID)) statusId = task.id else action { viewModel.status(task, TaskStatus.OPEN) } },
+                                onStatus = { statusId = it.id }, onAdvance = { task -> updateStatus(task, nextProgressStatus(task.status, task.categoryId == STUDY_ID)) },
                                 onDelete = { deleteId = it.id }, onSelectionMode = {listSelectionActive=it})
                         } else {
                             TaskBrowser(
@@ -289,11 +289,11 @@ fun TodoApp(viewModel: TodoViewModel) {
                                 onEdit = { task -> editExisting = true; editorId = task.id; editorDate = null },
                                 onComplete = { task -> updateStatus(task, TaskStatus.COMPLETED) },
                                 onReopen = { task ->
-                                    if (task.categoryId == ASSIGNMENTS_ID) statusId = task.id
+                                    if (task.categoryId in setOf(ASSIGNMENTS_ID, STUDY_ID)) statusId = task.id
                                     else action { viewModel.status(task, TaskStatus.OPEN) }
                                 },
                                 onStatus = { statusId = it.id },
-                                onAdvance = { task -> updateStatus(task, nextAssignmentStatus(task.status)) },
+                                onAdvance = { task -> updateStatus(task, nextProgressStatus(task.status, task.categoryId == STUDY_ID)) },
                                 onDelete = { deleteId = it.id },
                                 onRestore = { task ->
                                     val ref = state.occurrences.find { it.taskId == task.id }
@@ -326,7 +326,7 @@ fun TodoApp(viewModel: TodoViewModel) {
     state.tasks.find { it.id == viewModel.notificationTaskId }?.let { task ->
         AlertDialog(onDismissRequest = viewModel::dismissReminderDetail, title = { Text(task.title) }, text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("目前狀態：${statusLabel(task.status)}")
+                Text("目前狀態：${statusLabel(task.status, task.categoryId)}")
                 task.dueDate?.let { Text("截止 $it ${task.dueTime?.toString().orEmpty()} ${task.zoneId.orEmpty()}") }
                 if (task.notes.isNotBlank()) LinkifiedNotes(task.notes)
                 if (editorId != null) Text("目前有未儲存的編輯，請先完成或關閉，再編輯這項任務。")
@@ -385,14 +385,14 @@ fun TodoApp(viewModel: TodoViewModel) {
             dismissButton = { TextButton(onClick = { deleteId = null }) { Text("取消") } })
     }
     state.tasks.find { it.id == statusId }?.let { task ->
-        AlertDialog(onDismissRequest = { statusId = null }, title = { Text("選擇作業狀態") }, text = {
-            Column { TaskStatus.entries.filter { it != TaskStatus.OPEN }.forEach { status ->
+        AlertDialog(onDismissRequest = { statusId = null }, title = { Text(if (task.categoryId == STUDY_ID) "選擇學習狀態" else "選擇作業狀態") }, text = {
+            Column { statusOptions(task.categoryId == ASSIGNMENTS_ID, task.categoryId == STUDY_ID).forEach { status ->
                 TextButton(onClick = { statusId = null; updateStatus(task, status) },
                     modifier = Modifier.fillMaxWidth().testTag("choose_status_${status.name}"),
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp)) {
                     AssignmentStatusIcon(status)
                     Spacer(Modifier.width(16.dp))
-                    Text(statusLabel(status), Modifier.weight(1f))
+                    Text(statusLabel(status, task.categoryId), Modifier.weight(1f))
                     if (status == task.status) Icon(painterResource(R.drawable.ic_status_completed), "目前狀態",
                         Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
                 }

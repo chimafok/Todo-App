@@ -70,7 +70,7 @@ fun TaskEditor(
     var statusName by rememberSaveable { mutableStateOf(when {
         restoredDraft != null -> if(restoredCategoryValid) {
             if (!expectedExisting && categories.find { it.id == restoredDraft.categoryId }?.systemKind == SystemCategory.ASSIGNMENTS && restoredDraft.statusName == TaskStatus.COMPLETED.name)
-                TaskStatus.NOT_STARTED.name else restoredDraft.statusName
+                TaskStatus.NOT_STARTED.name else if (!expectedExisting && restoredDraft.categoryId == STUDY_ID && restoredDraft.statusName == TaskStatus.COMPLETED.name) TaskStatus.OPEN.name else restoredDraft.statusName
         } else TaskStatus.OPEN.name
         else -> (existing?.status ?: TaskStatus.OPEN).name
     }) }
@@ -128,7 +128,7 @@ fun TaskEditor(
     val hasDeadlineDate = date.isNotBlank() || (recurringContext == null && frequency != "NONE")
     fun configuredRule(): RecurrenceRule? {
         if (!applyRecurrence) return null
-        val start = requireNotNull(resolvedDate()) { "重複任務請填開始日期" }
+        val start = requireNotNull(resolvedDate()) { "重複任務請填第一次截止日期" }
         return RecurrenceRule(start, RecurrenceFrequency.valueOf(frequency), requireNotNull(zone),
             if (frequency == "EVERY_N_DAYS") requireNotNull(interval.toIntOrNull()) { "間隔須為 1–3650 天" } else 1,
             if (frequency == "WEEKDAYS") weekdays.map { java.time.DayOfWeek.of(it) }.toSet() else emptySet(),
@@ -157,7 +157,7 @@ fun TaskEditor(
             require(recurringContext == null || dueDate != null) { "重複紀錄須保留本次日期" }
             require(!applyRecurrence || !hasSingleReminders || inheritedRemindersReady) { "請先按「沿用單筆提醒」，檢查系列提醒後再儲存" }
             val inherit = applyRecurrence && inheritedRemindersReady
-            require(expectedExisting || !assignment || statusName != TaskStatus.COMPLETED.name) { "新增作業不能直接選擇完成" }
+            require(expectedExisting || (!assignment && !study) || statusName != TaskStatus.COMPLETED.name) { "新增作業或學習任務不能直接選擇完成" }
             val beginning = resolvedStartDate()
             val draft = TaskDraft(id, title, notes, categoryId, dueDate, dueTime,
                 if (dueDate != null) zone else null,
@@ -257,7 +257,7 @@ fun TaskEditor(
                         date = it; deadlineReference = System.currentTimeMillis(); zone = ZoneId.systemDefault().id
                         if (it.isBlank() && !applyRecurrence) time = ""
                     },
-                        label = if (applyRecurrence && recurringContext == null) "開始日期（留空為今天）" else if (applyRecurrence) "開始日期" else "截止日期（選填）", placeholder = "YYYY-MM-DD",
+                        label = if (applyRecurrence && recurringContext == null) "第一次截止日期（留空為今天）" else if (applyRecurrence) "截止日期" else "截止日期（選填）", placeholder = "YYYY-MM-DD",
                         supportingText = if (datePreview != null) { { Text(datePreview) } } else null,
                         trailingIcon = { DatePickerButton(runCatching { resolvedDate() }.getOrNull() ?: LocalDate.now(), R.string.choose_date, enabled = !saving) {
                             date = it.toString(); deadlineReference = System.currentTimeMillis(); zone = ZoneId.systemDefault().id
@@ -294,14 +294,26 @@ fun TaskEditor(
                                 categoryId = category.id
                                 if (category.systemKind == SystemCategory.ASSIGNMENTS && !wasAssignment) {
                                     statusName = if (expectedExisting) null else TaskStatus.NOT_STARTED.name
-                                } else if (category.systemKind != SystemCategory.ASSIGNMENTS && wasAssignment) {
-                                    statusName = convertStatus(statusName?.let(TaskStatus::valueOf) ?: TaskStatus.NOT_STARTED, false).name
+                                } else if (category.systemKind != SystemCategory.ASSIGNMENTS) {
+                                    statusName = convertStatus(statusName?.let(TaskStatus::valueOf) ?: TaskStatus.NOT_STARTED, false, study = category.id == STUDY_ID).name
                                 }
                                 categoryMenu = false
                             }) }
                         }
                     }
                     if (study) {
+                        Box {
+                            OutlinedButton(onClick = { statusMenu = true }, enabled = !saving, shape = MaterialTheme.shapes.medium,
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).testTag("study_status")) {
+                                Text("學習狀態：${statusLabel(statusName?.let(TaskStatus::valueOf) ?: TaskStatus.OPEN, STUDY_ID)}")
+                            }
+                            DropdownMenu(statusMenu, onDismissRequest = { statusMenu = false }) {
+                                statusOptions(false, true).filter { (expectedExisting && !convertingExisting) || it != TaskStatus.COMPLETED }.forEach { status ->
+                                    DropdownMenuItem(text = { Text(statusLabel(status, STUDY_ID)) }, leadingIcon = { AssignmentStatusIcon(status) },
+                                        onClick = { statusName = status.name; statusMenu = false })
+                                }
+                            }
+                        }
                         DeadlineTextField(startDateInput, {
                             startDateInput = it; startReference = System.currentTimeMillis(); startZone = ZoneId.systemDefault().id
                             if (it.isBlank()) startTimeInput = ""
@@ -358,7 +370,7 @@ fun TaskEditor(
                                 frequency = it
                                 if (it == "NONE" && date.isBlank()) time = ""
                                 if (it != "NONE" && zone == null) zone = ZoneId.systemDefault().id
-                                if (!expectedExisting && it != "NONE") statusName = if (assignment) TaskStatus.NOT_STARTED.name else TaskStatus.OPEN.name
+                                if (!expectedExisting && it != "NONE" && !study) statusName = if (assignment) TaskStatus.NOT_STARTED.name else TaskStatus.OPEN.name
                             },
                             onInterval = { interval = it }, onWeekdays = { weekdays = it }, onEndMode = { endMode = it },
                             onEndDate = { endDate = it; endReference = LocalDate.now().toString() }, onCount = { count = it })
