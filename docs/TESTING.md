@@ -1,5 +1,25 @@
 # 驗證與回歸
 
+## 1.2.0 正式發布驗證
+
+維護者於 2026-10-27 確認 1.2.0-dev01 並同意正式簽署及合併 main。來源 commit、測試包 SHA-256 與確認範圍見 [確認紀錄](verification/approval-1.2.0.json)；App／建置來源與已確認版本一致，核對見 [source-parity](verification/source-parity-1.2.0.json)。
+
+本發布輪重跑 95 項單元測試，核對新 XML 時間、類別、案例數及零 failure／error／skipped；Release 建置與 Lint 通過（0 errors／10 warnings）。正式包為 com.chimafok.todo／1.2.0／code30，沿用原 RSA4096 憑證、不可偵錯、不含 QA provider 或網路權限。
+
+API37／API26 專用背景模擬器完成正式 1.1.0→1.2.0 覆蓋更新與啟動，安裝 UID／首次安裝時間不變。API37 另確認虛構一般／學習任務及開始日期保留，三態選單可操作，進行中狀態在強制停止後重新開啟仍保存。初次測試因模擬器 System UI 啟動 ANR 卡住，先關閉閒置 AVD、選 Wait 並以較充足記憶體冷啟動測試機後，依序補驗；App 原始碼未改動。
+
+前輪 76 個不同裝置案例的回歸保留為下方歷史，不宣稱這輪重跑；本輪未測正式新安裝，也未操作使用者手機，背景、隔夜、無障礙及大量資料缺口保留。結果見 [正式包](verification/release-1.2.0.json)、[本輪測試](verification/tests-1.2.0.json)、[API37 更新](verification/install-api37-1.2.0.json)及 [API26 更新](verification/install-api26-1.2.0.json)。
+
+## 1.2.0-dev01 學習三態（歷史測試）
+
+重複任務新欄位名稱及學習三態已完成。95 項單元測試通過，核對本輪新 XML 時間、類別與零 failure／error／skipped；Debug／QA／QA 測試 APK／未簽署 Release 建置及 Debug／Release Lint 均通過（各 0 errors／10 warnings）。
+
+API37 專用背景模擬器執行資料組 71 項、介面組 5 項，共 76 個不同案例。資料初輪 3 項失敗為歷史遷移測試仍預期 schema7，改為 schema8 並加驗舊開始欄位為 null 後，受影響三類 22 項補驗通過。介面初輪 1 項失敗為測試查找已清除語意的裝飾標籤，改驗欄位的無障礙標籤後，4 項學習編輯測試補驗通過；作業介面回歸 1 項已在首輪通過。以類別與案例名稱去重，每個案例最後結果均通過；不是宣稱一次完整全套成功。
+
+測試涵蓋新增禁止完成、原學習 OPEN／完成保留、進行中與完成／重開、過期 revision 拒絕、垃圾桶、分類搬移／刪除、重複首筆與未來進度、系列編輯、備份格式3往返及格式1／2相容。初次測試程式編譯的兩處錯誤亦已修正，初輪及補驗原始輸出分開保留。摘要見 [development-1.2.0.json](verification/development-1.2.0.json)。
+
+先交付 1.2.0-dev01／code30 的 `.debug` 開發簽章 APK，沿用前次測試版憑證；Room schema8不變，備份輸出為格式3。沒有操作使用者手機，API26及長時間背景等缺口維持明示；這是測試版交付當時的紀錄；2026-10-27 已取得此版發布同意並納入上方正式驗證。
+
 ## 1.1.0 正式發布驗證
 
 維護者於 2026-10-26 明確同意 1.1.0-dev02 正式簽署及合併 main；測試來源 commit 與 APK SHA-256 見 [確認紀錄](verification/approval-1.1.0.json)。App／建置來源與確認版相同，正式與開發變體的識別碼、旗標及簽章不同；來源核對見 [source-parity](verification/source-parity-1.1.0.json)。

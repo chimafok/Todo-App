@@ -25,8 +25,8 @@ class TaskRepository(private val db: TodoDatabase, private val clock: Clock = De
         require(draft.tagIds.all { db.dao().tag(it) != null }) { "標籤已更新，請重新開啟表單" }
         require(draft.seriesReminders == null && !draft.inheritSingleReminders) { "系列提醒須透過系列編輯保存" }
         val old = db.dao().task(draft.id)
-        require(old != null || category.systemKind != SystemCategory.ASSIGNMENTS || draft.status != TaskStatus.COMPLETED) {
-            "新增作業不能直接選擇已完成，請建立後再更新進度"
+        require(old != null || (category.systemKind != SystemCategory.ASSIGNMENTS && category.id != STUDY_ID) || draft.status != TaskStatus.COMPLETED) {
+            "新增作業或學習任務不能直接選擇完成，請建立後再更新進度"
         }
         db.dao().occurrence(draft.id)?.let {
             require(!it.excludedByRule) { "這次已由規則取消，請從有效項目延長系列規則" }
@@ -87,7 +87,7 @@ class TaskRepository(private val db: TodoDatabase, private val clock: Clock = De
         if (task.status == status) return@withTransaction
         require(task.revision == expectedRevision) { "資料已更新，請重試" }
         val assignment = db.dao().category(task.categoryId)?.systemKind == SystemCategory.ASSIGNMENTS
-        require(if (assignment) status != TaskStatus.OPEN else status == TaskStatus.OPEN || status == TaskStatus.COMPLETED)
+        require(status in statusOptions(assignment, task.categoryId == STUDY_ID))
         val now = clock.millis()
         db.history().clearAnchor(id)
         db.dao().update(task.copy(status = status, completedAt = if (status == TaskStatus.COMPLETED) now else null,
@@ -140,7 +140,7 @@ class TaskRepository(private val db: TodoDatabase, private val clock: Clock = De
             val status = when {
                 task.id in entering -> choices.getValue(task.id)
                 assignment -> task.status
-                else -> convertStatus(task.status, false)
+                else -> convertStatus(task.status, false, study = targetId == STUDY_ID)
             }
             if (task.categoryId != targetId || task.status != status) db.dao().update(task.copy(
                 categoryId = targetId, status = status,

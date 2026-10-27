@@ -1,0 +1,22 @@
+{
+  "api": 37,
+  "dedicatedOwnedAvd": true,
+  "previousVersion": "1.1.0",
+  "previousCode": 29,
+  "newVersion": "1.2.0",
+  "newCode": 30,
+  "sameOfficialCertificateUpdateSucceeded": true,
+  "uidAndFirstInstallTimePreserved": true,
+  "nonDebuggable": true,
+  "launchSucceeded": true,
+  "phoneOperated": false,
+  "syntheticGeneralAndLearningTasksPreserved": true,
+  "learningStartDatePreserved": true,
+  "learningThreeStatePickerWorks": true,
+  "learningProgressPersistsAfterRestart": true,
+  "apkSha256": "ef0ef90618c19981f10b6f31a15c162bfac54d7d286630576bef4a3e1bc1e358",
+  "limits": [
+    "Upgrade and launch on owned synthetic data; no fresh install in this release phase.",
+    "No phone or background/overnight acceptance claimed."
+  ]
+}

@@ -89,7 +89,7 @@ class OrganizationRepository(private val db: TodoDatabase, private val clock: Cl
         val recurring = RecurringRepository(db, clock)
         affected.forEach { recurring.snapshot(it.id) }
         affected.forEach { task ->
-            val status = if (assignment) assignmentChoices.getValue(task.id) else convertStatus(task.status, false)
+            val status = if (assignment) assignmentChoices.getValue(task.id) else convertStatus(task.status, false, study = targetId == STUDY_ID)
             db.dao().update(task.copy(categoryId = targetId, status = status,
                 completedAt = if (status == TaskStatus.COMPLETED) task.completedAt ?: now else null,
                 updatedAt = now, revision = task.revision + 1))

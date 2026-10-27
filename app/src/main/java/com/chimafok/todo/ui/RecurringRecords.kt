@@ -218,7 +218,7 @@ fun RecurringRecords(state: TodoState, viewModel: TodoViewModel, clock: Clock, e
                             selectionMode=selectingHistory,selected=task.id in recordsSelected,
                             onToggleSelection={selectRecord(task,false)},onLongSelect={selectRecord(task,true)},
                             historyDescription = if (ref.excludedByRule) "因系列規則縮短而取消；保留原紀錄，延長規則後可重新啟用。" else
-                                snapshot?.status?.takeIf { it != task.status.name }?.let { "當時狀態：${statusLabel(TaskStatus.valueOf(it))}" })
+                                snapshot?.status?.takeIf { it != task.status.name }?.let { "當時狀態：${statusLabel(TaskStatus.valueOf(it), task.categoryId)}" })
                     }
                 }
                 if (window.rows.size < window.total) item {

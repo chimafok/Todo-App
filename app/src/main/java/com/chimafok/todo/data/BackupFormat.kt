@@ -31,7 +31,7 @@ object BackupFormat {
 
     fun encode(graph: BackupGraph, now: Long, appVersion: String): String {
         val portable=graph.portable();validateBackup(portable,false)
-        return canonical(mapOf("format" to "Todo-App", "formatVersion" to 2, "schemaVersion" to 8,
+        return canonical(mapOf("format" to "Todo-App", "formatVersion" to 3, "schemaVersion" to 8,
             "exportedAt" to now,"appVersion" to appVersion,"data" to portable.normalized()))
     }
     fun decode(text: String): BackupDocument {
@@ -42,7 +42,7 @@ object BackupFormat {
         val root=value as? Map<*,*> ?: error("備份須為 JSON 物件")
         require(root.keys==setOf("format","formatVersion","schemaVersion","exportedAt","appVersion","data")){"備份欄位不完整或版本不支援"}
         val legacy = root["formatVersion"] == 1L && root["schemaVersion"] == 7L
-        require(root["format"]=="Todo-App" && (legacy || (root["formatVersion"]==2L && root["schemaVersion"]==8L))){"不支援此備份格式或資料版本（本版支援格式 2／資料版本 8，並可匯入格式 1／資料版本 7）"}
+        require(root["format"]=="Todo-App" && (legacy || (root["formatVersion"] in listOf(2L, 3L) && root["schemaVersion"]==8L))){"不支援此備份格式或資料版本（本版支援格式 3／資料版本 8，並可匯入格式 2／資料版本 8 及格式 1／資料版本 7）"}
         val inputTables = if (legacy) legacyBackupTables else backupTables
         val exported=root["exportedAt"] as? Long ?: error("缺少匯出時間")
         val version=root["appVersion"] as? String ?: error("缺少 App 版本");require(version.length in 1..80)
@@ -66,7 +66,11 @@ object BackupFormat {
         val graph = if (!legacy) parsed else BackupGraph(backupTables.mapValues { (table, spec) ->
             parsed.rows(table).map { row -> spec.fields.associate { it.name to row[it.name] } }
         })
-        val canonical=canonicalSystems(graph);validateBackup(canonical,false)
+        val canonical=canonicalSystems(graph)
+        if (root["formatVersion"] != 3L) require(canonical.rows("tasks").none {
+            it["categoryId"] == STUDY_ID && it["status"] !in listOf(TaskStatus.OPEN.name, TaskStatus.COMPLETED.name)
+        }) { "學習進行中狀態須使用備份格式 3" }
+        validateBackup(canonical,false)
         return BackupDocument(canonical,exported,version)
     }
 }
