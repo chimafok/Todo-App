@@ -1,0 +1,130 @@
+{
+  "versionName": "1.2.0",
+  "unitTests": [
+    {
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.BackupMergeTest"
+    },
+    {
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.DeadlineInputTest"
+    },
+    {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.DeviceClockTest"
+    },
+    {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ListScalingTest"
+    },
+    {
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.RecurrenceRulesTest"
+    },
+    {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ReminderConversionRulesTest"
+    },
+    {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ReminderDefaultsTest"
+    },
+    {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ReminderRulesTest"
+    },
+    {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.RetentionRulesTest"
+    },
+    {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.SeriesEditPlanTest"
+    },
+    {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.SeriesReminderRulesTest"
+    },
+    {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.StudyScheduleTest"
+    },
+    {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.StudyStatusRulesTest"
+    },
+    {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.TaskQueryTest"
+    },
+    {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.TaskRulesTest"
+    }
+  ],
+  "releaseLint": {
+    "warning": 10
+  },
+  "build": "assembleRelease",
+  "deviceChecks": {
+    "api37": "1.1.0 to 1.2.0 update; synthetic general/learning tasks and learning start date preserved; three-state picker and persistent progress verified",
+    "api26": "1.1.0 to 1.2.0 update and launch"
+  },
+  "previousDeviceRegression": "The 76 distinct device cases in development-1.2.0.json are previous runs, not rerun in this release phase.",
+  "initialAttempts": [
+    {
+      "stage": "owned release emulator UI",
+      "result": "System UI boot ANR blocked test input before update; stopped the idle second AVD, chose Wait, then cold-restarted API37 with more RAM and retried sequentially. No app source change."
+    }
+  ],
+  "limits": [
+    "No fresh install in this release phase; both device checks are upgrades.",
+    "No user phone operations or complete real-device acceptance claimed.",
+    "Background/overnight/accessibility/large-data limits remain documented."
+  ]
+}
