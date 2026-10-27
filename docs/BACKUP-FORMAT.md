@@ -1,10 +1,10 @@
 # 備份格式與還原契約
 
-1.1.0 使用格式2／Room schema8，仍可匯入格式1／schema7。以下是已實作的備份與還原契約。JSON 為未加密明文，一般操作見 [USER-GUIDE](USER-GUIDE.md#備份與還原)。
+1.2.0 開發版使用格式3／Room schema8，仍可匯入格式2／schema8 及格式1／schema7。格式3擴充學習進行中狀態，資料表與格式2相同；不升級或清除資料庫。以下是已實作的備份與還原契約。JSON 為未加密明文，一般操作見 [USER-GUIDE](USER-GUIDE.md#備份與還原)。
 
 ## 檔案範圍
 
-UTF-8 JSON 根物件恰好包含 `format="Todo-App"`、`formatVersion=2`、`schemaVersion=8`、`exportedAt`（UTC epoch 毫秒）、`appVersion` 與 `data`。data 包含十二個陣列，以穩定主鍵／複合鍵識別。
+UTF-8 JSON 根物件恰好包含 `format="Todo-App"`、`formatVersion=3`、`schemaVersion=8`、`exportedAt`（UTC epoch 毫秒）、`appVersion` 與 `data`。data 包含十二個陣列，以穩定主鍵／複合鍵識別。
 
 | 陣列 | 內容 |
 |---|---|
@@ -26,7 +26,9 @@ UTF-8 JSON 根物件恰好包含 `format="Todo-App"`、`formatVersion=2`、`sche
 
 格式1／schema7 使用原十一個陣列，沒有垃圾桶、排序、設定或學習開始資料。嚴格讀取後補為未知／空值；還原時未知排序沿用本機既有順序，新項附加，缺少一般設定時保留本機設定。舊檔完整取代仍會移除本機未在檔案中的資料（含垃圾桶），必須先看預覽。其他格式／schema 組合明確拒絕。
 
-1.0.5 不能讀格式2；1.1.0 可讀舊備份，不代表舊版可讀新備份。
+格式2／schema8 可匯入，原學習 OPEN 直接視為未開始；格式1／2不接受學習 IN_PROGRESS，以免冒用舊契約。格式3的學習狀態允許 OPEN（未開始）、IN_PROGRESS（進行中）及 COMPLETED（完成）；作業四態與一般二態不變。
+
+1.1.0 及更舊版本不能讀格式3；1.0.5 也不能讀格式2。新版可讀舊備份，不代表舊版可讀新備份，請保留更新前的備份。
 
 ## 驗證與合併
 

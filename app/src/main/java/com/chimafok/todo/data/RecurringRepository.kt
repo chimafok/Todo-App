@@ -62,7 +62,7 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
 
     suspend fun create(draft: TaskDraft): Unit = db.withTransaction {
         require(draft.expectedRevision == null) { "請以新增任務建立重複系列" }
-        require(draft.status == if (dao.category(draft.categoryId)?.systemKind == SystemCategory.ASSIGNMENTS) TaskStatus.NOT_STARTED else TaskStatus.OPEN) { "重複任務的新一次須從未完成開始" }
+        require(if (draft.categoryId == STUDY_ID) draft.status in listOf(TaskStatus.OPEN, TaskStatus.IN_PROGRESS) else draft.status == if (dao.category(draft.categoryId)?.systemKind == SystemCategory.ASSIGNMENTS) TaskStatus.NOT_STARTED else TaskStatus.OPEN) { "重複任務的新一次須從未完成開始" }
         val old = dao.series(draft.id)
         if (old != null) {
             val stored = requireNotNull(dao.latestRule(old.id))
@@ -90,6 +90,11 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
         dao.insertSeriesTags(draft.tagIds.map { SeriesTagEntity(draft.id, it) })
         saveSeriesReminders(db, draft.id, draft.seriesReminders, now)
         reconcileSeries(draft.id, 0)
+        // Only the first occurrence adopts the selected learning progress. Future slots start fresh.
+        if (draft.categoryId == STUDY_ID && draft.status == TaskStatus.IN_PROGRESS) {
+            val first = requireNotNull(dao.task(occurrenceId(draft.id, 1)))
+            TaskRepository(db, clock).setStatus(first.id, first.revision, TaskStatus.IN_PROGRESS)
+        }
     }
 
     /** Adopt the existing task as slot one; later slots keep the normal deterministic IDs. */
@@ -151,7 +156,7 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
             } else {
                 val status = if (assignment) {
                     if (task.status == TaskStatus.OPEN) TaskStatus.NOT_STARTED else task.status
-                } else convertStatus(task.status, false)
+                } else convertStatus(task.status, false, study = draft.categoryId == STUDY_ID)
                 dao.update(task.copy(title = validatedTitle(draft.title), notes = draft.notes, categoryId = draft.categoryId,
                     dueDate = change.date, dueTime = draft.dueTime, zoneId = draft.zoneId, status = status,
                     startDate = draft.startDate?.plusDays(java.time.temporal.ChronoUnit.DAYS.between(requireNotNull(draft.dueDate), change.date)),

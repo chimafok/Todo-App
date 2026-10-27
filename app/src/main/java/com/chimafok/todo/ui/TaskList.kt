@@ -49,8 +49,8 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-fun statusLabel(status: TaskStatus): String = when (status) {
-    TaskStatus.OPEN -> "未完成"
+fun statusLabel(status: TaskStatus, categoryId: String? = null): String = when (status) {
+    TaskStatus.OPEN -> if (categoryId == STUDY_ID) "未開始" else "未完成"
     TaskStatus.NOT_STARTED -> "未開始"
     TaskStatus.IN_PROGRESS -> "進行中"
     TaskStatus.DONE_UNSUBMITTED -> "完成未繳交"
@@ -230,6 +230,9 @@ internal fun TaskCard(
 ) {
     var expanded by rememberSaveable(task.id) { mutableStateOf(false) }
     val assignment = task.categoryId == ASSIGNMENTS_ID
+    val study = task.categoryId == STUDY_ID
+    val hasProgress = assignment || study
+    val progressName = if (study) "學習" else "作業"
     val overdue = !readOnly && task.status != TaskStatus.COMPLETED && isOverdue(task.dueDate, task.dueTime, task.zoneId, clock)
     val completed = task.status == TaskStatus.COMPLETED || completion != null
     val feedback = completion ?: 0f
@@ -257,17 +260,17 @@ internal fun TaskCard(
                             modifier = Modifier.size(48.dp).testTag("select_${task.id}").semantics {
                                 contentDescription = "選取：${task.title}"
                             })
-                    } else if (assignment) {
+                    } else if (hasProgress) {
                         val shownStatus = if (completion != null) TaskStatus.COMPLETED else task.status
                         if (inTrash) {
                             AssignmentStatusIcon(shownStatus, Modifier.semantics {
-                                contentDescription = "作業狀態：${statusLabel(shownStatus)}"
+                                contentDescription = "${progressName}狀態：${statusLabel(shownStatus, task.categoryId)}"
                             })
                         } else {
                             IconButton(onClick = { onStatus(task) }, enabled = enabled && !readOnly,
                                 modifier = Modifier.size(48.dp).testTag("status_${task.id}").semantics {
-                                    contentDescription = "選擇作業狀態：${task.title}"
-                                    stateDescription = statusLabel(shownStatus)
+                                    contentDescription = "選擇${progressName}狀態：${task.title}"
+                                    stateDescription = statusLabel(shownStatus, task.categoryId)
                                 }) {
                                 AnimatedContent(shownStatus, label = "assignment status") { AssignmentStatusIcon(it) }
                             }
@@ -311,7 +314,7 @@ internal fun TaskCard(
                     recurringLabel?.let { MetadataPill(it, MaterialTheme.colorScheme.tertiary) }
                     tags.forEach { MetadataPill("# $it") }
                     if (overdue) MetadataPill("逾期", MaterialTheme.colorScheme.error)
-                    if (assignment && task.status !in listOf(TaskStatus.NOT_STARTED, TaskStatus.COMPLETED)) {
+                    if (hasProgress && task.status !in listOf(TaskStatus.OPEN, TaskStatus.NOT_STARTED, TaskStatus.COMPLETED)) {
                         MetadataPill(statusLabel(task.status), if (task.status == TaskStatus.DONE_UNSUBMITTED) assignmentStatusColor(task.status)
                             else MaterialTheme.colorScheme.onSurfaceVariant)
                     }
@@ -354,8 +357,8 @@ internal fun TaskCard(
                         FilledTonalButton(onClick = { onEdit(task) }, enabled = enabled) { Text("編輯") }
                         if (task.status == TaskStatus.COMPLETED) {
                             TextButton(onClick = { onReopen(task) }, enabled = enabled) { Text("重新開啟") }
-                        } else if (assignment) {
-                            TextButton(onClick = { onAdvance(task) }, enabled = enabled) { Text("推進至${statusLabel(nextAssignmentStatus(task.status))}") }
+                        } else if (hasProgress) {
+                            TextButton(onClick = { onAdvance(task) }, enabled = enabled) { Text("推進至${statusLabel(nextProgressStatus(task.status, study))}") }
                         }
                         TextButton(onClick = { onDelete(task) }, enabled = enabled,
                             colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text("刪除") }

@@ -2,6 +2,14 @@
 
 目前公開版本 1.1.0／code29，Room schema8／備份格式2，可匯入格式1／schema7。維護者已於 2026-10-26 確認 dev02 測試版並同意正式簽署及合併 main；來源與測試包對應見 [發布確認紀錄](verification/approval-1.1.0.json)。以下包含歷史工程界線及驗收目標；版本號不表示全部條件已通過。實際已驗範圍以 [TESTING](TESTING.md) 與 [KNOWN-ISSUES](KNOWN-ISSUES.md) 為準。
 
+## 2026-10-27 最新需求：1.2.0 開發版
+
+本節優先於歷史敘述。重複規則起算欄位改稱「第一次截止日期（留空為今天）」，既有重複紀錄的日期稱截止日期，均不代表學習開始日期。學習狀態位於分類按鈕下方、開始日期上方，直接顯示未開始／進行中／完成三態；新增與轉為重複時不允許選完成，建立後可選完成及重新開啟。卡片左側顯示對應狀態圖示，可開選單或依序推進；完成沿用現有動畫與提醒取消。
+
+學習既有 OPEN 顯示未開始，IN_PROGRESS 表示進行中，COMPLETED 表示完成，不清庫、不新增 enum／欄位、不改變 Room schema8。作業進行中／完成未繳交移入學習對應進行中，作業未開始對應學習未開始；最終完成保持完成。移出到一般分類時未開始／進行中對應未完成，完成不變。同分類批量搬移保留進度。新重複學習的第一次採新增選擇，未來各次未開始，編輯系列保留已產生的學習進度。
+
+備份輸出升至格式3／schema8，資料表範圍不變，加入學習進行中狀態契約；支援格式2／schema8、格式1／schema7匯入，舊格式不能冒用新學習狀態。1.1.0不能讀新格式3，需保留原備份。本輪只交測試 APK，尚未取得本版正式簽署或合併 main 的同意。
+
 ## 1.1.0-dev02 欄位位置修正
 
 學習的開始日期／時間放在「分類與狀態」區塊的分類按鈕下方，與作業狀態的位置一致，直接展開顯示。上方「日期與時間」只保留既有截止欄位；輸入、時區、排序與備份規則不變。此位置修正已納入維護者確認的 1.1.0-dev02，隨 1.1.0 正式發布。
@@ -196,7 +204,7 @@
 ### 2.10 備份、匯出、匯入與合併（F09）
 
 - 僅本機、不設帳號及雲端同步。App 內提供檔案匯出／備份及匯入／還原，不加密碼加密。
-- 檔案含有效及完成任務、作業狀態、分類、標籤、循環、提醒、垃圾桶、排序與一般設定。備份與資料匯出共用 JSON 格式2；目前一般設定為完成保留期限，不包含未建立草稿與 Android 權限。
+- 檔案含有效及完成任務、作業狀態、分類、標籤、循環、提醒、垃圾桶、排序與一般設定。備份與資料匯出共用 JSON 格式3；目前一般設定為完成保留期限，不包含未建立草稿與 Android 權限。
 - 用 Android 系統檔案選擇器讀寫，不要求廣泛儲存權限；使用者自行選儲存位置。App 本身不做網路傳輸；停用／排除 Android 自動雲端備份的任務資料，避免違反本機限定，依 [官方備份規則](https://developer.android.com/identity/data/autobackup) 配置並驗證。使用者若在系統檔案選擇器主動選雲端位置，屬其指定檔案目的地，App 不另做同步。
 - 檔案包含 `formatVersion`、`schemaVersion`、`exportedAt`、`appVersion`、穩定 ID、修改時間及所有關聯。UTF-8 明文；畫面簡短標示檔案可被讀取，讓使用者選合適位置。
 - 還原可選「完整取代」或「合併」。取代前呈現目前／匯入的筆數與影響，確認後才交易式置換；取代會清除目前資料庫（含本機垃圾桶），本機一般設定保留。確認對話明示此效果，提供先匯出目前資料入口。
@@ -255,7 +263,7 @@
 |---|---|---|
 | Category | id PK、name、normalizedName、systemKind、sortOrder | systemKind 為 NONE／UNCATEGORIZED／ASSIGNMENTS；兩個系統種類各唯一，系統 ID 在安裝間固定 |
 | Tag | id PK、name、normalizedName、sortOrder | 本機正常編輯名稱唯一；匯入同名異 ID 先提示並保留，後續可由使用者整理 |
-| Task | id PK、seriesId? FK、sequenceNo?、ruleVersionId? FK、categoryId FK、title、notes、dueDate?、dueTime?、zoneId?、status、completedAt?、deletedAt?、deletionGroupId?、historySnapshot? | 一般單次與循環 occurrence 共用；status 為 OPEN／NOT_STARTED／IN_PROGRESS／DONE_UNSUBMITTED／COMPLETED；非作業僅 OPEN／COMPLETED |
+| Task | id PK、seriesId? FK、sequenceNo?、ruleVersionId? FK、categoryId FK、title、notes、dueDate?、dueTime?、zoneId?、status、completedAt?、deletedAt?、deletionGroupId?、historySnapshot? | 一般單次與循環 occurrence 共用；status 為 OPEN／NOT_STARTED／IN_PROGRESS／DONE_UNSUBMITTED／COMPLETED；學習 OPEN／IN_PROGRESS／COMPLETED；其他一般分類僅 OPEN／COMPLETED |
 | TaskTag | taskId FK、tagId FK | 複合 PK，防同一標籤重複連結 |
 | RecurringSeries | id PK、titleTemplate、notesTemplate、categoryId FK、activeTaskId?（首頁投影，可重算）、lifecycle、generationCursor、lastGeneratedDueDate、consumedCount、deletedAt?、deletionGroupId? | lifecycle 為 ACTIVE／STOPPED／ENDED／TRASHED；游標為最高已用排程槽，保留最後生成日期，不能因清歷史退回 |
 | SeriesRuleVersion | id PK、seriesId FK、version、effectiveFromSequence、frequency、intervalDays?、weekdayMask?、anchorDate、anchorDay?、dueTime?、zoneId、endMode、endDate?、maxCount? | frequency 為 DAILY／WEEKLY／MONTHLY／WEEKDAYS／EVERY_N_DAYS；endMode 三選一；規則歷史不可覆寫 |
@@ -286,7 +294,7 @@ DeletionGroup 1 ── N Task／RecurringSeries
 
 1. Task.categoryId 非空、外鍵有效；至少有一個未分類與一個作業系統分類，不以畫面名稱識別。
 2. dueTime 非空 → dueDate、zoneId 非空；dueDate 空 → dueTime 空。循環 occurrence 的 dueDate 非空。
-3. category.systemKind=ASSIGNMENTS 才能使用作業三種未完成狀態；一般任務不可留下作業狀態。
+3. category.systemKind=ASSIGNMENTS 才能使用作業三種未完成狀態；學習可用 IN_PROGRESS；其他一般分類不可留下進行中或完成未繳交。
 4. status=COMPLETED ↔ completedAt 非空；其他狀態 completedAt 為空。完成及清除計時各用正確欄位。
 5. 非循環 Task 的 seriesId／sequenceNo 皆空；循環 Task 兩者皆非空。系列 activeTaskId 必須指向同系列、未刪除且未完成的任務。
 6. 同系列最多一個首頁 activeTaskId；其他舊未完成紀錄仍保存，既有提醒不因首頁隱藏而取消。STOPPED／ENDED 僅表示不再生成，可保有未完成實例。
@@ -309,7 +317,7 @@ DeletionGroup 1 ── N Task／RecurringSeries
 
 ### 4.5 備份檔案契約
 
-實際格式見 [BACKUP-FORMAT](BACKUP-FORMAT.md)，一般操作見 [USER-GUIDE](USER-GUIDE.md#備份與還原)。格式2的根物件包含 `format="Todo-App"`、`formatVersion=2`、`schemaVersion=8`、`exportedAt`（UTC epoch 毫秒）、`appVersion` 及 `data`；十二個資料陣列、嚴格欄位與驗證限制按該契約，不使用本節概念實體名稱代替 JSON 鍵。
+實際格式見 [BACKUP-FORMAT](BACKUP-FORMAT.md)，一般操作見 [USER-GUIDE](USER-GUIDE.md#備份與還原)。格式3的根物件包含 `format="Todo-App"`、`formatVersion=3`、`schemaVersion=8`、`exportedAt`（UTC epoch 毫秒）、`appVersion` 及 `data`；十二個資料陣列、嚴格欄位與驗證限制按該契約，不使用本節概念實體名稱代替 JSON 鍵。
 
 匯出包含有效與已刪任務／系列、已完成內容、關聯、歷史快照、提醒、排序與一般設定；不含未建立草稿、私有資料庫檔或 Android 權限。提醒的可攜送達歷史與裝置排程狀態須區分，匯入後重新解析及安排未來提醒。
 
@@ -429,7 +437,7 @@ DeletionGroup 1 ── N Task／RecurringSeries
 | AC106 | 新重複任務或首次轉系列時留空開始日期 | 依已記錄輸入時區的當天作為規則 anchor，預覽實際第一個符合日期，可選填時間；有效明確日期優先，無效輸入仍報錯；既有重複紀錄不能因此丟失原日期 | F01、F07 |
 | AC107 | 一般待辦完成按鈕 | 使用與作業未開始狀態一致的圓形輪廓、48dp 操作區；保留完成動畫、checkbox 語義與完成／重新開啟行為，多選仍使用選取框 | 介面、無障礙 |
 | AC108 | 一般／重複歷史搜尋快速完成、慢查詢、換字與取消 | 查詢立即執行，只將載入進度條延後 2 秒；請求改變重計，完成立即隱藏且位置不跳；版本及操作保護不延後，不把查詢防抖當提示延遲 | 介面、品質 |
-| AC109 | 官方 APK 交付 | 識別碼為 com.chimafok.todo、顯示 Todo，使用正式發布憑證；不可偵錯、不含 QA provider。版本名稱與遞增版本碼以建置設定為準，schema8／格式2，保留非破壞遷移與舊備份匯入；APK 只作 Release 資產，金鑰及個人資料不入 Git | 交付 |
+| AC109 | 官方 APK 交付 | 識別碼為 com.chimafok.todo、顯示 Todo，使用正式發布憑證；不可偵錯、不含 QA provider。版本名稱與遞增版本碼以建置設定為準，schema8／格式3，保留非破壞遷移與舊備份匯入；APK 只作 Release 資產，金鑰及個人資料不入 Git | 交付 |
 | AC110 | 新增／提醒的選填標籤與截止輸入 | 統一「選填」，日期／時間文字留在框上方、無深色浮動補丁；YYYY-MM-DD／HH:mm 與全部簡寫、選擇器／時區規則保留 | 介面 |
 | AC111 | 新提醒、截止時間已填、舊提醒重新編輯 | 截止前預設 1 天、日期-only 基準／空白選擇器 10:00；固定空時分優先截止時間；明確舊值 1 小時／20:00 不變 | F06 |
 | AC112 | 新任務輸入後取消／返回、空白退出、繼續編輯 | 三選項先詢問；保留成功後退出並可從首頁續填，捨棄不建任務；空白直接退出，編輯原任務不新增草稿 | F01 |
@@ -439,14 +447,14 @@ DeletionGroup 1 ── N Task／RecurringSeries
 | AC116 | 篩選按鈕與項數 | 同列垂直置中，項數字型一致，保留可按篩選及多選狀態；正常字級以實際幾何位置驗證 | 介面 |
 | AC117 | 正式版覆蓋更新 | 維持同一套件與正式憑證，遞增版本碼；保留既有資料，不要求卸載或清庫，維持非破壞式 schema／備份契約；手機安裝驗收由使用者操作 | 交付 |
 | AC118 | 已完成一輪搜尋後，逐字輸入中文／字母／數字、等待及完成 | 多選文字維持原色與位置，不逐字變灰閃動；等待中仍停用且不可操作舊結果，錯誤／初載／其他封鎖維持停用樣式。圖像比較覆蓋等待及完成，原回首頁防護不回退 | 介面／品質 |
-| AC119 | 正式、開發及 QA APK 識別 | 正式包為 com.chimafok.todo／Todo，使用正式憑證且不可偵錯、無 QA provider；debug 為 com.chimafok.todo.debug／Todo 開發版，qa 為 com.chimafok.todo.qa。三者維持安裝與資料隔離，schema8／格式2，保留非破壞遷移與舊備份匯入 | 發布與開發隔離 |
+| AC119 | 正式、開發及 QA APK 識別 | 正式包為 com.chimafok.todo／Todo，使用正式憑證且不可偵錯、無 QA provider；debug 為 com.chimafok.todo.debug／Todo 開發版，qa 為 com.chimafok.todo.qa。三者維持安裝與資料隔離，schema8／格式3，保留非破壞遷移與舊備份匯入 | 發布與開發隔離 |
 | AC120 | 備份還原與權限核對 | 使用者自行匯出、預覽還原並確認資料與權限；明示垃圾桶、未建立草稿、排序及一般設定不在 JSON 備份內。取消或無效檔案不寫資料；模擬器驗證不代替手機端備份還原驗收 | 資料與交付 |
 | AC121 | 空白日期／未安排、有任務、搜尋與跨分頁 | 空區單行灰字、無大卡片圖示；真實任務仍為卡片；完整分組項數0灰／正數青，初載未知不假顯0，首50筆不截斷統計，200%字級可換行 | 介面 |
 | AC122 | 一般任務長按、點選、返回與載入中 | 日程／未安排／已完成長按選取該項，後續長按加入、點擊切換；原短按展開與完成／狀態獨立按鈕保留。查詢中禁舊動作、取消與換條件清選取，晚回應不恢復舊範圍 | 互動 |
 | AC123 | 垃圾桶任務／已刪系列多選、取消、復原或永久刪除 | 預覽實際去重數量；復原系列保留更早單刪，永久刪系列含全部剩餘；父系列保護／到期／版本與成員檢查，任一不符整批回滾。取消零寫入、未選資料保留 | 垃圾桶 |
 | AC124 | 系列內長按、多頁搜尋全選與規則取消項 | 選取單次紀錄可移垃圾桶，完整匹配含未載入頁；排除唯讀規則取消項，不以批次改模板／完成，原繼續生成規則不被關掉 | 重複歷史 |
 | AC125 | 系列總覽多選停止／刪除、過期預覽 | 停止只限全為ACTIVE；預設刪未來未完成，勾選才包含全歷史。先完整版本／成員校驗，再單一交易；統一預覽Instant、各系列時區日期，預設刪除跨日須重預覽 | 系列 |
-| AC126 | 旋轉、程序重建及更新 | ViewModel 保留凍結 Map 與選取，Bundle 不塞大資料；新程序不自動重建並提交。正式更新維持 com.chimafok.todo 與正式簽章、遞增版本碼、不可偵錯，schema8／格式2，保留非破壞遷移與舊備份匯入 | 資料安全／交付 |
+| AC126 | 旋轉、程序重建及更新 | ViewModel 保留凍結 Map 與選取，Bundle 不塞大資料；新程序不自動重建並提交。正式更新維持 com.chimafok.todo 與正式簽章、遞增版本碼、不可偵錯，schema8／格式3，保留非破壞遷移與舊備份匯入 | 資料安全／交付 |
 
 
 
@@ -457,10 +465,17 @@ DeletionGroup 1 ── N Task／RecurringSeries
 | ID | 情境 | 通過條件 |
 |---|---|---|
 | AC127 | 新增作業與之後更新進度 | 新增選單不顯示完成，Repository 拒絕新建已完成作業且零寫入；既有作業仍可完成 |
-| AC128 | 學習開始日期／時間與草稿 | 位於分類與狀態的學習分類按鈕下方，直接顯示；均選填，無日期時時間停用；清日期清時間，草稿／旋轉保留，保存不補截止 |
+| AC128 | 學習開始日期／時間與草稿 | 位於分類與狀態的學習分類按鈕下方、學習狀態之後，直接顯示；均選填，無日期時時間停用；清日期清時間，草稿／旋轉保留，保存不補截止 |
 | AC129 | 學習排序與分頁 | 截止優先、同截止按開始日時；無截止仍未安排並按開始日時排序，空值後置，完整結果與分頁一致 |
 | AC130 | 開始時區與重複任務 | 有時刻保存原時區與絕對時刻，DST 空洞拒絕；系列依日偏移生成，單次與未來編輯範圍獨立 |
 | AC131 | schema7 升8 | 不重建或清庫，舊任務與 revision 保留，新欄位為 null |
 | AC132 | 備份格式2完整往返 | 有效／完成／垃圾桶、系列復原關聯、開始資料、排序與一般設定完整往返，原生排程與草稿不匯出 |
 | AC133 | 舊備份與衝突 | 可讀格式1／schema7，缺失偏好不清本機；任一側垃圾桶狀態或設定矛盾須明確選版本，故障全回滾 |
 | AC134 | 測試與交付 | 提供開發簽章 .debug APK、版本／commit／SHA-256／驗證限制，使用者確認前不正式簽署或合併 main |
+
+### 5.2 1.2.0 新增驗收條件
+
+| ID | 情境 | 通過條件 |
+|---|---|---|
+| AC135 | 學習三態與表單順序 | 未開始／進行中／完成，新增不能完成；分類→狀態→開始日期→開始時間；卡片、編輯、完成／重開與系列一致，舊任務保留 |
+| AC136 | 重複首次截止欄位與備份相容 | 新系列為第一次截止日期（留空為今天）；格式3保存學習進度，讀格式1／2，schema8不變 |

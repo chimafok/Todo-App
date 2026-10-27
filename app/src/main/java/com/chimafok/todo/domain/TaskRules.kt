@@ -53,8 +53,7 @@ fun validateDraft(draft: TaskDraft, assignment: Boolean) {
     require(draft.startDate != null || draft.startZoneId == null) { "開始時區缺少日期" }
     draft.startZoneId?.let(ZoneId::of)
     if (draft.startDate != null && draft.startTime != null) deadlineInstant(draft.startDate, draft.startTime, requireNotNull(draft.startZoneId))
-    val allowed = if (assignment) TaskStatus.entries.filter { it != TaskStatus.OPEN }
-        else listOf(TaskStatus.OPEN, TaskStatus.COMPLETED)
+    val allowed = statusOptions(assignment, draft.categoryId == STUDY_ID)
     require(draft.status in allowed) { "任務狀態與分類不相符" }
 }
 
@@ -64,11 +63,22 @@ fun isOverdue(date: LocalDate?, time: LocalTime?, zoneId: String?, clock: Clock)
     return date.atTime(time).atZone(ZoneId.of(requireNotNull(zoneId))).toInstant() < clock.instant()
 }
 
-fun convertStatus(status: TaskStatus, assignment: Boolean, selected: TaskStatus? = null): TaskStatus =
+// Learning reuses OPEN for 未開始 so existing tasks need no destructive rewrite.
+fun statusOptions(assignment: Boolean, study: Boolean = false): List<TaskStatus> = when {
+    assignment -> TaskStatus.entries.filter { it != TaskStatus.OPEN }
+    study -> listOf(TaskStatus.OPEN, TaskStatus.IN_PROGRESS, TaskStatus.COMPLETED)
+    else -> listOf(TaskStatus.OPEN, TaskStatus.COMPLETED)
+}
+
+fun convertStatus(status: TaskStatus, assignment: Boolean, selected: TaskStatus? = null, study: Boolean = false): TaskStatus =
     if (assignment) {
         requireNotNull(selected) { "請選擇作業狀態" }.also {
             require(it != TaskStatus.OPEN) { "請選擇作業狀態" }
         }
+    } else if (study) when (status) {
+        TaskStatus.COMPLETED -> TaskStatus.COMPLETED
+        TaskStatus.IN_PROGRESS, TaskStatus.DONE_UNSUBMITTED -> TaskStatus.IN_PROGRESS
+        else -> TaskStatus.OPEN
     } else if (status == TaskStatus.COMPLETED) TaskStatus.COMPLETED else TaskStatus.OPEN
 
 fun nextAssignmentStatus(status: TaskStatus): TaskStatus = when (status) {
@@ -76,4 +86,10 @@ fun nextAssignmentStatus(status: TaskStatus): TaskStatus = when (status) {
     TaskStatus.IN_PROGRESS -> TaskStatus.DONE_UNSUBMITTED
     TaskStatus.DONE_UNSUBMITTED -> TaskStatus.COMPLETED
     else -> error("此狀態無法快速推進")
+}
+
+fun nextProgressStatus(status: TaskStatus, study: Boolean): TaskStatus = if (!study) nextAssignmentStatus(status) else when (status) {
+    TaskStatus.OPEN -> TaskStatus.IN_PROGRESS
+    TaskStatus.IN_PROGRESS -> TaskStatus.COMPLETED
+    else -> error("此學習狀態無法快速推進")
 }

@@ -1,0 +1,224 @@
+{
+  "versionName": "1.2.0-dev01",
+  "versionCode": 30,
+  "applicationId": "com.chimafok.todo.debug",
+  "schemaVersion": 8,
+  "backupFormatVersion": 3,
+  "legacyImport": [
+    [
+      1,
+      7
+    ],
+    [
+      2,
+      8
+    ]
+  ],
+  "status": "development; awaiting maintainer testing approval",
+  "unitTests": [
+    {
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.BackupMergeTest"
+    },
+    {
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.DeadlineInputTest"
+    },
+    {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.DeviceClockTest"
+    },
+    {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ListScalingTest"
+    },
+    {
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.RecurrenceRulesTest"
+    },
+    {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ReminderConversionRulesTest"
+    },
+    {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ReminderDefaultsTest"
+    },
+    {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ReminderRulesTest"
+    },
+    {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.RetentionRulesTest"
+    },
+    {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.SeriesEditPlanTest"
+    },
+    {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.SeriesReminderRulesTest"
+    },
+    {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.StudyScheduleTest"
+    },
+    {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.StudyStatusRulesTest"
+    },
+    {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.TaskQueryTest"
+    },
+    {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.TaskRulesTest"
+    }
+  ],
+  "deviceGroups": [
+    {
+      "tests": 71,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 0,
+      "classes": {
+        "com.chimafok.todo.data.StudyStatusRepositoryTest": 6,
+        "com.chimafok.todo.data.StudyBackupV2Test": 7,
+        "com.chimafok.todo.data.BackupRepositoryTest": 19,
+        "com.chimafok.todo.data.TaskRepositoryTest": 3,
+        "com.chimafok.todo.data.OrganizationRepositoryTest": 4,
+        "com.chimafok.todo.data.BatchRepositoryTest": 4,
+        "com.chimafok.todo.data.RecurringRepositoryTest": 10,
+        "com.chimafok.todo.data.TaskConversionRepositoryTest": 10,
+        "com.chimafok.todo.data.SeriesEditRepositoryTest": 8
+      },
+      "timestamp": "2026-10-27T08:51:37.255834+00:00"
+    },
+    {
+      "tests": 5,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "classes": {
+        "com.chimafok.todo.ui.StudyEditorUiTest": 4,
+        "com.chimafok.todo.ui.TodoUiTest": 1
+      },
+      "timestamp": "2026-10-27T08:53:30.030750+00:00"
+    },
+    {
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classes": {
+        "com.chimafok.todo.data.OrganizationRepositoryTest": 4,
+        "com.chimafok.todo.data.RecurringRepositoryTest": 10,
+        "com.chimafok.todo.data.SeriesEditRepositoryTest": 8
+      },
+      "timestamp": "2026-10-27T08:56:48.134659+00:00"
+    },
+    {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classes": {
+        "com.chimafok.todo.ui.StudyEditorUiTest": 4
+      },
+      "timestamp": "2026-10-27T08:57:24.502502+00:00"
+    }
+  ],
+  "uniqueDeviceCasesWithFinalPassingResult": 76,
+  "deviceApi": 37,
+  "lint": {
+    "debug": {
+      "warning": 10
+    },
+    "release": {
+      "warning": 10
+    }
+  },
+  "apk": {
+    "name": "Todo-1.2.0-dev01.apk",
+    "bytes": 13756576,
+    "sha256": "6f4153dfdb02402c9e1a8a73b53ebfa3fee954365b0f2f30e70307345d100570",
+    "certificateSha256": "61e51e2dce7d422d046cd6b4a41ea6ac15ef298bf6e4ced05bd9355f6cc63c62",
+    "versionName": "1.2.0-dev01",
+    "versionCode": 30,
+    "signing": "Android development key"
+  },
+  "initialAttempts": [
+    {
+      "stage": "test compilation",
+      "result": "failed; corrected a required fixture argument and replaced a nonexistent test helper with real DAO queries"
+    },
+    {
+      "stage": "data regression",
+      "tests": 71,
+      "failures": 3,
+      "reason": "Three historical migration tests still expected schema7; corrected to schema8 and checked optional start fields remain null; all 22 tests in affected classes passed on retry"
+    },
+    {
+      "stage": "UI regression",
+      "tests": 5,
+      "failures": 1,
+      "reason": "Test searched decorative text whose accessibility semantics are intentionally cleared; asserted the date field contentDescription instead; all four learning editor tests passed on retry, assignment regression had already passed"
+    }
+  ],
+  "officialSigningPerformed": false,
+  "mainPromotionApproved": false,
+  "limits": [
+    "Instrumentation groups ran separately with targeted retries; not a single full suite run.",
+    "API26 device regression not rerun this round.",
+    "No user phone operations or real-device acceptance claimed.",
+    "Background, overnight, accessibility and very large data limits remain documented.",
+    "Format3 cannot be read by official 1.1.0 or earlier releases."
+  ]
+}
