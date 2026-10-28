@@ -9,16 +9,16 @@ import java.time.*
 import java.util.UUID
 
 data class OccurrenceSnapshot(val title: String, val notes: String, val category: String,
-    val tags: List<String>, val status: String, val late: Boolean?) {
+    val tags: List<String>, val status: String, val late: Boolean?, val imageIds: String = "") {
     fun json(): String = JSONObject().put("title", title).put("notes", notes).put("category", category)
-        .put("tags", JSONArray(tags)).put("status", status).put("late", late ?: JSONObject.NULL).toString()
+        .put("imageIds", imageIds).put("tags", JSONArray(tags)).put("status", status).put("late", late ?: JSONObject.NULL).toString()
     companion object {
         fun read(json: String?): OccurrenceSnapshot? = json?.let { runCatching {
             val value = JSONObject(it)
             val tags = value.getJSONArray("tags")
             OccurrenceSnapshot(value.getString("title"), value.getString("notes"), value.getString("category"),
                 (0 until tags.length()).map(tags::getString), value.getString("status"),
-                if (value.isNull("late")) null else value.getBoolean("late"))
+                if (value.isNull("late")) null else value.getBoolean("late"), value.optString("imageIds", ""))
         }.getOrNull() }
     }
 }
@@ -37,6 +37,7 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
     }
 
     private suspend fun validate(draft: TaskDraft) {
+        NoteImages(db).requireImages(draft.imageIds)
         if (draft.inheritSingleReminders) {
             require(dao.occurrence(draft.id) == null && !draft.reminders.isNullOrEmpty()) { "只能在首次轉換時沿用單筆提醒" }
             inheritReminderTemplates(draft.reminders, requireNotNull(draft.dueDate), requireNotNull(draft.zoneId))
@@ -68,7 +69,7 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
             val stored = requireNotNull(dao.latestRule(old.id))
             require(!draft.resetSeriesReminders && (draft.inheritSingleReminders || draft.reminders.isNullOrEmpty())) { "請先明確沿用單筆提醒" }
             require(draft.dueDate == stored.rule().dateAt(1) && draft.zoneId == stored.zoneId) { "重複日期或時區與預覽不一致" }
-            require(old.title == validatedTitle(draft.title) && old.notes == draft.notes && old.categoryId == draft.categoryId &&
+            require(old.title == validatedTitle(draft.title) && old.notes == draft.notes && old.imageIds == draft.imageIds && old.categoryId == draft.categoryId &&
                 stored.rule() == draft.recurrence && stored.dueTime == draft.dueTime &&
                 stored.startDayOffset == draft.startDate?.let { Math.toIntExact(java.time.temporal.ChronoUnit.DAYS.between(requireNotNull(draft.dueDate), it)) } &&
                 stored.startTime == draft.startTime && stored.startZoneId == draft.startZoneId && dao.seriesTagIds(old.id).toSet() == draft.tagIds &&
@@ -85,7 +86,7 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
             return@withTransaction
         }
         val now = clock.millis()
-        dao.insertSeries(RecurringSeriesEntity(draft.id, validatedTitle(draft.title), draft.notes, draft.categoryId, createdAt = now, updatedAt = now))
+        dao.insertSeries(RecurringSeriesEntity(draft.id, validatedTitle(draft.title), draft.notes, draft.categoryId, createdAt = now, updatedAt = now, imageIds = draft.imageIds))
         dao.insertRule(entityRule(draft.id, 1, 1, draft))
         dao.insertSeriesTags(draft.tagIds.map { SeriesTagEntity(draft.id, it) })
         saveSeriesReminders(db, draft.id, draft.seriesReminders, now)
@@ -108,7 +109,7 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
         TaskRepository(db, clock).save(draft.copy(recurrence = null, seriesReminders = null, inheritSingleReminders = false))
         val now = clock.millis()
         val series = RecurringSeriesEntity(draft.id, validatedTitle(draft.title), draft.notes, draft.categoryId,
-            cursor = 1, createdAt = now, updatedAt = now)
+            cursor = 1, createdAt = now, updatedAt = now, imageIds = draft.imageIds)
         val rule = entityRule(series.id, 1, 1, draft)
         dao.insertSeries(series)
         dao.insertRule(rule)
@@ -139,7 +140,7 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
         val rule = entityRule(series.id, latest.version + 1, plan.effectiveFrom,
             draft.copy(recurrence = requireNotNull(draft.recurrence).copy(anchor = plan.anchor)))
         dao.insertRule(rule)
-        dao.updateSeries(series.copy(title = validatedTitle(draft.title), notes = draft.notes, categoryId = draft.categoryId,
+        dao.updateSeries(series.copy(title = validatedTitle(draft.title), notes = draft.notes, imageIds = draft.imageIds, categoryId = draft.categoryId,
             lifecycle = SeriesLifecycle.ACTIVE, revision = series.revision + 1, updatedAt = clock.millis()))
         dao.clearSeriesTags(series.id)
         dao.insertSeriesTags(draft.tagIds.map { SeriesTagEntity(series.id, it) })
@@ -157,7 +158,7 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
                 val status = if (assignment) {
                     if (task.status == TaskStatus.OPEN) TaskStatus.NOT_STARTED else task.status
                 } else convertStatus(task.status, false, study = draft.categoryId == STUDY_ID)
-                dao.update(task.copy(title = validatedTitle(draft.title), notes = draft.notes, categoryId = draft.categoryId,
+                dao.update(task.copy(title = validatedTitle(draft.title), notes = draft.notes, imageIds = draft.imageIds, categoryId = draft.categoryId,
                     dueDate = change.date, dueTime = draft.dueTime, zoneId = draft.zoneId, status = status,
                     startDate = draft.startDate?.plusDays(java.time.temporal.ChronoUnit.DAYS.between(requireNotNull(draft.dueDate), change.date)),
                     startTime = draft.startTime, startZoneId = draft.startZoneId,
@@ -192,7 +193,7 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
         val linkedTags = dao.taskTagIds(task.id).toSet()
         val value = if (old != null && !replaceContent) old.copy(status = task.status.name, late = late) else OccurrenceSnapshot(
             task.title, task.notes, dao.category(task.categoryId)?.name.orEmpty(),
-            dao.allTags().filter { it.id in linkedTags }.map { it.name }, task.status.name, late)
+            dao.allTags().filter { it.id in linkedTags }.map { it.name }, task.status.name, late, task.imageIds)
         dao.updateOccurrence(occurrence.copy(snapshot = value.json()))
     }
 
@@ -230,7 +231,7 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
             dao.insert(TaskEntity(taskId, series.title, series.notes, series.categoryId, slot.date, storedRule.dueTime, storedRule.zoneId,
                 status = if (assignment) TaskStatus.NOT_STARTED else TaskStatus.OPEN, createdAt = now, updatedAt = now,
                 startDate = storedRule.startDayOffset?.let { slot.date.plusDays(it.toLong()) },
-                startTime = storedRule.startTime, startZoneId = storedRule.startZoneId))
+                startTime = storedRule.startTime, startZoneId = storedRule.startZoneId, imageIds = series.imageIds))
             dao.insertOccurrence(OccurrenceEntity(taskId, id, sequence, storedRule.id))
             dao.insertTaskTags(tags.map { TaskTagEntity(taskId, it) })
             applySeriesReminders(db, requireNotNull(dao.task(taskId)), templates, now)

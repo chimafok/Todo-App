@@ -45,6 +45,7 @@ data class TaskEntity(
     val startDate: LocalDate? = null,
     val startTime: LocalTime? = null,
     val startZoneId: String? = null,
+    @ColumnInfo(defaultValue = "''") val imageIds: String = "",
 )
 
 @Entity(tableName = "tags", indices = [Index("nameKey")])
@@ -119,9 +120,10 @@ interface TodoDao {
 }
 
 @Database(entities = [TaskEntity::class, CategoryEntity::class, TagEntity::class, TaskTagEntity::class,
-    RecurringSeriesEntity::class, SeriesRuleEntity::class, SeriesTagEntity::class, OccurrenceEntity::class, ReminderEntity::class, ScheduleOutboxEntity::class, SeriesReminderEntity::class, ReminderOverrideEntity::class, RetentionPolicyEntity::class, RetentionAnchorEntity::class, PurgeCancellationEntity::class], version = 8, exportSchema = true)
+    RecurringSeriesEntity::class, SeriesRuleEntity::class, SeriesTagEntity::class, OccurrenceEntity::class, ReminderEntity::class, ScheduleOutboxEntity::class, SeriesReminderEntity::class, ReminderOverrideEntity::class, RetentionPolicyEntity::class, RetentionAnchorEntity::class, PurgeCancellationEntity::class, NoteImageEntity::class], version = 9, exportSchema = true)
 @TypeConverters(TodoConverters::class)
 abstract class TodoDatabase : RoomDatabase() {
+    abstract fun noteImages(): NoteImageDao
     abstract fun dao(): TodoDao
     abstract fun reminders(): ReminderDao
     abstract fun history(): HistoryDao
@@ -131,7 +133,7 @@ abstract class TodoDatabase : RoomDatabase() {
     companion object {
         fun create(context: Context, name: String = "todo.db"): TodoDatabase =
             Room.databaseBuilder(context.applicationContext, TodoDatabase::class.java, name)
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9)
                 .addCallback(seedCallback())
                 // No destructive migration fallback: future versions must provide a migration.
                 .build()
@@ -215,6 +217,14 @@ abstract class TodoDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE series_rules ADD COLUMN startDayOffset INTEGER")
                 db.execSQL("ALTER TABLE series_rules ADD COLUMN startTime TEXT")
                 db.execSQL("ALTER TABLE series_rules ADD COLUMN startZoneId TEXT")
+            }
+        }
+
+        val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE tasks ADD COLUMN imageIds TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE recurring_series ADD COLUMN imageIds TEXT NOT NULL DEFAULT ''")
+                db.execSQL("CREATE TABLE IF NOT EXISTS note_images (id TEXT NOT NULL, data TEXT NOT NULL, PRIMARY KEY(id))")
             }
         }
 

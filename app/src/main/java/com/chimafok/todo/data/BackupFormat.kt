@@ -31,7 +31,7 @@ object BackupFormat {
 
     fun encode(graph: BackupGraph, now: Long, appVersion: String): String {
         val portable=graph.portable();validateBackup(portable,false)
-        return canonical(mapOf("format" to "Todo-App", "formatVersion" to 3, "schemaVersion" to 8,
+        return canonical(mapOf("format" to "Todo-App", "formatVersion" to 5, "schemaVersion" to 9,
             "exportedAt" to now,"appVersion" to appVersion,"data" to portable.normalized()))
     }
     fun decode(text: String): BackupDocument {
@@ -42,8 +42,9 @@ object BackupFormat {
         val root=value as? Map<*,*> ?: error("備份須為 JSON 物件")
         require(root.keys==setOf("format","formatVersion","schemaVersion","exportedAt","appVersion","data")){"備份欄位不完整或版本不支援"}
         val legacy = root["formatVersion"] == 1L && root["schemaVersion"] == 7L
-        require(root["format"]=="Todo-App" && (legacy || (root["formatVersion"] in listOf(2L, 3L) && root["schemaVersion"]==8L))){"不支援此備份格式或資料版本（本版支援格式 3／資料版本 8，並可匯入格式 2／資料版本 8 及格式 1／資料版本 7）"}
-        val inputTables = if (legacy) legacyBackupTables else backupTables
+        val current = root["formatVersion"] in listOf(4L, 5L) && root["schemaVersion"] == 9L
+        require(root["format"]=="Todo-App" && (current || legacy || (root["formatVersion"] in listOf(2L, 3L) && root["schemaVersion"]==8L))){"不支援此備份格式或資料版本（本版支援格式 5／資料版本 9，並可匯入格式 1–4）"}
+        val inputTables = if (legacy) legacyBackupTables else if (current) backupTables else previousBackupTables
         val exported=root["exportedAt"] as? Long ?: error("缺少匯出時間")
         val version=root["appVersion"] as? String ?: error("缺少 App 版本");require(version.length in 1..80)
         val raw=root["data"] as? Map<*,*> ?: error("缺少備份資料")
@@ -63,13 +64,14 @@ object BackupFormat {
                 }
             }
         })
-        val graph = if (!legacy) parsed else BackupGraph(backupTables.mapValues { (table, spec) ->
-            parsed.rows(table).map { row -> spec.fields.associate { it.name to row[it.name] } }
+        val graph = if (current) parsed else BackupGraph(backupTables.mapValues { (table, spec) ->
+            parsed.rows(table).map { row -> spec.fields.associate { it.name to (row[it.name] ?: if (it.name == "imageIds") "" else null) } }
         })
         val canonical=canonicalSystems(graph)
-        if (root["formatVersion"] != 3L) require(canonical.rows("tasks").none {
+        if (root["formatVersion"] in listOf(1L, 2L)) require(canonical.rows("tasks").none {
             it["categoryId"] == STUDY_ID && it["status"] !in listOf(TaskStatus.OPEN.name, TaskStatus.COMPLETED.name)
         }) { "學習進行中狀態須使用備份格式 3" }
+        if (!current) require(referencedImageIds(canonical).isEmpty()) { "圖片附件須使用備份格式 4" }
         validateBackup(canonical,false)
         return BackupDocument(canonical,exported,version)
     }
@@ -128,6 +130,9 @@ fun validateBackup(g:BackupGraph, allowTrash:Boolean) {
     fun idMap(t:String)=g.rows(t).associateBy { it.text("id") }
     fun name(r:BackupRow){val n=r.text("name");require(n==n.trim() && n.length in 1..50){"分類／標籤名稱須為 1–50 字元"}}
     val categories=idMap("categories");val tags=idMap("tags");val tasks=idMap("tasks");val series=idMap("recurring_series");val rules=idMap("series_rules")
+    val images = idMap("note_images")
+    images.values.forEach { validateImageData(it.text("id"), it.text("data")) }
+    require(referencedImageIds(g).all { it in images }) { "備份缺少圖片附件" }
     val rulesBySeries=rules.values.groupBy { it.text("seriesId") }
     g.rows("categories").forEach(::name);g.rows("tags").forEach(::name)
     val systems=mapOf(UNCATEGORIZED_ID to SystemCategory.UNCATEGORIZED.name,ASSIGNMENTS_ID to SystemCategory.ASSIGNMENTS.name)
@@ -186,7 +191,9 @@ fun validateBackup(g:BackupGraph, allowTrash:Boolean) {
         require(slots.add(r.text("seriesId") to r.int("sequence"))){"系列次數重複"}
         r.optionalText("snapshot")?.let { json ->
             require(json.length<=1_000_000);val snap=strictJson(json) as? Map<*,*> ?: error("歷史快照格式錯誤")
-            require(snap.keys==setOf("title","notes","category","tags","status","late"))
+            require(snap.keys == setOf("title","notes","category","tags","status","late") || snap.keys == setOf("title","notes","category","tags","status","late","imageIds"))
+            require(snap["imageIds"] == null || snap["imageIds"] is String)
+            decodeImageIds((snap["imageIds"] as String?).orEmpty())
             require(snap["title"] is String && snap["notes"] is String && snap["category"] is String && snap["status"] in TaskStatus.entries.map { it.name })
             require(snap["late"]==null || snap["late"] is Boolean)
             require((snap["tags"] as? List<*>)?.all { it is String }==true)

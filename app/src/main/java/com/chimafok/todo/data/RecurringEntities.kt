@@ -14,6 +14,7 @@ data class RecurringSeriesEntity(
     val lifecycle: SeriesLifecycle = SeriesLifecycle.ACTIVE, val cursor: Int = 0,
     val deletedAt: Long? = null, val previousLifecycle: SeriesLifecycle? = null,
     val createdAt: Long, val updatedAt: Long, val revision: Long = 1,
+    @ColumnInfo(defaultValue = "''") val imageIds: String = "",
 )
 
 @Entity(tableName = "series_rules", foreignKeys = [ForeignKey(entity = RecurringSeriesEntity::class,

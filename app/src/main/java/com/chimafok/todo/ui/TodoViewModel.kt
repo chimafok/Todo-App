@@ -275,6 +275,9 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     var externalDocumentFlow by mutableStateOf(false)
+    var externalImageFlow by mutableStateOf(false)
+    suspend fun cleanupNoteImages() { draftLoading.join(); if (draftLoadError == null) NoteImages(database).prune(newTaskDraft?.let { com.chimafok.todo.domain.decodeImageIds(it.imageIds) }.orEmpty()) }
+
     private val backup = BackupRepository(database)
     suspend fun exportBackup():String = backup.export(getApplication<Application>().packageManager.getPackageInfo(getApplication<Application>().packageName,0).versionName ?: "0.6.1-dev")
     suspend fun previewBackup(document:BackupDocument,mode:RestoreMode,choices:Map<String,BackupChoice>) = backup.preview(document,mode,choices)
@@ -305,6 +308,12 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     suspend fun trashBatch(revisions: Map<String, Long>) = repository.trashBatch(revisions)
     suspend fun saveCategory(id: String, name: String, revision: Long?) = organization.saveCategory(id, name, revision)
     suspend fun saveTag(id: String, name: String, revision: Long?) = organization.saveTag(id, name, revision)
+    suspend fun reorderOrganization(tags: Boolean, before: List<String>, after: List<String>, revisions: Map<String, Long>) = organization.reorder(tags, before, after, revisions)
+    suspend fun previewOrganizationDelete(ids: Set<String>, tags: Boolean) = organization.previewDelete(ids, tags)
+    suspend fun deleteOrganizationBatch(preview: OrganizationDeletePreview, target: String, choices: Map<String, TaskStatus>) = organization.deleteBatch(preview, target, choices)
+    val organizationSelection = mutableStateOf(emptyList<String>())
+    var organizationDeleteChoices by mutableStateOf(emptyMap<String, TaskStatus>())
+    var organizationDeletePreview by mutableStateOf<OrganizationDeletePreview?>(null)
     suspend fun moveOrganization(id: String, tags: Boolean, delta: Int, order: List<String>) = organization.move(id, tags, delta, order)
     suspend fun deleteTag(tag: TagEntity) = organization.deleteTag(tag.id, tag.revision)
     suspend fun deleteCategory(category: CategoryEntity, targetId: String, tasks: Map<String, Long>, choices: Map<String, TaskStatus>) =

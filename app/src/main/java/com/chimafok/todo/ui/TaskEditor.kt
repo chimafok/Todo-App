@@ -42,6 +42,7 @@ fun TaskEditor(
     initialDraft: NewTaskDraft? = null,
     onKeepDraft: suspend (NewTaskDraft) -> Unit = {},
     onDiscardDraft: suspend () -> Unit = {},
+    onImagePickerActive: (Boolean) -> Unit = {},
 ) {
     val restoredDraft = initialDraft?.takeIf { !expectedExisting && it.id == id }
     val knownTags = remember(tags) { tags.map { it.id }.toSet() }
@@ -55,6 +56,8 @@ fun TaskEditor(
     var inheritedReminderStamp by rememberSaveable { mutableStateOf(restoredDraft?.inheritedReminderStamp) }
     var inheritedTemplateIds by rememberSaveable { mutableStateOf(restoredDraft?.inheritedTemplateIds ?: emptyList()) }
     var title by rememberSaveable { mutableStateOf(restoredDraft?.title ?: existing?.title ?: "") }
+    var imageIds by rememberSaveable { mutableStateOf(restoredDraft?.imageIds ?: existing?.imageIds.orEmpty()) }
+    var imageBusy by remember { mutableStateOf(false) }
     var notes by rememberSaveable { mutableStateOf(restoredDraft?.notes ?: existing?.notes ?: "") }
     var date by rememberSaveable { mutableStateOf(restoredDraft?.date ?: (existing?.dueDate ?: initialDate)?.toString() ?: "") }
     var time by rememberSaveable { mutableStateOf(restoredDraft?.time ?: existing?.dueTime?.format(DateTimeFormatter.ofPattern("HH:mm")) ?: "") }
@@ -147,7 +150,7 @@ fun TaskEditor(
     val startTimePreview = runCatching { parseTimeInput(startTimeInput)?.format(DateTimeFormatter.ofPattern("HH:mm")) }.getOrNull()?.takeIf { it != startTimeInput.trim() }
 
     fun save(next: Boolean, pastConfirmed: Boolean = false, seriesConfirmed: Boolean = false, conversionConfirmed: Boolean = false) {
-        if (saving) return
+        if (saving || imageBusy) return
         try {
             require(!versionsLost) { "編輯狀態已重建，請關閉後重新開啟任務，再確認系列修改。" }
             require(!expectedExisting || existing != null) { "任務已不存在，請關閉表單後重試" }
@@ -166,7 +169,7 @@ fun TaskEditor(
                 if (applyRecurrence && !inherit) null else decodeReminderInputs(reminderInputs).map { it.spec(dueDate, dueTime, zone) },
                 if (applyRecurrence) decodeSeriesReminderInputs(seriesReminderInputs).map { it.spec() } else null,
                 resetSeriesReminders = !applyRecurrence && resetReminders, inheritSingleReminders = inherit,
-                startDate = beginning, startTime = parseTimeInput(startTimeInput), startZoneId = if (beginning != null) startZone else null)
+                startDate = beginning, startTime = parseTimeInput(startTimeInput), startZoneId = if (beginning != null) startZone else null, imageIds = imageIds)
             validateDraft(draft, assignment)
             draft.seriesReminders.orEmpty().forEach { template ->
                 resolveReminder(occurrenceReminder(template, id, requireNotNull(dueDate), dueTime, requireNotNull(zone)), dueDate, dueTime, zone)
@@ -213,10 +216,10 @@ fun TaskEditor(
     var showDraftExit by rememberSaveable { mutableStateOf(false) }
     fun snapshotDraft() = NewTaskDraft(id,title,notes,date,time,zone,deadlineReference,selectedTags,categoryId,statusName,
         frequency,interval,weekdays,endMode,endDate,endReference,count,reminderInputs,seriesReminderInputs,
-        inheritedReminderStamp,inheritedTemplateIds,startDateInput,startTimeInput,startZone,startReference)
+        inheritedReminderStamp,inheritedTemplateIds,startDateInput,startTimeInput,startZone,startReference,imageIds)
     fun requestExit() {
         if(saving) return
-        if(!expectedExisting && (restoredDraft != null || title.isNotEmpty() || notes.isNotEmpty() || date.isNotEmpty() ||
+        if(!expectedExisting && (restoredDraft != null || title.isNotEmpty() || imageIds.isNotEmpty() || notes.isNotEmpty() || date.isNotEmpty() ||
             time.isNotEmpty() || startDateInput.isNotEmpty() || startTimeInput.isNotEmpty() || selectedTags.isNotEmpty() || categoryId != UNCATEGORIZED_ID || frequency != "NONE" ||
             reminderInputs != "[]" || seriesReminderInputs != "[]")) showDraftExit = true else onDismiss()
     }
@@ -232,10 +235,10 @@ fun TaskEditor(
                     Surface(color = MaterialTheme.colorScheme.background) {
                         Row(Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = 20.dp, vertical = 12.dp),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            if (!expectedExisting) OutlinedButton(onClick = { save(true) }, enabled = !saving,
+                            if (!expectedExisting) OutlinedButton(onClick = { save(true) }, enabled = !saving && !imageBusy,
                                 shape = MaterialTheme.shapes.medium,
                                 modifier = Modifier.weight(1f).heightIn(min = 52.dp).testTag("save_next")) { Text("新增下一項") }
-                            Button(onClick = { save(false) }, enabled = !saving, shape = MaterialTheme.shapes.medium,
+                            Button(onClick = { save(false) }, enabled = !saving && !imageBusy, shape = MaterialTheme.shapes.medium,
                                 modifier = Modifier.weight(1f).heightIn(min = 52.dp).testTag("save_task")) {
                                 Text(if (saving) "儲存中…" else if (expectedExisting) "儲存" else "建立")
                             }
@@ -246,7 +249,7 @@ fun TaskEditor(
                 Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     OutlinedTextField(title, { title = it }, label = { Text("任務名稱") },
-                        modifier = Modifier.fillMaxWidth().focusRequester(titleFocus).testTag("task_title"), enabled = !saving,
+                        modifier = Modifier.fillMaxWidth().focusRequester(titleFocus).testTag("task_title"), enabled = !saving && !imageBusy,
                         colors = fieldColors, shape = MaterialTheme.shapes.medium,
                         singleLine = true, isError = error != null && title.isBlank())
                     error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("editor_error")) }
@@ -284,7 +287,7 @@ fun TaskEditor(
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     Text("分類與狀態", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                     Box {
-                        OutlinedButton(onClick = { categoryMenu = true }, enabled = !saving, shape = MaterialTheme.shapes.medium,
+                        OutlinedButton(onClick = { categoryMenu = true }, enabled = !saving && !imageBusy, shape = MaterialTheme.shapes.medium,
                             modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) {
                             Text("分類：${categories.find { it.id == categoryId }?.name ?: "未分類"}")
                         }
@@ -303,7 +306,7 @@ fun TaskEditor(
                     }
                     if (study) {
                         Box {
-                            OutlinedButton(onClick = { statusMenu = true }, enabled = !saving, shape = MaterialTheme.shapes.medium,
+                            OutlinedButton(onClick = { statusMenu = true }, enabled = !saving && !imageBusy, shape = MaterialTheme.shapes.medium,
                                 modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).testTag("study_status")) {
                                 Text("學習狀態：${statusLabel(statusName?.let(TaskStatus::valueOf) ?: TaskStatus.OPEN, STUDY_ID)}")
                             }
@@ -354,7 +357,7 @@ fun TaskEditor(
                         Text("重複", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                         if (recurringContext != null) {
                             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                FilterChip(!applyFuture, onClick = { applyFuture = false }, enabled = !saving,
+                                FilterChip(!applyFuture, onClick = { applyFuture = false }, enabled = !saving && !imageBusy,
                                     label = { Text("僅本次") }, modifier = Modifier.testTag("repeat_scope_single"))
                                 FilterChip(applyFuture, onClick = { applyFuture = true },
                                     enabled = !saving && futureAllowed,
@@ -365,7 +368,7 @@ fun TaskEditor(
                                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         if (!expectedExisting || applyFuture || conversionAllowed) RecurrenceFields(frequency, interval, weekdays, endMode, endDate, count,
-                            allowNone = recurringContext == null, enabled = !saving,
+                            allowNone = recurringContext == null, enabled = !saving && !imageBusy,
                             onFrequency = {
                                 frequency = it
                                 if (it == "NONE" && date.isBlank()) time = ""
@@ -396,7 +399,7 @@ fun TaskEditor(
                                 Text("這一次保留目前表單的提醒，設為獨立提醒；之後各次使用上方系列提醒。截止前沿用提前量；固定時間按截止時區換算成日期偏移與時刻。",
                                     style = MaterialTheme.typography.bodySmall)
                                 if (!inheritedRemindersReady && inheritedReminderStamp != null) Text("日期、時間或單筆提醒已改動，請重新沿用並檢查。", color = MaterialTheme.colorScheme.error)
-                                OutlinedButton(enabled = !saving, modifier = Modifier.testTag("inherit_single_reminders"), onClick = {
+                                OutlinedButton(enabled = !saving && !imageBusy, modifier = Modifier.testTag("inherit_single_reminders"), onClick = {
                                     runCatching {
                                         val day = requireNotNull(configuredRule()?.dateAt(1)) { "請先設定首次日期" }
                                         val z = requireNotNull(zone) { "請先設定截止時區" }
@@ -434,11 +437,13 @@ fun TaskEditor(
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         tags.forEach { tag -> FilterChip(selected = tag.id in selectedTags,
                             onClick = { selectedTags = if (tag.id in selectedTags) selectedTags - tag.id else selectedTags + tag.id },
-                            enabled = !saving, label = { Text(tag.name) }, modifier = Modifier.testTag("editor_tag_${tag.id}")) }
+                            enabled = !saving && !imageBusy, label = { Text(tag.name) }, modifier = Modifier.testTag("editor_tag_${tag.id}")) }
                     }
+                    Text("備註與圖片", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                     OutlinedTextField(notes, { notes = it }, label = { Text("備註") }, modifier = Modifier.fillMaxWidth().testTag("task_notes"),
                         colors = fieldColors, shape = MaterialTheme.shapes.medium,
                         minLines = 3, enabled = !saving)
+                    NoteImageField(imageIds, !saving, { imageIds = it }, { imageBusy = it }, onImagePickerActive)
                 }
             }
         }
