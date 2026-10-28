@@ -440,10 +440,10 @@ fun TaskEditor(
                             enabled = !saving && !imageBusy, label = { Text(tag.name) }, modifier = Modifier.testTag("editor_tag_${tag.id}")) }
                     }
                     Text("備註與圖片", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                    NoteImageField(imageIds, !saving, { imageIds = it }, { imageBusy = it }, onImagePickerActive)
                     OutlinedTextField(notes, { notes = it }, label = { Text("備註") }, modifier = Modifier.fillMaxWidth().testTag("task_notes"),
                         colors = fieldColors, shape = MaterialTheme.shapes.medium,
                         minLines = 3, enabled = !saving)
+                    NoteImageField(imageIds, !saving, { imageIds = it }, { imageBusy = it }, onImagePickerActive)
                 }
             }
         }

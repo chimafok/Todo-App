@@ -1,5 +1,11 @@
 # 驗證與回歸
 
+## 1.3.0-dev02 備註位置調整
+
+文字備註移到圖片區上方。Debug／QA／QA測試包建置與Debug Lint通過（0 errors／13 warnings）；API37分別重跑2項既有介面案例，核對當輪新XML、類別／方法、非零案例與零failure／error／skipped。涵蓋圖片草稿／預覽／旋轉／移除、保留文字及選圖後儲存；另以虛構畫面檢查文字在上、圖片在下。
+
+沿用開發憑證，版本1.3.0-dev02／code32、com.chimafok.todo.debug；schema9及備份格式4不變。此輪沒有本地重跑先前99項單元測試或整套裝置回歸，舊紀錄保持為下方歷史；API26、手機、圖片供應商及其他限制仍保留。只使用並關閉專用背景模擬器，未操作手機。結果與APK校驗值見[本輪紀錄](verification/development-1.3.0-dev02.json)。等待維護者測試確認後才正式簽署及合併main。
+
 ## 1.3.0-dev01 分類管理與備註圖片
 
 本次先交付開發簽章測試APK（com.chimafok.todo.debug／code31），等待維護者確認後才正式簽署及合併main。APK來源以不可移動的v1.3.0-dev01測試標籤為準，SHA-256與原始碼指紋見[當輪紀錄](verification/development-1.3.0.json)；沿用既有開發憑證，可更新先前測試版，與正式版資料隔離。
