@@ -1,0 +1,8 @@
+{
+  "approvedTestSourceCommit": "eff8f58473877e5bfd50fb01c8c2698d98c852cf",
+  "approvedAppTree": "785f2bb71a0f2de583bdd835fe9924751f33dacf",
+  "releaseAppTree": "785f2bb71a0f2de583bdd835fe9924751f33dacf",
+  "runtimeAndBuildPathsUnchanged": true,
+  "signedAndUnsignedReleasePayloadIdentical": true,
+  "note": "Debug and release have different IDs, flags and certificates; this verifies source parity rather than byte-identical APK files."
+}

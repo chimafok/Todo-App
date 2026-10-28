@@ -1,0 +1,145 @@
+{
+  "versionName": "1.3.0",
+  "unitTests": [
+    {
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.BackupMergeTest"
+    },
+    {
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.DeadlineInputTest"
+    },
+    {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.DeviceClockTest"
+    },
+    {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ListScalingTest"
+    },
+    {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.NoteImageMergeTest"
+    },
+    {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.NoteImageRefsTest"
+    },
+    {
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.RecurrenceRulesTest"
+    },
+    {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ReminderConversionRulesTest"
+    },
+    {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ReminderDefaultsTest"
+    },
+    {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ReminderRulesTest"
+    },
+    {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.RetentionRulesTest"
+    },
+    {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.SeriesEditPlanTest"
+    },
+    {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.SeriesReminderRulesTest"
+    },
+    {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.StudyScheduleTest"
+    },
+    {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.StudyStatusRulesTest"
+    },
+    {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.TaskQueryTest"
+    },
+    {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.TaskRulesTest"
+    }
+  ],
+  "releaseLint": {
+    "errors": 0,
+    "warnings": 13
+  },
+  "build": "assembleRelease --rerun-tasks",
+  "deviceChecks": {
+    "api37": "Official 1.2.0 to 1.3.0 update/schema8 to9 launch. Synthetic tasks, learning progress and start date preserved. Official image entry and system picker cancellation return to editor. State retained after restart.",
+    "api26": "Official 1.2.0 to 1.3.0 update and launch; UID and first installation time preserved."
+  },
+  "previousDeviceRegression": "The 38 API37 cases in development-1.3.0-dev03.json and the dev01 API37/API26 runs are previous development-phase checks, not rerun in this release phase.",
+  "initialAttempts": [
+    {
+      "stage": "dedicated API37 emulator startup",
+      "result": "System UI boot ANR blocked the before-update check. Retained initial UI/log, chose Wait and retried without app changes or clearing data."
+    }
+  ],
+  "limits": [
+    "No fresh install in this release phase; both device checks are upgrades.",
+    "Official picker cancellation is a smoke check, not real-provider image importing acceptance.",
+    "No user phone operations or complete real-device acceptance claimed. Background/overnight/accessibility/large-data limits remain documented."
+  ]
+}

@@ -1,6 +1,6 @@
 # 資料模型：實作狀態與演進
 
-## 1.3.0 開發版：備註圖片（schema9）
+## 1.3.0：備註圖片（schema9）
 
 MIGRATION_8_9只新增`tasks.imageIds`、`recurring_series.imageIds`兩個非空TEXT欄（預設空字串）及`note_images(id TEXT PRIMARY KEY, data TEXT NOT NULL)`。舊任務、系列、revision與開始／截止資料不重建或清除。引用字串是按顯示順序以逗號分隔的SHA-256，不設每項圖片張數上限；圖片是不可變、內容定址的Base64 JPEG，單張至多768 KiB，避免單列超過一般Cursor視窗。表單、首頁／歷史完整內容只帶小型引用；縮圖／放大時才載入圖片，不放進Bundle或搜尋索引。
 

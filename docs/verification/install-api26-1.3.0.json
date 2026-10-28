@@ -1,0 +1,19 @@
+{
+  "api": 26,
+  "dedicatedOwnedAvd": true,
+  "previousVersion": "1.2.0",
+  "previousCode": 30,
+  "newVersion": "1.3.0",
+  "newCode": 33,
+  "sameOfficialCertificateUpdateSucceeded": true,
+  "uidAndFirstInstallTimePreserved": true,
+  "nonDebuggable": true,
+  "launchSucceeded": true,
+  "phoneOperated": false,
+  "apkSha256": "40e573456396841048c7deb46e48742f80eb2d28e776b107bed39562fc5d70f2",
+  "limits": [
+    "Upgrade and launch on dedicated synthetic data; no fresh installation in this release phase.",
+    "Official API37 checks image entry and picker cancellation, not importing real photo-provider images.",
+    "No user phone, background/overnight or complete accessibility acceptance claimed."
+  ]
+}
