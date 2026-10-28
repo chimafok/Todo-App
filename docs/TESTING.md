@@ -1,5 +1,17 @@
 # 驗證與回歸
 
+## 1.3.0 正式發布驗證
+
+維護者於2026-10-28確認1.3.0-dev03，授權既有正式金鑰簽署、合併main與正式發布；對應來源與測試包校驗值見[確認紀錄](verification/approval-1.3.0.json)。App與建置來源保持一致，簽署前後APK內容一致，見[source-parity](verification/source-parity-1.3.0.json)。
+
+本發布輪重新執行100項單元測試，核對當輪新XML、實際案例數、類別與零failure／error／skipped；Release建置及Lint通過（0 errors／13 warnings）。正式包為com.chimafok.todo／1.3.0／code33，沿用既有RSA4096憑證，不可偵錯，不含QA provider、網路或整個相簿權限。
+
+API37及API26專用背景模擬器完成正式1.2.0→1.3.0覆蓋更新與啟動，UID／首次安裝時間保留。API37另確認schema8→9後虛構一般／學習任務、學習進行中與開始日期仍在，重新啟動亦保留；正式包圖片入口與系統選圖取消返回表單通過。初次API37被模擬器System UI啟動無回應視窗擋住，保留失敗日誌／畫面，選Wait後補驗，App未更動亦未清資料。
+
+本輪未測正式新安裝、真實照片供應商或使用者手機；開發階段38項API37及dev01的API37／26案例保留為下方歷史，沒有當成本輪重跑。背景／隔夜、完整無障礙及大量資料限制仍保留。結果見[正式包](verification/release-1.3.0.json)、[本輪測試](verification/tests-1.3.0.json)、[API37更新](verification/install-api37-1.3.0.json)、[API26更新](verification/install-api26-1.3.0.json)。專用模擬器完成後關閉。
+
+以下dev01–dev03段落保留交付當時的狀態；dev03已在本節日期取得正式發布同意。
+
 ## 1.3.0-dev03 圖片叉號與取消張數限制
 
 Debug／QA／QA測試包及未簽署Release建置通過；100項單元測試及Debug Lint通過（0 errors／13 warnings）。API37逐類別／方法執行38項：圖片資料9項、備份19項、學習狀態6項及圖片介面4項。核對每輪新XML、選取類別／方法、非零案例與零failure／error／skipped。包含12張分批加入、去重、草稿、系列歷史、格式5完整還原、格式1–4相容、讀取失敗原子性，以及叉號幾何位置／點按、選圖取消與文字保留；另檢視虛構介面畫面。

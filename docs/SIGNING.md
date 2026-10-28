@@ -8,7 +8,7 @@
 
 公開憑證與上述憑證指紋可用於辨識簽署者，不包含用來簽署 APK 的私鑰。它們不能代替私鑰與密碼的備份，也不能僅憑指紋重新建立相同更新身分。
 
-每個 APK 的檔案 SHA-256 見該 Release 的 SHA256SUMS.txt；原始碼中的公開驗證摘要見 [1.2.0 驗證摘要](verification/release-1.2.0.json)（[1.1.0](verification/release-1.1.0.json)／[1.0.5](verification/release-1.0.5.json) 歷史摘要）。
+每個 APK 的檔案 SHA-256 見該 Release 的 SHA256SUMS.txt；原始碼中的公開驗證摘要見 [1.3.0 驗證摘要](verification/release-1.3.0.json)（[1.2.0](verification/release-1.2.0.json)／[1.1.0](verification/release-1.1.0.json)／[1.0.5](verification/release-1.0.5.json) 歷史摘要）。
 
 App 改動先交付開發簽章的 `.debug` 測試 APK；只有 chimafok 明確同意對應測試版本後，才可使用本正式金鑰簽署、合併對應原始碼到 `main` 及發布正式 APK。確認須對應來源 commit 與測試 APK SHA-256，詳見[發布確認](../CONTRIBUTING.md#測試-apk-與發布確認)。
 
