@@ -24,7 +24,7 @@ class NoteImagesTest {
     private fun databases(block: suspend (TodoDatabase, TodoDatabase) -> Unit) = runBlocking {
         assertEquals("com.chimafok.todo.qa", context.packageName)
         val names = List(2) { "images130-${UUID.randomUUID()}.db" }; val a = TodoDatabase.create(context, names[0]); val b = TodoDatabase.create(context, names[1])
-        try { block(a, b) } finally { a.close(); b.close(); names.forEach(context::deleteDatabase); File(context.cacheDir, "qa-image.png").delete() }
+        try { block(a, b) } finally { a.close(); b.close(); names.forEach(context::deleteDatabase); File(context.cacheDir, "qa-image.png").delete(); (0..11).forEach { File(context.cacheDir, "qa-image-$it.png").delete() } }
     }
     private fun source(color: Int = Color.CYAN): ByteArray {
         val image = Bitmap.createBitmap(120, 80, Bitmap.Config.ARGB_8888); image.eraseColor(color)
@@ -45,6 +45,7 @@ class NoteImagesTest {
         source(); val store = NoteImages(a); val ids = store.import(context, listOf(uri, uri), emptyList()); assertEquals(1, ids.size)
         source(Color.RED); rejected { store.import(context, listOf(uri, Uri.parse("content://${context.packageName}.backup-test/missing.png")), ids) }
         assertEquals(ids, a.noteImages().ids())
+        assertTrue(context.cacheDir.listFiles().orEmpty().none { it.name.startsWith("note-image-") })
     }
     @Test fun notesImagesSurviveTrashRecurringSnapshotsAndBackupRestore() = databases { a, b ->
         source(); val id = NoteImages(a).import(context, listOf(uri), emptyList()).single(); val encoded = encodeImageIds(listOf(id))
@@ -52,12 +53,51 @@ class NoteImagesTest {
         val day = LocalDate.now(clock); r.save(TaskDraft("series", "重複圖片", dueDate = day, zoneId = "UTC", recurrence = RecurrenceRule(day, RecurrenceFrequency.DAILY, "UTC", maxCount = 2), imageIds = encoded))
         val first = a.dao().task(occurrenceId("series", 1))!!; r.setStatus(first.id, first.revision, TaskStatus.COMPLETED)
         assertEquals(encoded, OccurrenceSnapshot.read(a.dao().occurrence(first.id)!!.snapshot)!!.imageIds)
-        val text = BackupRepository(a, clock).export("1.3.0-dev01"); val envelope = JSONObject(text); assertEquals(4, envelope.getInt("formatVersion")); assertEquals(9, envelope.getInt("schemaVersion"))
+        val text = BackupRepository(a, clock).export("1.3.0-dev01"); val envelope = JSONObject(text); assertEquals(5, envelope.getInt("formatVersion")); assertEquals(9, envelope.getInt("schemaVersion"))
         val document = BackupFormat.decode(text); assertEquals(1, document.data.rows("note_images").size)
         val restore = BackupRepository(b, clock); restore.apply(document, restore.preview(document, RestoreMode.REPLACE), emptyMap())
         assertEquals(document.data.content(), BackupFormat.decode(BackupRepository(b, clock).export("1.3.0-dev01")).data.content())
         assertEquals("保留文字", b.dao().task("task")!!.notes); assertNotNull(b.dao().task("task")!!.deletedAt)
         assertTrue(b.dao().allTasks().all { it.imageIds == encoded }); assertNotNull(NoteImages(b).bitmap(id, true))
+    }
+    @Test fun moreThanEightImagesSurviveBatchesDraftRecurringHistoryAndBackup() = databases { a, b ->
+        val store = NoteImages(a)
+        val uris = (0..11).map { n ->
+            val raw = source(Color.rgb(n * 20, 100, 200 - n * 10))
+            File(context.cacheDir, "qa-image-$n.png").writeBytes(raw)
+            Uri.parse("content://${context.packageName}.backup-test/image-$n.png")
+        }
+        val first = store.import(context, uris.take(9), emptyList())
+        assertEquals(9, first.size)
+        val ids = store.import(context, uris.drop(9), first); assertEquals(12, ids.size)
+        assertEquals(ids, store.import(context, listOf(uris.first()), ids))
+        val encoded = encodeImageIds(ids)
+        val folder = File(context.cacheDir, "draft-many-${UUID.randomUUID()}").also { it.mkdir() }
+        val draftStore = NewTaskDraftStore(folder)
+        try {
+            draftStore.save(NewTaskDraft("draft", title = "多張圖片", imageIds = encoded))
+            assertEquals(encoded, draftStore.read()!!.imageIds)
+        } finally { draftStore.clear(); folder.delete() }
+        val r = TaskRepository(a, clock); val day = LocalDate.now(clock)
+        r.save(TaskDraft("many", "多張系列", dueDate = day, zoneId = "UTC",
+            recurrence = RecurrenceRule(day, RecurrenceFrequency.DAILY, "UTC", maxCount = 2), imageIds = encoded))
+        val task = a.dao().task(occurrenceId("many", 1))!!; r.setStatus(task.id, task.revision, TaskStatus.COMPLETED)
+        assertEquals(encoded, OccurrenceSnapshot.read(a.dao().occurrence(task.id)!!.snapshot)!!.imageIds)
+        val doc = BackupFormat.decode(BackupRepository(a, clock).export("1.3.0-dev03"))
+        assertEquals(12, doc.data.rows("note_images").size)
+        val restore = BackupRepository(b, clock); restore.apply(doc, restore.preview(doc, RestoreMode.REPLACE), emptyMap())
+        assertEquals(doc.data.content(), BackupFormat.decode(BackupRepository(b, clock).export("test")).data.content())
+        assertTrue(b.dao().allTasks().all { it.imageIds == encoded })
+        ids.forEach { assertNotNull(b.noteImages().image(it)) }
+        assertTrue(context.cacheDir.listFiles().orEmpty().none { it.name.startsWith("note-image-") })
+    }
+    @Test fun formatFourImageBackupStillImports() = databases { a, b ->
+        source(); val id = NoteImages(a).import(context, listOf(uri), emptyList()).single()
+        TaskRepository(a, clock).save(TaskDraft("old-image", "舊圖片備份", imageIds = id))
+        val root = JSONObject(BackupRepository(a, clock).export("test")).put("formatVersion", 4)
+        val doc = BackupFormat.decode(root.toString()); val restore = BackupRepository(b, clock)
+        restore.apply(doc, restore.preview(doc, RestoreMode.REPLACE), emptyMap())
+        assertEquals(id, b.dao().task("old-image")!!.imageIds); assertNotNull(b.noteImages().image(id))
     }
     @Test fun missingOrCorruptBackupImageIsRejectedBeforeAnyWrite() = databases { a, b ->
         source(); val id = NoteImages(a).import(context, listOf(uri), emptyList()).single()
@@ -77,12 +117,12 @@ class NoteImagesTest {
             store.clear(); NoteImages(a).prune(emptyList()); assertNull(a.noteImages().image(id))
         } finally { store.clear(); folder.delete() }
     }
-    @Test fun oldFormatsOneTwoThreeRemainReadableWithoutImages() = databases { a, b ->
+    @Test fun oldFormatsOneThroughFourRemainReadableWithoutImages() = databases { a, b ->
         TaskRepository(a, clock).save(TaskDraft("task", "舊格式"))
         val text = BackupRepository(a, clock).export("test")
-        for (version in listOf(1, 2, 3)) {
-            val root = JSONObject(text).put("formatVersion", version).put("schemaVersion", if (version == 1) 7 else 8)
-            val data = root.getJSONObject("data"); val tables = if (version == 1) legacyBackupTables else previousBackupTables
+        for (version in listOf(1, 2, 3, 4)) {
+            val root = JSONObject(text).put("formatVersion", version).put("schemaVersion", if (version == 1) 7 else if (version == 4) 9 else 8)
+            val data = root.getJSONObject("data"); val tables = if (version == 1) legacyBackupTables else if (version == 4) backupTables else previousBackupTables
             data.keys().asSequence().toList().filter { it !in tables }.forEach(data::remove)
             tables.forEach { (table, spec) -> val rows = data.getJSONArray(table); for (n in 0 until rows.length()) {
                 val row = rows.getJSONObject(n); row.keys().asSequence().toList().filter { key -> spec.fields.none { it.name == key } }.forEach(row::remove)

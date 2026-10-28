@@ -8,8 +8,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.res.painterResource
+import com.chimafok.todo.R
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -39,7 +42,7 @@ internal fun NoteImageField(encoded: String, enabled: Boolean, onChange: (String
     var pickerPending by rememberSaveable { mutableStateOf(false) }
     var error by rememberSaveable { mutableStateOf<String?>(null) }
     val currentIds by rememberUpdatedState(ids)
-    val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(MAX_NOTE_IMAGES)) { uris ->
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uris ->
         pickerPending = false; onPickerActive(false)
         if (uris.isNotEmpty()) {
             importing = true; onBusy(true); error = null
@@ -52,12 +55,12 @@ internal fun NoteImageField(encoded: String, enabled: Boolean, onChange: (String
     }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         NoteImageGallery(encoded, onRemove = if (enabled && !importing && !pickerPending) { id -> onChange(encodeImageIds(ids - id)) } else null)
-        OutlinedButton(enabled = enabled && !importing && !pickerPending && ids.size < MAX_NOTE_IMAGES,
+        OutlinedButton(enabled = enabled && !importing && !pickerPending,
             modifier = Modifier.testTag("note_add_images"), onClick = {
                 error = null; pickerPending = true; onPickerActive(true)
                 try { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
                 catch (e: Exception) { pickerPending = false; onPickerActive(false); error = "無法開啟系統選圖器，請稍後重試。" }
-            }) { Text(if (importing) "處理圖片中…" else "加入圖片（${ids.size}/$MAX_NOTE_IMAGES）") }
+            }) { Text(if (importing) "處理圖片中…" else "加入圖片") }
         Text("圖片保存在本機；會縮小並壓縮，點縮圖可查看。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("note_image_error")) }
     }
@@ -67,13 +70,20 @@ internal fun NoteImageField(encoded: String, enabled: Boolean, onChange: (String
 internal fun NoteImageGallery(encoded: String, onRemove: ((String) -> Unit)? = null) {
     val ids = remember(encoded) { decodeImageIds(encoded) }
     var viewing by rememberSaveable { mutableStateOf<String?>(null) }
-    if (ids.isNotEmpty()) Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).testTag("note_images"), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        ids.forEachIndexed { index, id ->
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    if (ids.isNotEmpty()) LazyRow(Modifier.fillMaxWidth().height(104.dp).testTag("note_images"), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        itemsIndexed(ids, key = { _, id -> id }) { index, id ->
+            Box(Modifier.size(104.dp)) {
                 Surface(shape = MaterialTheme.shapes.medium, modifier = Modifier.size(104.dp).clickable { viewing = id }.testTag("note_image_$index")) {
                     NoteImage(id, true, "圖片 ${index + 1}，點擊放大", Modifier.fillMaxSize())
                 }
-                onRemove?.let { remove -> TextButton(onClick = { remove(id) }, modifier = Modifier.testTag("note_image_remove_$index")) { Text("移除") } }
+                onRemove?.let { remove ->
+                    IconButton(onClick = { remove(id) }, modifier = Modifier.align(Alignment.TopEnd).size(48.dp).testTag("note_image_remove_$index")) {
+                        Surface(shape = CircleShape, color = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f)) {
+                            Icon(painterResource(R.drawable.ic_close), "移除圖片 ${index + 1}",
+                                Modifier.size(28.dp).padding(5.dp), tint = MaterialTheme.colorScheme.onSurface)
+                        }
+                    }
+                }
             }
         }
     }

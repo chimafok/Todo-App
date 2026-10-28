@@ -10,6 +10,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.File
+import kotlinx.coroutines.ensureActive
+import kotlin.coroutines.coroutineContext
 import java.security.MessageDigest
 import java.util.Base64
 
@@ -41,9 +44,33 @@ fun validateImageData(id: String, data: String): ByteArray {
 /** Only the exact content URIs selected by the user are read; originals are never modified. */
 class NoteImages(private val db: TodoDatabase) {
     suspend fun import(context: Context, uris: List<Uri>, existing: List<String>): List<String> = withContext(Dispatchers.IO) {
-        require(existing.size + uris.size <= MAX_NOTE_IMAGES) { "每項備註最多可加入 $MAX_NOTE_IMAGES 張圖片" }
-        // Decode every file first so failure never partially changes the editor selection.
-        val rows = uris.map { uri ->
+        val selected = existing.toMutableSet()
+        val staged = linkedMapOf<String, File>()
+        val temporary = mutableListOf<File>()
+        try {
+            // Normalize one image at a time; keep only private staged files, not every bitmap/Base64 in RAM.
+            uris.forEach { uri ->
+                coroutineContext.ensureActive()
+                val row = normalize(context, uri)
+                if (selected.add(row.id)) {
+                    val file = File.createTempFile("note-image-", ".tmp", context.cacheDir)
+                    temporary += file
+                    file.writeText(row.data, Charsets.US_ASCII)
+                    staged[row.id] = file
+                }
+            }
+            // One transaction preserves all-or-nothing imports if any read/insert fails.
+            db.withTransaction {
+                staged.forEach { (id, file) ->
+                    coroutineContext.ensureActive()
+                    db.noteImages().insert(NoteImageEntity(id, file.readText(Charsets.US_ASCII)))
+                }
+            }
+            selected.toList()
+        } finally { temporary.forEach { it.delete() } }
+    }
+
+    private fun normalize(context: Context, uri: Uri): NoteImageEntity {
             require(uri.scheme == "content") { "請透過系統選圖器選取圖片" }
             val raw = requireNotNull(context.contentResolver.openInputStream(uri)) { "無法讀取所選圖片" }.use { input ->
                 val out = ByteArrayOutputStream(); val buffer = ByteArray(8192)
@@ -78,11 +105,8 @@ class NoteImages(private val db: TodoDatabase) {
                 do { val out = ByteArrayOutputStream(); check(bitmap.compress(Bitmap.CompressFormat.JPEG, quality, out)); bytes = out.toByteArray(); quality -= 10 }
                 while (bytes.size > NOTE_IMAGE_MAX_BYTES && quality >= 40)
                 require(bytes.size <= NOTE_IMAGE_MAX_BYTES) { "圖片壓縮後仍過大，請先縮小圖片" }
-                NoteImageEntity(imageHash(bytes), Base64.getEncoder().encodeToString(bytes))
+                return NoteImageEntity(imageHash(bytes), Base64.getEncoder().encodeToString(bytes))
             } finally { if (!bitmap.isRecycled) bitmap.recycle() }
-        }
-        db.withTransaction { rows.forEach { db.noteImages().insert(it) } }
-        (existing + rows.map { it.id }).distinct()
     }
 
     suspend fun bitmap(id: String, thumbnail: Boolean): Bitmap? = withContext(Dispatchers.IO) {
