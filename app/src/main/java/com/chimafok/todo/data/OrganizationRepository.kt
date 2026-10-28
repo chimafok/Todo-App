@@ -5,6 +5,9 @@ import com.chimafok.todo.domain.*
 import java.time.Clock
 import java.util.Locale
 
+data class OrganizationDeletePreview(val tags: Boolean, val revisions: Map<String, Long>, val names: List<String>,
+    val tasks: List<TaskEntity>, val series: Map<String, Long>, val targets: List<CategoryEntity>, val canceled: Set<String> = emptySet())
+
 class OrganizationRepository(private val db: TodoDatabase, private val clock: Clock = DeviceClock) {
     private fun cleanName(input: String): String = input.trim().also {
         require(it.isNotEmpty() && it.length <= 50) { "名稱須為 1–50 個字元" }
@@ -57,6 +60,61 @@ class OrganizationRepository(private val db: TodoDatabase, private val clock: Cl
             require(index >= 0 && index + delta in items.indices)
             java.util.Collections.swap(items, index, index + delta)
             items.forEachIndexed { position, category -> if (category.sortOrder != position) db.dao().updateCategory(category.copy(sortOrder = position, updatedAt = now, revision = category.revision + 1)) }
+        }
+    }
+
+    suspend fun reorder(tags: Boolean, expectedOrder: List<String>, order: List<String>, revisions: Map<String, Long>) = db.withTransaction {
+        require(order.size == expectedOrder.size && order.toSet() == expectedOrder.toSet()) { "排序內容已變更，請重試" }
+        val now = clock.millis()
+        if (tags) {
+            val rows = db.dao().allTags()
+            require(rows.map { it.id } == expectedOrder && rows.associate { it.id to it.revision } == revisions) { "標籤已更新，請重新排序" }
+            val byId = rows.associateBy { it.id }
+            order.forEachIndexed { index, id -> val row = byId.getValue(id)
+                if (row.sortOrder != index) db.dao().updateTag(row.copy(sortOrder = index, updatedAt = now, revision = row.revision + 1))
+            }
+        } else {
+            val rows = db.dao().allCategories()
+            require(rows.map { it.id } == expectedOrder && rows.associate { it.id to it.revision } == revisions) { "分類已更新，請重新排序" }
+            val byId = rows.associateBy { it.id }
+            order.forEachIndexed { index, id -> val row = byId.getValue(id)
+                if (row.sortOrder != index) db.dao().updateCategory(row.copy(sortOrder = index, updatedAt = now, revision = row.revision + 1))
+            }
+        }
+    }
+
+    suspend fun previewDelete(ids: Set<String>, tags: Boolean): OrganizationDeletePreview = db.withTransaction {
+        require(ids.isNotEmpty()) { "請先選擇要刪除的項目" }
+        if (tags) {
+            val selected = db.dao().allTags().filter { it.id in ids }
+            require(selected.size == ids.size) { "標籤已更新，請重新選擇" }
+            val tasks = selected.flatMap { db.dao().taggedTasks(it.id) }.distinctBy { it.id }
+            val series = selected.flatMap { db.dao().taggedSeries(it.id) }.distinct().map { requireNotNull(db.dao().series(it)) }
+            OrganizationDeletePreview(true, selected.associate { it.id to it.revision }, selected.map { it.name }, tasks,
+                series.associate { it.id to it.revision }, emptyList())
+        } else {
+            val categories = db.dao().allCategories()
+            val selected = categories.filter { it.id in ids }
+            require(selected.size == ids.size && selected.all { it.systemKind == null }) { "系統分類不能刪除，請重新選擇" }
+            val tasks = selected.flatMap { db.dao().categoryTasks(it.id) }
+            val series = selected.flatMap { db.dao().categorySeries(it.id) }
+            OrganizationDeletePreview(false, selected.associate { it.id to it.revision }, selected.map { it.name }, tasks,
+                series.associate { it.id to it.revision }, categories.filter { it.id !in ids },
+                tasks.filter { db.dao().occurrence(it.id)?.excludedByRule == true }.map { it.id }.toSet())
+        }
+    }
+
+    suspend fun deleteBatch(preview: OrganizationDeletePreview, targetId: String, choices: Map<String, TaskStatus>) = db.withTransaction {
+        val current = previewDelete(preview.revisions.keys, preview.tags)
+        require(current == preview) { "內容已更新，請取消後重新預覽" }
+        if (preview.tags) preview.revisions.forEach { (id, revision) -> deleteTag(id, revision) }
+        else {
+            val target = requireNotNull(preview.targets.find { it.id == targetId }) { "請選擇未被刪除的目標分類" }
+            require(db.dao().category(targetId) == target) { "目標分類已更新，請重新預覽" }
+            preview.revisions.forEach { (id, revision) ->
+                val tasks = preview.tasks.filter { it.categoryId == id }.associate { it.id to it.revision }
+                deleteCategory(id, revision, targetId, tasks, choices.filterKeys { it in tasks })
+            }
         }
     }
 

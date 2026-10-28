@@ -31,6 +31,7 @@ class MainActivity : ComponentActivity() {
             todoViewModel.externalDocumentFlow = true
             todoViewModel.destination = com.chimafok.todo.ui.Destination.SETTINGS
         }
+        todoViewModel.externalImageFlow = savedInstanceState?.getBoolean("externalImageFlow") == true
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
@@ -50,10 +51,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onRestart() {
         super.onRestart()
-        if (!todoViewModel.externalDocumentFlow) todoViewModel.goHome()
+        if (!todoViewModel.externalDocumentFlow && !todoViewModel.externalImageFlow) todoViewModel.goHome()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("externalImageFlow", todoViewModel.externalImageFlow)
         outState.putBoolean("externalDocumentFlow", todoViewModel.externalDocumentFlow)
         super.onSaveInstanceState(outState)
     }

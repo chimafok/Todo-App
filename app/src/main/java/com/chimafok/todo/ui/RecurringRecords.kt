@@ -206,7 +206,7 @@ fun RecurringRecords(state: TodoState, viewModel: TodoViewModel, clock: Clock, e
                     val ref = row.occurrence
                     val snapshot = OccurrenceSnapshot.read(ref.snapshot)
                     val historical = ref.excludedByRule || task.status == TaskStatus.COMPLETED || task.dueDate!! < LocalDate.now(clock.withZone(ZoneId.of(task.zoneId ?: clock.zone.id)))
-                    val shown = if (historical && snapshot != null) task.copy(title = snapshot.title, notes = snapshot.notes) else task
+                    val shown = if (historical && snapshot != null) task.copy(title = snapshot.title, notes = snapshot.notes, imageIds = snapshot.imageIds) else task
                     val tagNames = if (historical && snapshot != null) snapshot.tags else window.tags[task.id].orEmpty()
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text("第 ${ref.sequence} 次 · ${task.dueDate}" + if (ref.excludedByRule) " · 規則取消" else if (snapshot?.late == true && task.status == TaskStatus.COMPLETED) " · 逾期完成" else "",

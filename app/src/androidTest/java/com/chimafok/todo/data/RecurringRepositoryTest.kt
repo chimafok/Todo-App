@@ -260,7 +260,7 @@ class RecurringRepositoryTest {
             assertTrue(db.dao().allSeries().isEmpty())
             TaskRepository(db, clock("2026-10-22")).save(draft("s", "2026-10-25"))
             assertEquals(legacy, db.dao().task("legacy"))
-            assertEquals(8, db.openHelper.readableDatabase.version)
+            assertEquals(9, db.openHelper.readableDatabase.version)
             assertNull(legacy.startDate); assertNull(legacy.startTime); assertNull(legacy.startZoneId)
             assertEquals(1, db.dao().seriesOccurrences("s").size)
         } finally { db.close(); context.deleteDatabase(name) }

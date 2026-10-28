@@ -115,6 +115,7 @@ private fun RestoreBackupDialog(token:String,viewModel:TodoViewModel,files:Backu
                             Text("本機 ${p.plan.localTaskCount} 項任務；檔案 ${p.plan.fileTaskCount} 項任務。")
                             Text("新增 ${p.plan.added}、更新 ${p.plan.changed}、移除 ${p.plan.removed} 項任務。")
                             Text("結果：${p.plan.graph.rows("categories").size} 個分類、${p.plan.graph.rows("tags").size} 個標籤、${p.plan.graph.rows("recurring_series").size} 個系列。")
+                            Text("結果圖片：${p.plan.graph.rows("note_images").size} 張；圖片會隨選定的任務或系列版本一起還原。")
                             Text("結果垃圾桶：${p.plan.graph.rows("tasks").count { it["deletedAt"] != null }} 項任務、${p.plan.graph.rows("recurring_series").count { it["deletedAt"] != null }} 個系列。")
                             Text("還原後完成紀錄保留：${p.plan.graph.rows("settings").singleOrNull()?.get("completedRetentionDays")?.let { "$it 天" } ?: "永久"}；分類與標籤排序按選定資料還原。")
                             if(p.plan.sameNames>0)Text("有 ${p.plan.sameNames} 組同名但不同 ID 的分類／標籤，會各自保留。")
@@ -169,12 +170,12 @@ private fun backupTime(value:Any?):String=(value as? Number)?.toLong()?.takeIf {
 } ?: "未知"
 private fun backupSideSummary(g:BackupGraph):String = if(g.rows("settings").isNotEmpty())
     "完成紀錄保留：${g.rows("settings").single()["completedRetentionDays"]?.let { "$it 天" } ?: "永久"}"
-    else "${g.rows("tasks").size} 項任務、${g.rows("recurring_series").size} 個系列；"+
+    else "${g.rows("tasks").size} 項任務、${g.rows("recurring_series").size} 個系列、${referencedImageIds(g).size} 張圖片；"+
     (g.rows("tasks").firstOrNull()?.let { "${statusLabel(TaskStatus.valueOf(it.text("status")), it.optionalText("categoryId"))}，修改 ${backupTime(it["updatedAt"])}" }
         ?: (g.rows("categories")+g.rows("tags")).firstOrNull()?.let { "${it.text("name")}，修改 ${backupTime(it["updatedAt"])}" } ?: "整組規則與關聯")
 private fun backupTaskDetail(r:BackupRow):String = "${r.text("title")}\n${statusLabel(TaskStatus.valueOf(r.text("status")), r.optionalText("categoryId"))}"+
     " · 開始 ${r["startDate"] ?: "未填"} ${r["startTime"] ?: ""} ${r["startZoneId"] ?: ""} · 截止 ${r["dueDate"] ?: "未安排"} ${r["dueTime"] ?: ""} ${r["zoneId"] ?: ""}\n修改 ${backupTime(r["updatedAt"])}"+
-    (if(r["deletedAt"]!=null)" · 垃圾桶" else "")+"\n${r.text("notes") }"
+    (if(r["deletedAt"]!=null)" · 垃圾桶" else "")+" · 圖片 ${com.chimafok.todo.domain.decodeImageIds(r.optionalText("imageIds").orEmpty()).size} 張\n${r.text("notes") }"
 
 /** Keep text formatting lazy so opening a large series does not eagerly build every note string. */
 private fun backupDetails(source:String,g:BackupGraph):List<()->String> = buildList {

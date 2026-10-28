@@ -28,7 +28,12 @@ class BackupRepository(private val db:TodoDatabase,private val clock:Clock=Devic
         } }
     }
     private suspend fun capture():BackupStore {
-        val graph=BackupGraph(backupTables.keys.associateWith(::rows))
+        val base = BackupGraph(backupTables.keys.filter { it != "note_images" }.associateWith(::rows))
+        val imageIds = referencedImageIds(base)
+        var total = 0L
+        imageIds.forEach { total += requireNotNull(db.noteImages().size(it)) { "本機圖片附件不存在" }; require(total <= BACKUP_MAX_BYTES) { "含圖片備份超過 64 MiB，請減少附件後再匯出" } }
+        val images = imageIds.map { id -> val row = requireNotNull(db.noteImages().image(id)) { "本機圖片附件不存在" }; mapOf("id" to row.id, "data" to row.data) }
+        val graph = BackupGraph(base.tables + ("note_images" to images))
         val stable=graph.tables.mapValues { (t,items) -> items.map { r -> if(t=="reminders") r.filterKeys { it !in setOf("state","resolvedAt","alarmKey","alarmMode") } else r }.sortedBy { rowKey(t,it) } }
         return BackupStore(graph,db.history().anchors(),backupHash(mapOf("data" to stable,"policy" to rows("retention_policy"),"anchors" to rows("retention_anchors").sortedBy { it.text("taskId") })))
     }
@@ -106,6 +111,9 @@ class BackupRepository(private val db:TodoDatabase,private val clock:Clock=Devic
             db.history().cancel(PurgeCancellationEntity(id,old.text("taskId"),old.text("id"),old.optionalText("alarmKey"),now))
         }
         val sql=db.openHelper.writableDatabase
+        // Immutable content-addressed images are inserted in the same transaction as all restored references.
+        // Keep unreferenced editor/draft images until the editor closes, never remove them during preview/restore.
+        target.rows("note_images").forEach { db.noteImages().insert(NoteImageEntity(it.text("id"), it.text("data"))) }
         backupDeleteOrder.forEach { sql.execSQL("DELETE FROM $it") }
         sql.execSQL("DELETE FROM schedule_outbox")
         backupInsertOrder.forEach { table -> finalRows[table].orEmpty().forEach { row ->

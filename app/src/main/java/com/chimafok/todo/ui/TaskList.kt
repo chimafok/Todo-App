@@ -339,6 +339,7 @@ internal fun TaskCard(
             if (expanded && !selectionMode) {
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 if (task.notes.isNotBlank()) LinkifiedNotes(task.notes)
+                NoteImageGallery(task.imageIds)
                 reminders.orderedFor(task).filter { it.enabled }.forEach { reminder ->
                     val trigger = runCatching { com.chimafok.todo.domain.resolveReminder(reminder.spec(), task.dueDate, task.dueTime, task.zoneId) }.getOrNull()
                     Text("提醒：${trigger?.let { com.chimafok.todo.reminders.reminderInstantLabel(it) }.orEmpty()} · ${com.chimafok.todo.reminders.reminderStateLabel(reminder.state)}",

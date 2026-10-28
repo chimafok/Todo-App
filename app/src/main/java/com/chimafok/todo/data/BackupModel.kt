@@ -18,7 +18,7 @@ val legacyBackupTables = linkedMapOf(
     "series_reminders" to TableSpec(listOf(Field("id", "TEXT", true), Field("seriesId", "TEXT", true), Field("kind", "TEXT", true), Field("offsetMinutes", "INTEGER", false), Field("dayOffset", "INTEGER", false), Field("time", "TEXT", false), Field("baseTime", "TEXT", true), Field("enabled", "INTEGER", true), Field("createdAt", "INTEGER", true), Field("updatedAt", "INTEGER", true)), listOf("id")),
     "reminder_overrides" to TableSpec(listOf(Field("taskId", "TEXT", true)), listOf("taskId")),
 )
-val backupTables = linkedMapOf<String, TableSpec>().apply {
+val previousBackupTables = linkedMapOf<String, TableSpec>().apply {
     putAll(legacyBackupTables)
     fun extend(table: String, vararg fields: Field) { val old = getValue(table); put(table, old.copy(fields = old.fields + fields)) }
     extend("tasks", Field("startDate", "TEXT", false), Field("startTime", "TEXT", false), Field("startZoneId", "TEXT", false), Field("deletedAt", "INTEGER", false))
@@ -28,6 +28,19 @@ val backupTables = linkedMapOf<String, TableSpec>().apply {
     extend("series_rules", Field("startDayOffset", "INTEGER", false), Field("startTime", "TEXT", false), Field("startZoneId", "TEXT", false))
     extend("occurrences", Field("deletedWithSeriesAt", "INTEGER", false))
     put("settings", TableSpec(listOf(Field("id", "TEXT", true), Field("completedRetentionDays", "INTEGER", false), Field("updatedAt", "INTEGER", true)), listOf("id")))
+}
+val backupTables = linkedMapOf<String, TableSpec>().apply {
+    putAll(previousBackupTables)
+    listOf("tasks", "recurring_series").forEach { name -> val old = getValue(name); put(name, old.copy(fields = old.fields + Field("imageIds", "TEXT", true))) }
+    put("note_images", TableSpec(listOf(Field("id", "TEXT", true), Field("data", "TEXT", true)), listOf("id")))
+}
+fun referencedImageIds(graph: BackupGraph): Set<String> = buildSet {
+    (graph.rows("tasks") + graph.rows("recurring_series")).forEach { addAll(com.chimafok.todo.domain.decodeImageIds(it.optionalText("imageIds").orEmpty())) }
+    graph.rows("occurrences").forEach { row -> row.optionalText("snapshot")?.let { snapshot ->
+        require(snapshot.length <= 1_000_000) { "歷史快照過大" }
+        val value = strictJson(snapshot) as Map<*, *>
+        addAll(com.chimafok.todo.domain.decodeImageIds((value["imageIds"] as String?).orEmpty()))
+    } }
 }
 val backupBooleans = setOf("enabled", "excludedByRule")
 fun BackupRow.text(key: String) = this[key] as String
@@ -61,12 +74,12 @@ fun backupHash(value: Any?) = MessageDigest.getInstance("SHA-256").digest(canoni
 data class BackupGraph(val tables: Map<String, List<BackupRow>>) {
     fun rows(table: String) = tables[table].orEmpty()
     fun portable(): BackupGraph {
-        return BackupGraph(backupTables.mapValues { (table,spec) -> rows(table).map { row -> spec.fields.associate { it.name to row[it.name] } } })
+        return BackupGraph(backupTables.mapValues { (table,spec) -> rows(table).map { row -> spec.fields.associate { it.name to (row[it.name] ?: if (it.name == "imageIds") "" else null) } } })
     }
     fun normalized() = backupTables.keys.associateWith { t -> rows(t).sortedBy { rowKey(t,it) } }
     fun content()=semantic().mapValues { (_,rows)->rows.map(::backupBody) }
     fun semantic(): Map<String,List<BackupRow>> = backupTables.mapValues { (t,spec) -> rows(t).map { row ->
-        spec.fields.filterNot { it.name in setOf("state","resolvedAt") }.associate { it.name to row[it.name] } +
+        spec.fields.filterNot { it.name in setOf("state","resolvedAt") }.associate { it.name to (row[it.name] ?: if (it.name == "imageIds") "" else null) } +
             if(t in setOf("tasks","recurring_series")) mapOf("deletedAt" to row["deletedAt"]) else emptyMap()
     }.sortedBy { rowKey(t,it) } }
 }
@@ -92,7 +105,7 @@ fun planBackup(local: BackupGraph, file: BackupGraph, mode: RestoreMode, choices
         val refs=graph.rows("occurrences").associate { it.text("taskId") to it.text("seriesId") }
         fun task(id:String) = refs[id]?.let { "S/$it" } ?: "T/$id"
         val rows=linkedMapOf<String,MutableMap<String,MutableList<BackupRow>>>()
-        backupTables.keys.forEach { t -> graph.rows(t).forEach { row ->
+        backupTables.keys.filter { it != "note_images" }.forEach { t -> graph.rows(t).forEach { row ->
             val id=when(t) {
                 "settings" -> "P/${row.text("id")}"
                 "categories" -> "C/${row.text("id")}"
@@ -157,7 +170,10 @@ fun planBackup(local: BackupGraph, file: BackupGraph, mode: RestoreMode, choices
     }
     return planCounts(local,incoming,conflicts,combine(selected))
 }
-private fun planCounts(local:BackupGraph,incoming:BackupGraph,conflicts:List<BackupConflict>,result:BackupGraph):BackupPlan {
+private fun planCounts(local:BackupGraph,incoming:BackupGraph,conflicts:List<BackupConflict>,selected:BackupGraph):BackupPlan {
+    val wanted = referencedImageIds(selected)
+    val images = (selected.rows("note_images") + local.rows("note_images") + incoming.rows("note_images")).distinctBy { it.text("id") }.filter { it.text("id") in wanted }
+    val result = BackupGraph(selected.tables + ("note_images" to images))
     val a=local.rows("tasks").associateBy { it.text("id") };val b=result.rows("tasks").associateBy { it.text("id") }
     fun signatures(g:BackupGraph):Map<String,Map<String,List<BackupRow>>> {
         val entries=mutableMapOf<String,MutableMap<String,MutableList<BackupRow>>>()
