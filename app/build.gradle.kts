@@ -14,8 +14,8 @@ android {
         applicationId = "com.chimafok.todo"
         minSdk = 26
         targetSdk = 37
-        versionCode = 30
-        versionName = "1.2.0"
+        versionCode = 31
+        versionName = "1.3.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

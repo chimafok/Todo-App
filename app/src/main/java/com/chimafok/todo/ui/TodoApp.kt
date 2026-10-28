@@ -329,6 +329,7 @@ fun TodoApp(viewModel: TodoViewModel) {
                 Text("目前狀態：${statusLabel(task.status, task.categoryId)}")
                 task.dueDate?.let { Text("截止 $it ${task.dueTime?.toString().orEmpty()} ${task.zoneId.orEmpty()}") }
                 if (task.notes.isNotBlank()) LinkifiedNotes(task.notes)
+                NoteImageGallery(task.imageIds)
                 if (editorId != null) Text("目前有未儲存的編輯，請先完成或關閉，再編輯這項任務。")
             }
         }, confirmButton = { TextButton(enabled = editorId == null, onClick = { editExisting = true; editorId = task.id; editorDate = null; viewModel.dismissReminderDetail() }) { Text("編輯") } },
@@ -342,8 +343,9 @@ fun TodoApp(viewModel: TodoViewModel) {
                 id = id, existing = existing, expectedExisting = editExisting,
                 initialDate = editorDate?.let(LocalDate::parse), categories = state.categories,
                 tags = state.tags, initialTagIds = state.taskTags.filter { it.taskId == id }.map { it.tagId }.toSet(),
-                onDismiss = { editorId = null }, onSave = { viewModel.save(it) },
-                onSaved = { next -> if (next) create(editorDate?.let(LocalDate::parse)) else editorId = null },
+                onDismiss = { scope.launch { viewModel.cleanupNoteImages(); editorId = null } }, onSave = { viewModel.save(it) },
+                onSaved = { next -> scope.launch { viewModel.cleanupNoteImages(); if (next) create(editorDate?.let(LocalDate::parse)) else editorId = null } },
+                onImagePickerActive = { viewModel.externalImageFlow = it },
                 initialReminders = state.reminders.filter { it.taskId == id },
                 retainedVersions = state.occurrences.find { it.taskId == id }?.let { ref ->
                     viewModel.editorVersions(id, state.occurrences.filter { it.seriesId == ref.seriesId }.mapNotNull { occurrence ->

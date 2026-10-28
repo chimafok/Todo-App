@@ -215,7 +215,7 @@ class SeriesEditRepositoryTest {
             assertEquals("原備註", task.notes); assertEquals(3L, task.revision)
             assertFalse(db.dao().occurrence("legacy")!!.excludedByRule)
             assertEquals(3L, db.dao().series("s")!!.revision)
-            assertEquals(8, db.openHelper.readableDatabase.version)
+            assertEquals(9, db.openHelper.readableDatabase.version)
             assertNull(task.startDate); assertNull(task.startTime); assertNull(task.startZoneId)
             TaskRepository(db, clock()).save(edit(db, "legacy", RecurrenceFrequency.WEEKLY))
             assertEquals("legacy", db.dao().task("legacy")!!.id)

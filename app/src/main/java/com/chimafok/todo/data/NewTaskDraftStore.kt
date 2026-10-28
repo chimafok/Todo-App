@@ -17,6 +17,7 @@ data class NewTaskDraft(
     val reminderInputs: String = "[]", val seriesReminderInputs: String = "[]",
     val inheritedReminderStamp: String? = null, val inheritedTemplateIds: List<String> = emptyList(),
     val startDate: String = "", val startTime: String = "", val startZoneId: String? = null, val startReference: Long = 0,
+    val imageIds: String = "",
 )
 
 class NewTaskDraftStore(directory: File) {
@@ -46,11 +47,11 @@ class NewTaskDraftStore(directory: File) {
             j.getString("frequency"),j.getString("interval"),days,j.getString("endMode"),j.getString("endDate"),
             j.getString("endReference"),j.getString("count"),j.getString("reminderInputs"),j.getString("seriesReminderInputs"),
             if(j.isNull("inheritedReminderStamp")) null else j.getString("inheritedReminderStamp"),strings("inheritedTemplateIds"),j.optString("startDate",""),j.optString("startTime",""),
-            if(j.isNull("startZoneId")) null else j.getString("startZoneId"),j.optLong("startReference",0))
+            if(j.isNull("startZoneId")) null else j.getString("startZoneId"),j.optLong("startReference",0), j.optString("imageIds", "").also { com.chimafok.todo.domain.decodeImageIds(it) })
     }
 
     @Synchronized fun save(d: NewTaskDraft) {
-        val j = JSONObject().put("version",1).put("id",d.id).put("title",d.title).put("notes",d.notes)
+        val j = JSONObject().put("imageIds", d.imageIds).put("version",1).put("id",d.id).put("title",d.title).put("notes",d.notes)
             .put("date",d.date).put("time",d.time).put("zoneId",d.zoneId ?: JSONObject.NULL)
             .put("deadlineReference",d.deadlineReference).put("tagIds",JSONArray(d.tagIds)).put("categoryId",d.categoryId)
             .put("statusName",d.statusName ?: JSONObject.NULL).put("frequency",d.frequency).put("interval",d.interval)

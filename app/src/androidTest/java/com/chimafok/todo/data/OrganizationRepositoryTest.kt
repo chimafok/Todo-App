@@ -128,7 +128,7 @@ class OrganizationRepositoryTest {
             TaskRepository(db, clock).save(TaskDraft(task.id, task.title, task.notes, task.categoryId, task.dueDate, task.dueTime,
                 task.zoneId, task.status, task.revision, setOf("new-tag")))
             assertEquals(listOf("new-tag"), db.dao().taskTagIds("legacy"))
-            assertEquals(8, db.openHelper.readableDatabase.version)
+            assertEquals(9, db.openHelper.readableDatabase.version)
             assertNull(task.startDate); assertNull(task.startTime); assertNull(task.startZoneId)
         } finally { db.close(); context.deleteDatabase(name) }
     }

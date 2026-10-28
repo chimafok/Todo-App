@@ -84,7 +84,7 @@ class StudyBackupV2Test {
         r.apply(d,p,mapOf("P/general" to BackupChoice.FILE));assertEquals(30,b.history().policy()!!.days)
         HistoryRepository(b,clock).apply(HistoryRepository(b,clock).preview(365))
         val root=JSONObject(BackupRepository(a,clock).export("legacy"));root.put("formatVersion",1).put("schemaVersion",7)
-        val data=root.getJSONObject("data");data.remove("settings")
+        val data=root.getJSONObject("data");data.remove("settings");data.remove("note_images")
         legacyBackupTables.forEach{(t,s)->val rows=data.getJSONArray(t);for(i in 0 until rows.length()){
             val row=rows.getJSONObject(i);row.keys().asSequence().toList().filter{key->s.fields.none{it.name==key}}.forEach(row::remove)
         }}
@@ -113,6 +113,6 @@ class StudyBackupV2Test {
             sql.version=7
         }
         val db=TodoDatabase.create(context,name)
-        try{val task=db.dao().task("legacy")!!;assertEquals("原內容",task.notes);assertEquals(3L,task.revision);assertNull(task.startDate);assertNull(task.startTime);assertEquals(8,db.openHelper.readableDatabase.version)}finally{db.close();context.deleteDatabase(name)}
+        try{val task=db.dao().task("legacy")!!;assertEquals("原內容",task.notes);assertEquals(3L,task.revision);assertNull(task.startDate);assertNull(task.startTime);assertEquals(9,db.openHelper.readableDatabase.version)}finally{db.close();context.deleteDatabase(name)}
     }
 }

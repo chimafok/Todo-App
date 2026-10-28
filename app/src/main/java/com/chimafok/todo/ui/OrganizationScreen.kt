@@ -1,5 +1,19 @@
 package com.chimafok.todo.ui
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.zIndex
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import com.chimafok.todo.data.OrganizationDeletePreview
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,6 +46,49 @@ fun OrganizationScreen(state: TodoState, viewModel: TodoViewModel) {
     var busy by remember { mutableStateOf(false) }
     var error by rememberSaveable { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
+    var selecting by rememberSaveable { mutableStateOf(false) }
+    var selected by viewModel.organizationSelection
+    val deletePreview = viewModel.organizationDeletePreview
+    val listState = rememberLazyListState()
+    val haptic = LocalHapticFeedback.current
+    val ids = if (tab == 0) state.categories.map { it.id } else state.tags.map { it.id }
+    val revisions = if (tab == 0) state.categories.associate { it.id to it.revision } else state.tags.associate { it.id to it.revision }
+    val deletable = if (tab == 0) state.categories.filter { it.systemKind == null }.map { it.id } else ids
+    var localOrder by remember(tab) { mutableStateOf<List<String>?>(null) }
+    var dragged by remember(tab) { mutableStateOf<String?>(null) }
+    var dragTop by remember { mutableFloatStateOf(0f) }
+    var dragHeight by remember { mutableFloatStateOf(0f) }
+    var beforeDrag by remember { mutableStateOf(emptyList<String>()) }
+    var dragRevisions by remember { mutableStateOf(emptyMap<String, Long>()) }
+    var edgeScroll by remember { mutableFloatStateOf(0f) }
+    val order = localOrder ?: ids
+    val liveOrder by rememberUpdatedState(order)
+    fun updateDragOrder() {
+        val id = dragged ?: return
+        val middle = dragTop + dragHeight / 2
+        val target = listState.layoutInfo.visibleItemsInfo.firstOrNull { item ->
+            item.key != id && item.key in liveOrder && middle >= item.offset && middle <= item.offset + item.size
+        }?.key as? String ?: return
+        val copy = liveOrder.toMutableList(); val from = copy.indexOf(id); val to = copy.indexOf(target)
+        if (from >= 0 && to >= 0 && from != to) { copy.removeAt(from); copy.add(to, id); localOrder = copy }
+    }
+    LaunchedEffect(dragged, edgeScroll) {
+        while (dragged != null && edgeScroll != 0f) {
+            withFrameNanos { }
+            listState.scrollBy(edgeScroll)
+            updateDragOrder()
+        }
+    }
+    LaunchedEffect(ids, revisions) { if (dragged == null) localOrder = null; selected = selected.filter { it in deletable } }
+    BackHandler(selecting && deletePreview == null && !busy) { selecting = false; selected = emptyList() }
+    fun toggle(id: String) { if (!busy && id in deletable) selected = if (id in selected) selected - id else selected + id }
+    fun rowModifier(id: String): Modifier {
+        val offset = listState.layoutInfo.visibleItemsInfo.find { it.key == id }?.offset ?: 0
+        return Modifier.zIndex(if (dragged == id) 1f else 0f).graphicsLayer {
+            if (dragged == id) { translationY = dragTop - offset; shadowElevation = 12.dp.toPx() }
+        }.then(if (selecting && id in deletable) Modifier.clickable(enabled = !busy) { toggle(id) } else Modifier)
+    }
+
     fun runOperation(onSuccess: () -> Unit = {}, block: suspend () -> Unit) {
         if (busy) return
         busy = true
@@ -56,24 +113,64 @@ fun OrganizationScreen(state: TodoState, viewModel: TodoViewModel) {
     Column(Modifier.fillMaxSize()) {
         PrimaryTabRow(tab) {
             listOf("分類", "標籤").forEachIndexed { index, label ->
-                Tab(tab == index, onClick = { tab = index; error = null }, text = { Text(label) })
+                Tab(tab == index, onClick = { if (!busy && dragged == null) { tab = index; error = null; selecting = false; selected = emptyList() } }, text = { Text(label) })
             }
         }
-        LazyColumn(contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            item {
+        LazyColumn(state = listState, userScrollEnabled = dragged == null, modifier = Modifier.weight(1f).testTag("org_list").semantics { stateDescription = if (dragged == null) "可長按拖拽排序" else "正在排序" }.pointerInput(tab, selecting, busy, ids) {
+            if (!selecting && !busy) detectDragGesturesAfterLongPress(
+                onDragStart = { position ->
+                    val item = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key in ids && position.y >= it.offset && position.y < it.offset + it.size }
+                    if (item != null) {
+                        beforeDrag = ids; dragRevisions = revisions; localOrder = ids; dragged = item.key as String
+                        dragTop = item.offset.toFloat(); dragHeight = item.size.toFloat()
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    }
+                }, onDrag = { change, delta ->
+                    if (dragged != null) {
+                        change.consume(); dragTop += delta.y; updateDragOrder()
+                        edgeScroll = when { change.position.y < 96.dp.toPx() -> -14.dp.toPx()
+                            change.position.y > listState.layoutInfo.viewportEndOffset - 72.dp.toPx() -> 14.dp.toPx(); else -> 0f }
+                    }
+                }, onDragCancel = { if (dragged != null) { dragged = null; localOrder = null }; edgeScroll = 0f },
+                onDragEnd = {
+                    val result = localOrder; dragged = null; edgeScroll = 0f
+                    if (result != null && result != beforeDrag) runOperation {
+                        try { viewModel.reorderOrganization(tab == 1, beforeDrag, result, dragRevisions) }
+                        catch (e: Exception) { localOrder = null; throw e }
+                    } else localOrder = null
+                })
+        }, contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            item(key = "actions") {
+                if (selecting) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("已選 ${selected.size} 項", Modifier.weight(1f))
+                        TextButton(enabled = !busy, onClick = { selected = if (selected.size == deletable.size) emptyList() else deletable }, modifier = Modifier.testTag("org_select_all")) { Text("全選") }
+                        TextButton(enabled = !busy, onClick = { selecting = false; selected = emptyList() }) { Text("取消") }
+                    }
+                    Button(enabled = !busy && selected.isNotEmpty(), modifier = Modifier.fillMaxWidth().testTag("org_batch_confirm"), onClick = {
+                        runOperation { viewModel.organizationDeleteChoices = emptyMap(); viewModel.organizationDeletePreview = viewModel.previewOrganizationDelete(selected.toSet(), tab == 1) }
+                    }) { Text("刪除所選 ${selected.size} 項") }
+                } else {
                 FilledTonalButton(onClick = { edit(UUID.randomUUID().toString(), "", null, tab == 1) },
                     enabled = !busy, modifier = Modifier.fillMaxWidth().testTag("org_add")) {
                     Icon(painterResource(R.drawable.ic_add), null)
                     Spacer(Modifier.width(8.dp)); Text(if (tab == 0) "新增分類" else "新增標籤")
                 }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("長按拖拽可排序", Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    TextButton(enabled = !busy && deletable.isNotEmpty(), onClick = { selecting = true; selected = emptyList() }, modifier = Modifier.testTag("org_batch_delete")) { Text("批量刪除") }
+                }
+                }
             }
             error?.let { message -> item { Text(message, color = MaterialTheme.colorScheme.error) } }
-            if (tab == 0) itemsIndexed(state.categories, key = { _, item -> item.id }) { index, category ->
+            if (tab == 0) itemsIndexed(order.mapNotNull { id -> state.categories.find { it.id == id } }, key = { _, item -> item.id }) { index, category ->
                 OrganizationRow(category.id, category.name, when (category.systemKind) {
                     SystemCategory.UNCATEGORIZED -> "預設分類・不可改名或刪除"
                     SystemCategory.ASSIGNMENTS -> "作業四態・可改名，不可刪除"
-                    null -> "一般分類"
-                }, false, busy, index > 0, index < state.categories.lastIndex,
+                    null -> if (category.id == STUDY_ID) "學習三態・可改名" else "一般分類"
+                }, false, busy || selecting, index > 0, index < state.categories.lastIndex,
+                    modifier = rowModifier(category.id).animateItem(), selecting = selecting, selected = category.id in selected,
+                    selectable = category.id in deletable, onSelect = { toggle(category.id) },
                     onRename = if (category.systemKind == SystemCategory.UNCATEGORIZED) null else {
                         { edit(category.id, category.name, category.revision, false) }
                     },
@@ -82,9 +179,11 @@ fun OrganizationScreen(state: TodoState, viewModel: TodoViewModel) {
             }
             else {
                 if (state.tags.isEmpty()) item { EmptyMessage("還沒有標籤", "建立標籤後，可在任務表單勾選多個標籤。") }
-                itemsIndexed(state.tags, key = { _, item -> item.id }) { index, tag ->
-                    OrganizationRow(tag.id, tag.name, "可套用到多個任務", true, busy,
+                itemsIndexed(order.mapNotNull { id -> state.tags.find { it.id == id } }, key = { _, item -> item.id }) { index, tag ->
+                    OrganizationRow(tag.id, tag.name, "可套用到多個任務", true, busy || selecting,
                         index > 0, index < state.tags.lastIndex,
+                        modifier = rowModifier(tag.id).animateItem(), selecting = selecting, selected = tag.id in selected,
+                        selectable = true, onSelect = { toggle(tag.id) },
                         onRename = { edit(tag.id, tag.name, tag.revision, true) },
                         onDelete = { remove(tag.id, true) },
                         onMove = { delta -> runOperation { viewModel.moveOrganization(tag.id, true, delta, state.tags.map { it.id }) } })
@@ -93,6 +192,13 @@ fun OrganizationScreen(state: TodoState, viewModel: TodoViewModel) {
         }
     }
 
+    deletePreview?.let { preview ->
+        OrganizationBatchDeleteDialog(preview, busy, error, viewModel.organizationDeleteChoices, { viewModel.organizationDeleteChoices = it },
+            onDismiss = { if (!busy) { viewModel.organizationDeletePreview = null; error = null } },
+            onConfirm = { target, statuses -> runOperation(onSuccess = {
+                viewModel.organizationDeletePreview = null; selecting = false; selected = emptyList()
+            }) { viewModel.deleteOrganizationBatch(preview, target, statuses) } })
+    }
     editingId?.let { id ->
         AlertDialog(onDismissRequest = { if (!busy) { editingId = null; error = null } },
             title = { Text((if (editRevision < 0) "新增" else "重新命名") + if (editingTag) "標籤" else "分類") },
@@ -160,15 +266,16 @@ fun OrganizationScreen(state: TodoState, viewModel: TodoViewModel) {
 
 @Composable
 private fun OrganizationRow(id: String, name: String, description: String, tag: Boolean, busy: Boolean,
-    canMoveUp: Boolean, canMoveDown: Boolean, onRename: (() -> Unit)?, onDelete: (() -> Unit)?, onMove: (Int) -> Unit) {
+    canMoveUp: Boolean, canMoveDown: Boolean, modifier: Modifier = Modifier,
+    selecting: Boolean = false, selected: Boolean = false, selectable: Boolean = true, onSelect: () -> Unit = {}, onRename: (() -> Unit)?, onDelete: (() -> Unit)?, onMove: (Int) -> Unit) {
     var menu by remember { mutableStateOf(false) }
-    Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainerLow,
+    Surface(modifier = modifier.testTag("org_row_$id"), shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainerLow,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
         ListItem(colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
             headlineContent = { Text(name) }, supportingContent = { Text(description) },
-            leadingContent = { Icon(painterResource(if (tag) R.drawable.ic_tag else R.drawable.ic_categories), null,
+            leadingContent = { if (selecting) Checkbox(checked = selected, enabled = selectable, onCheckedChange = { onSelect() }, modifier = Modifier.testTag("org_select_$id")) else Icon(painterResource(if (tag) R.drawable.ic_tag else R.drawable.ic_categories), null,
                 tint = if (tag) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary) },
-            trailingContent = { Box {
+            trailingContent = { if (!selecting) Box {
                 IconButton(enabled = !busy, onClick = { menu = true }, modifier = Modifier.testTag("org_menu_$id")) {
                     Icon(painterResource(R.drawable.ic_more), "管理：$name")
                 }

@@ -29,6 +29,7 @@ data class TaskDraft(
     val startDate: LocalDate? = null,
     val startTime: LocalTime? = null,
     val startZoneId: String? = null,
+    val imageIds: String = "",
 )
 
 const val UNCATEGORIZED_ID = "00000000-0000-4000-8000-000000000001"
@@ -43,6 +44,7 @@ fun validatedTitle(title: String): String {
 
 fun validateDraft(draft: TaskDraft, assignment: Boolean) {
     validatedTitle(draft.title)
+    decodeImageIds(draft.imageIds)
     require(draft.notes.length <= 20_000) { "備註不可超過 20,000 個字元" }
     require(draft.dueTime == null || draft.dueDate != null) { "設定時間前請先選擇日期" }
     require(draft.dueTime == null || draft.zoneId != null) { "截止時間缺少時區" }
