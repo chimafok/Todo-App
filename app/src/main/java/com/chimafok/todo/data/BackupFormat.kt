@@ -31,7 +31,7 @@ object BackupFormat {
 
     fun encode(graph: BackupGraph, now: Long, appVersion: String): String {
         val portable=graph.portable();validateBackup(portable,false)
-        return canonical(mapOf("format" to "Todo-App", "formatVersion" to 4, "schemaVersion" to 9,
+        return canonical(mapOf("format" to "Todo-App", "formatVersion" to 5, "schemaVersion" to 9,
             "exportedAt" to now,"appVersion" to appVersion,"data" to portable.normalized()))
     }
     fun decode(text: String): BackupDocument {
@@ -42,8 +42,8 @@ object BackupFormat {
         val root=value as? Map<*,*> ?: error("備份須為 JSON 物件")
         require(root.keys==setOf("format","formatVersion","schemaVersion","exportedAt","appVersion","data")){"備份欄位不完整或版本不支援"}
         val legacy = root["formatVersion"] == 1L && root["schemaVersion"] == 7L
-        val current = root["formatVersion"] == 4L && root["schemaVersion"] == 9L
-        require(root["format"]=="Todo-App" && (current || legacy || (root["formatVersion"] in listOf(2L, 3L) && root["schemaVersion"]==8L))){"不支援此備份格式或資料版本（本版支援格式 4／資料版本 9，並可匯入格式 1–3）"}
+        val current = root["formatVersion"] in listOf(4L, 5L) && root["schemaVersion"] == 9L
+        require(root["format"]=="Todo-App" && (current || legacy || (root["formatVersion"] in listOf(2L, 3L) && root["schemaVersion"]==8L))){"不支援此備份格式或資料版本（本版支援格式 5／資料版本 9，並可匯入格式 1–4）"}
         val inputTables = if (legacy) legacyBackupTables else if (current) backupTables else previousBackupTables
         val exported=root["exportedAt"] as? Long ?: error("缺少匯出時間")
         val version=root["appVersion"] as? String ?: error("缺少 App 版本");require(version.length in 1..80)
