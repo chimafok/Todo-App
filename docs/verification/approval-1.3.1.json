@@ -1,0 +1,14 @@
+{
+  "maintainer": "chimafok",
+  "approvalDate": "2026-10-29",
+  "approvedTestVersion": "1.3.1-dev01",
+  "approvedTestVersionCode": 34,
+  "approvedTestSourceCommit": "353d417c4b6f53f7c579dd1f77e2d6c3a2b740c5",
+  "approvedTestApkSha256": "dbfdfafdb84def60218deab1e5b26713a39fc93d7f92e3fd40e01ebf504984b9",
+  "authorizedActions": [
+    "formal signing with existing release key",
+    "merge corresponding source to main through PR",
+    "publish official APK"
+  ],
+  "scope": "Approval of this tested version for release, not a claim of complete real-device acceptance."
+}
