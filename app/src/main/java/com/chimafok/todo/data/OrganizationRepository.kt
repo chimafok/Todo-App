@@ -95,7 +95,7 @@ class OrganizationRepository(private val db: TodoDatabase, private val clock: Cl
         } else {
             val categories = db.dao().allCategories()
             val selected = categories.filter { it.id in ids }
-            require(selected.size == ids.size && selected.all { it.systemKind == null }) { "系統分類不能刪除，請重新選擇" }
+            require(selected.size == ids.size && selected.all { canDeleteCategory(it.id, it.systemKind) }) { "系統分類不能刪除，請重新選擇" }
             val tasks = selected.flatMap { db.dao().categoryTasks(it.id) }
             val series = selected.flatMap { db.dao().categorySeries(it.id) }
             OrganizationDeletePreview(false, selected.associate { it.id to it.revision }, selected.map { it.name }, tasks,
@@ -133,7 +133,7 @@ class OrganizationRepository(private val db: TodoDatabase, private val clock: Cl
     suspend fun deleteCategory(id: String, expectedRevision: Long, targetId: String,
         taskRevisions: Map<String, Long>, assignmentChoices: Map<String, TaskStatus>) = db.withTransaction {
         val source = requireNotNull(db.dao().category(id)) { "找不到分類" }
-        require(source.systemKind == null) { "系統分類不可刪除" }
+        require(canDeleteCategory(source.id, source.systemKind)) { "系統分類不可刪除" }
         require(source.revision == expectedRevision) { "分類已更新，請重新開啟" }
         val target = requireNotNull(db.dao().category(targetId)) { "找不到目標分類" }
         require(id != targetId) { "請選擇其他分類" }

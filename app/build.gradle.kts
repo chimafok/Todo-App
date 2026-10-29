@@ -14,8 +14,8 @@ android {
         applicationId = "com.chimafok.todo"
         minSdk = 26
         targetSdk = 37
-        versionCode = 33
-        versionName = "1.3.0"
+        versionCode = 34
+        versionName = "1.3.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -28,7 +28,7 @@ android {
     buildTypes {
         // Official releases use com.chimafok.todo.
         // Keep development installs separate from official release data.
-        getByName("debug") { applicationIdSuffix = ".debug"; versionNameSuffix = "-dev03" }
+        getByName("debug") { applicationIdSuffix = ".debug"; versionNameSuffix = "-dev01" }
         create("qa") {
             initWith(getByName("debug"))
             applicationIdSuffix = ".qa"

@@ -36,6 +36,9 @@ const val UNCATEGORIZED_ID = "00000000-0000-4000-8000-000000000001"
 const val ASSIGNMENTS_ID = "00000000-0000-4000-8000-000000000002"
 const val STUDY_ID = "00000000-0000-4000-8000-000000000003"
 
+/** Protection follows identity so renaming Study never makes it deletable. */
+fun canDeleteCategory(id: String, systemKind: SystemCategory?): Boolean = systemKind == null && id != STUDY_ID
+
 fun validatedTitle(title: String): String {
     val result = title.trim()
     require(result.isNotEmpty() && result.length <= 200) { "名稱須為 1–200 個字元" }
