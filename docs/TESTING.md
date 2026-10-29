@@ -1,5 +1,17 @@
 # 驗證與回歸
 
+## 1.3.1 正式發布驗證
+
+維護者於2026-10-29確認1.3.1-dev01並授權正式簽署、合併main及發布。測試來源與APK校驗值見[確認紀錄](verification/approval-1.3.1.json)；正式App及建置來源與已確認版完全一致，簽署前後APK內容一致，見[source-parity](verification/source-parity-1.3.1.json)。發布分支以main為起點套用相同的已批准dev來源，避免squash歷史衝突，沒有改App行為。
+
+本發布輪重新執行100項單元測試，核對新XML時間、類別、實際案例數及零failure／error／skipped；Release建置與Lint通過（0 errors／14 warnings）。正式包為com.chimafok.todo／1.3.1／code34，沿用既有RSA4096憑證，不可偵錯，不含QA provider、網路或整個相簿權限。
+
+API37／26專用背景模擬器完成正式1.3.0→1.3.1覆蓋更新與啟動，UID／首次安裝時間保留。API37另核對虛構任務、學習進度及開始日期保留，學習可改名、改名後沒有刪除選項、批量勾選停用及全選排除，重新啟動後仍保留。只檢視並一次允許專用模擬器自身授權視窗，未永久授權、未重啟共用偵錯服務、未操作手機；完成後關閉模擬器。
+
+開發階段21項API37案例保留為下方歷史，不當作本發布輪重跑；本輪沒有正式新安裝、完整歷史回歸或真機驗收，背景／隔夜／無障礙及大量資料缺口仍保留。另更正開發PR及測試Release說明中誤寫的Debug Lint警告數，依原verification紀錄為14；原測試APK與來源未更動。
+
+結果見[正式包](verification/release-1.3.1.json)、[本輪測試](verification/tests-1.3.1.json)、[API37更新](verification/install-api37-1.3.1.json)、[API26更新](verification/install-api26-1.3.1.json)。以下測試版段落保留交付當時的狀態；該版已取得本節日期的正式發布同意。
+
 ## 1.3.1-dev01 學習分類刪除保護
 
 本輪正式目標1.3.1，先交付開發簽章測試APK（code34）。Debug／QA測試包／未簽署Release建置、100項單元測試、Debug Lint通過（0 errors／14 warnings）。API37逐類別及方法執行21項：新學習保護3項、分類批次6項、分類資料4項、學習狀態6項及介面2項。核對每輪XML時間、類別／方法、實際非零案例數與零failure／error／skipped；沒有沿用歷史結果。
