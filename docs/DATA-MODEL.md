@@ -1,5 +1,9 @@
 # 資料模型：實作狀態與演進
 
+## 1.3.1 修補：學習分類刪除保護
+
+保護沿用STUDY_ID，學習的systemKind仍為null，不新增enum、資料欄位或migration。介面單項／批量／全選與Repository刪除入口共用固定身分規則；改名不影響保護。批量交易重新預覽並拒絕含學習的整批請求，避免舊預覽或僅隱藏按鈕造成部分刪除。原有學習名稱、排序、任務／系列及備份格式5保持可用。
+
 ## 1.3.0：備註圖片（schema9）
 
 MIGRATION_8_9只新增`tasks.imageIds`、`recurring_series.imageIds`兩個非空TEXT欄（預設空字串）及`note_images(id TEXT PRIMARY KEY, data TEXT NOT NULL)`。舊任務、系列、revision與開始／截止資料不重建或清除。引用字串是按顯示順序以逗號分隔的SHA-256，不設每項圖片張數上限；圖片是不可變、內容定址的Base64 JPEG，單張至多768 KiB，避免單列超過一般Cursor視窗。表單、首頁／歷史完整內容只帶小型引用；縮圖／放大時才載入圖片，不放進Bundle或搜尋索引。

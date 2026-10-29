@@ -57,7 +57,7 @@ class StudyStatusRepositoryTest {
         r.save(draft);assertEquals(TaskStatus.COMPLETED,a.dao().task(first.id)!!.status)
         rejected {r.save(draft.copy(id="bad",status=TaskStatus.COMPLETED))};assertNull(a.dao().series("bad"))
     }
-    @Test fun batchMovesAndCategoryDeletionConvertLearningProgress()=databases { a,_ ->
+    @Test fun batchMovesConvertLearningProgressAndStudyDeletionIsRejected()=databases { a,_ ->
         val r=TaskRepository(a,clock)
         r.save(TaskDraft("study","學習",categoryId=STUDY_ID,status=TaskStatus.IN_PROGRESS))
         fun current()=runBlocking {a.dao().task("study")!!}
@@ -65,8 +65,8 @@ class StudyStatusRepositoryTest {
         r.moveBatch(mapOf("study" to current().revision),ASSIGNMENTS_ID,mapOf("study" to TaskStatus.DONE_UNSUBMITTED))
         r.moveBatch(mapOf("study" to current().revision),STUDY_ID,emptyMap());assertEquals(TaskStatus.IN_PROGRESS,current().status)
         val study=a.dao().category(STUDY_ID)!!
-        OrganizationRepository(a,clock).deleteCategory(STUDY_ID,study.revision,UNCATEGORIZED_ID,mapOf("study" to current().revision),emptyMap())
-        assertEquals(TaskStatus.OPEN,current().status);assertEquals(UNCATEGORIZED_ID,current().categoryId)
+        rejected { OrganizationRepository(a,clock).deleteCategory(STUDY_ID,study.revision,UNCATEGORIZED_ID,mapOf("study" to current().revision),emptyMap()) }
+        assertEquals(TaskStatus.IN_PROGRESS,current().status);assertEquals(STUDY_ID,current().categoryId)
     }
     @Test fun formatThreeRoundTripsLearningProgressAndTrashAndReadsFormatTwo()=databases { a,b ->
         val r=TaskRepository(a,clock)

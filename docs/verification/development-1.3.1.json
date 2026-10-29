@@ -1,0 +1,142 @@
+{
+  "version": "1.3.1-dev01",
+  "date": "2026-10-29",
+  "status": "development test APK; awaiting maintainer approval",
+  "apk": {
+    "name": "Todo-1.3.1-dev01.apk",
+    "size": 13120687,
+    "sha256": "dbfdfafdb84def60218deab1e5b26713a39fc93d7f92e3fd40e01ebf504984b9",
+    "certificateSha256": "61e51e2dce7d422d046cd6b4a41ea6ac15ef298bf6e4ced05bd9355f6cc63c62",
+    "applicationId": "com.chimafok.todo.debug",
+    "versionName": "1.3.1-dev01",
+    "versionCode": 34,
+    "sourceFingerprint": "080dc1d9f169e0c10d44932c620698521653495eefb76c1244558c56e5a9dc90",
+    "sourceFingerprintKind": "canonical Git blob SHA-256 map",
+    "sourceAppTree": "b0076d8b5e8ca2c2443076d481211b7244aaad32",
+    "officialTargetVersion": "1.3.1"
+  },
+  "change": "Study can be renamed but not deleted. Stable-ID policy shared by individual and batch repository checks, UI delete menus and select-all.",
+  "versioning": "1.3.1 is a maintainer-specified patch for this change only; subsequent versions resume the normal iteration policy unless specified otherwise.",
+  "schemaVersion": 9,
+  "backupFormatVersion": 5,
+  "builds": [
+    "debug",
+    "qa AndroidTest",
+    "unsigned release"
+  ],
+  "unitTests": {
+    "tests": 100,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "freshXmlChecked": true
+  },
+  "lintDebug": {
+    "errors": 0,
+    "warnings": 14
+  },
+  "api37": {
+    "tests": 21,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "class": "com.chimafok.todo.data.StudyCategoryProtectionTest",
+        "name": "renamedStudyCannotBeDeletedAndKeepsProgressTrashAndRecurringHistory"
+      },
+      {
+        "class": "com.chimafok.todo.data.StudyCategoryProtectionTest",
+        "name": "restoredRenamedStudyRetainsIdentityAndDeletionProtection"
+      },
+      {
+        "class": "com.chimafok.todo.data.StudyCategoryProtectionTest",
+        "name": "mixedBatchAndOldPreviewCannotDeleteStudyOrPartiallyChangeOtherCategories"
+      },
+      {
+        "class": "com.chimafok.todo.data.OrganizationBatchTest",
+        "name": "tagBatchRemovesLinksButPreservesTasksAndRejectsStalePreview"
+      },
+      {
+        "class": "com.chimafok.todo.data.OrganizationBatchTest",
+        "name": "arbitraryCategoryAndTagOrderPersistsAndRejectsStaleOrInvalidOrder"
+      },
+      {
+        "class": "com.chimafok.todo.data.OrganizationBatchTest",
+        "name": "staleTaskOrSeriesInvalidatesWholeBatch"
+      },
+      {
+        "class": "com.chimafok.todo.data.OrganizationBatchTest",
+        "name": "categoryBatchMovesActiveTrashAndFutureTemplatesWithoutDeletingTasks"
+      },
+      {
+        "class": "com.chimafok.todo.data.OrganizationBatchTest",
+        "name": "systemCategoriesCannotBeSelectedAndChosenTargetsCannotBeDeleted"
+      },
+      {
+        "class": "com.chimafok.todo.data.OrganizationBatchTest",
+        "name": "assignmentChoiceAndSecondWriteFailureRollBackWholeBatch"
+      },
+      {
+        "class": "com.chimafok.todo.data.OrganizationRepositoryTest",
+        "name": "actualVersionOneSchemaMigratesWithoutLosingDeadlineOrTaskIdentity"
+      },
+      {
+        "class": "com.chimafok.todo.data.OrganizationRepositoryTest",
+        "name": "deletingCategoryRequiresAllAssignmentChoicesAndPreservesTrashAndTags"
+      },
+      {
+        "class": "com.chimafok.todo.data.OrganizationRepositoryTest",
+        "name": "timedTaskReopenKeepsZoneAndRetryWithAnotherZoneIsRejected"
+      },
+      {
+        "class": "com.chimafok.todo.data.OrganizationRepositoryTest",
+        "name": "protectedNamesUniqueTagsOrderingAndDeletionAreTransactional"
+      },
+      {
+        "class": "com.chimafok.todo.data.StudyStatusRepositoryTest",
+        "name": "learningCreationStatusChangesCompletionReopeningAndStaleWrites"
+      },
+      {
+        "class": "com.chimafok.todo.data.StudyStatusRepositoryTest",
+        "name": "formatThreeRoundTripsLearningProgressAndTrashAndReadsFormatTwo"
+      },
+      {
+        "class": "com.chimafok.todo.data.StudyStatusRepositoryTest",
+        "name": "recurringLearningFirstProgressDoesNotMarkFutureOccurrencesStarted"
+      },
+      {
+        "class": "com.chimafok.todo.data.StudyStatusRepositoryTest",
+        "name": "batchMovesConvertLearningProgressAndStudyDeletionIsRejected"
+      },
+      {
+        "class": "com.chimafok.todo.data.StudyStatusRepositoryTest",
+        "name": "existingOpenLearningTasksAndDeletedProgressArePreserved"
+      },
+      {
+        "class": "com.chimafok.todo.data.StudyStatusRepositoryTest",
+        "name": "futureTemplateEditKeepsLearningProgressAndStartDate"
+      },
+      {
+        "class": "com.chimafok.todo.ui.OrganizationImagesUiTest",
+        "name": "renamedStudyKeepsItsIdentityAndCannotBeDeletedOrBatchSelected"
+      },
+      {
+        "class": "com.chimafok.todo.ui.OrganizationImagesUiTest",
+        "name": "categoryBatchSelectionProtectsSystemCategoriesAndKeepsTask"
+      }
+    ]
+  },
+  "initialAttempts": [
+    {
+      "stage": "owned QA emulator preflight",
+      "result": "ADB authentication was not accepted during emulator preflight; early readiness checks also needed null-output handling. These attempts ran no device tests. Retained emulator/preflight logs. Used the emulator console to inspect and approve only its own synthetic AVD dialog, without persistent authorization, shared-server restart or phone access; then verified target identity and boot readiness before testing."
+    }
+  ],
+  "limits": [
+    "Owned headless API37 QA emulator and synthetic data only; emulator closed at completion. No phone access.",
+    "No API26, full historical regression, real-device, overnight or complete accessibility rerun in this patch phase.",
+    "No database/schema or backup-format migration and no formal signing/main merge."
+  ],
+  "artifactSourceRef": "refs/tags/v1.3.1-dev01"
+}

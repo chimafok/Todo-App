@@ -49,7 +49,7 @@ class OrganizationBatchTest {
         assertEquals(deleted, db.dao().task("trash")!!.deletedAt); assertEquals(STUDY_ID, db.dao().series("series")!!.categoryId)
     }
     @Test fun systemCategoriesCannotBeSelectedAndChosenTargetsCannotBeDeleted() = database { db, org ->
-        rejected { org.previewDelete(setOf(ASSIGNMENTS_ID), false) }; rejected { org.previewDelete(setOf(UNCATEGORIZED_ID), false) }
+        rejected { org.previewDelete(setOf(ASSIGNMENTS_ID), false) }; rejected { org.previewDelete(setOf(UNCATEGORIZED_ID), false) }; rejected { org.previewDelete(setOf(STUDY_ID), false) }
         org.saveCategory("a", "甲", null); org.saveCategory("b", "乙", null)
         val p = org.previewDelete(linkedSetOf("b", "a"), false)
         rejected { org.deleteBatch(p, "a", emptyMap()) }; assertNotNull(db.dao().category("a"))

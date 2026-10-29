@@ -1,0 +1,19 @@
+{
+  "api": 26,
+  "dedicatedOwnedAvd": true,
+  "previousVersion": "1.3.0",
+  "previousCode": 33,
+  "newVersion": "1.3.1",
+  "newCode": 34,
+  "sameOfficialCertificateUpdateSucceeded": true,
+  "uidAndFirstInstallTimePreserved": true,
+  "nonDebuggable": true,
+  "launchSucceeded": true,
+  "phoneOperated": false,
+  "apkSha256": "70d9f22351b617ad1402b608fb5f55d9c0c60c72d221e9b1c84e5218c8d9e09e",
+  "limits": [
+    "Owned synthetic data only; no fresh installation in this release phase.",
+    "API37 covers the renamed study management flow; API26 covers official update and launch.",
+    "No user phone, full historical regression, background/overnight or complete accessibility acceptance claimed."
+  ]
+}
