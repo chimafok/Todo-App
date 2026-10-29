@@ -1,0 +1,10 @@
+{
+  "approvedTestSourceCommit": "353d417c4b6f53f7c579dd1f77e2d6c3a2b740c5",
+  "approvedAppTree": "b0076d8b5e8ca2c2443076d481211b7244aaad32",
+  "releaseAppTree": "b0076d8b5e8ca2c2443076d481211b7244aaad32",
+  "runtimeAndBuildPathsUnchanged": true,
+  "signedAndUnsignedReleasePayloadIdentical": true,
+  "note": "Debug and release have different IDs, flags and certificates; this verifies source parity rather than byte-identical APK files.",
+  "releaseBaseMain": "6d033bc169216bb5bee4b74cd51dfa1dec380b2c",
+  "historyNote": "Release branch starts on main and applies the approved dev tree exactly, avoiding squash-history conflicts; only release documentation is then added."
+}

@@ -1,0 +1,142 @@
+{
+  "versionName": "1.3.1",
+  "unitTests": [
+    {
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.BackupMergeTest"
+    },
+    {
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.DeadlineInputTest"
+    },
+    {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.DeviceClockTest"
+    },
+    {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ListScalingTest"
+    },
+    {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.NoteImageMergeTest"
+    },
+    {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.NoteImageRefsTest"
+    },
+    {
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.RecurrenceRulesTest"
+    },
+    {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ReminderConversionRulesTest"
+    },
+    {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ReminderDefaultsTest"
+    },
+    {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.ReminderRulesTest"
+    },
+    {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.RetentionRulesTest"
+    },
+    {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.SeriesEditPlanTest"
+    },
+    {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.SeriesReminderRulesTest"
+    },
+    {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.StudyScheduleTest"
+    },
+    {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.StudyStatusRulesTest"
+    },
+    {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.TaskQueryTest"
+    },
+    {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classname": "com.chimafok.todo.domain.TaskRulesTest"
+    }
+  ],
+  "releaseLint": {
+    "errors": 0,
+    "warnings": 14
+  },
+  "build": "assembleRelease --rerun-tasks",
+  "deviceChecks": {
+    "api37": "Official 1.3.0 to 1.3.1 update. Synthetic tasks, study progress and start date retained; renamed study has no delete action, is disabled in batch selection and excluded from Select All; persists after restart.",
+    "api26": "Official 1.3.0 to 1.3.1 update and launch; UID and first installation time retained."
+  },
+  "previousDeviceRegression": "The 21 API37 cases in development-1.3.1.json are previous development-phase checks, not rerun in this release phase.",
+  "environmentSetup": "Inspected and one-time approved only the dedicated owned emulator authentication dialog, without permanent authorization or shared ADB-server restart. No phone access.",
+  "documentationCorrection": "Development PR/release descriptions originally stated 13 Debug Lint warnings; corrected to the actual 14 in the existing verification record. Approved APK and app source unchanged.",
+  "initialAttempts": [],
+  "limits": [
+    "No fresh install in this release phase; both device checks are upgrades.",
+    "No user phone or full historical regression rerun.",
+    "Background/overnight/accessibility/large-data limits remain documented."
+  ]
+}
