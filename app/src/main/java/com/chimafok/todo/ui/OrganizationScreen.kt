@@ -53,7 +53,7 @@ fun OrganizationScreen(state: TodoState, viewModel: TodoViewModel) {
     val haptic = LocalHapticFeedback.current
     val ids = if (tab == 0) state.categories.map { it.id } else state.tags.map { it.id }
     val revisions = if (tab == 0) state.categories.associate { it.id to it.revision } else state.tags.associate { it.id to it.revision }
-    val deletable = if (tab == 0) state.categories.filter { it.systemKind == null }.map { it.id } else ids
+    val deletable = if (tab == 0) state.categories.filter { canDeleteCategory(it.id, it.systemKind) }.map { it.id } else ids
     var localOrder by remember(tab) { mutableStateOf<List<String>?>(null) }
     var dragged by remember(tab) { mutableStateOf<String?>(null) }
     var dragTop by remember { mutableFloatStateOf(0f) }
@@ -167,14 +167,14 @@ fun OrganizationScreen(state: TodoState, viewModel: TodoViewModel) {
                 OrganizationRow(category.id, category.name, when (category.systemKind) {
                     SystemCategory.UNCATEGORIZED -> "預設分類・不可改名或刪除"
                     SystemCategory.ASSIGNMENTS -> "作業四態・可改名，不可刪除"
-                    null -> if (category.id == STUDY_ID) "學習三態・可改名" else "一般分類"
+                    null -> if (category.id == STUDY_ID) "學習三態・可改名，不可刪除" else "一般分類"
                 }, false, busy || selecting, index > 0, index < state.categories.lastIndex,
                     modifier = rowModifier(category.id).animateItem(), selecting = selecting, selected = category.id in selected,
                     selectable = category.id in deletable, onSelect = { toggle(category.id) },
                     onRename = if (category.systemKind == SystemCategory.UNCATEGORIZED) null else {
                         { edit(category.id, category.name, category.revision, false) }
                     },
-                    onDelete = if (category.systemKind != null) null else { { remove(category.id, false) } },
+                    onDelete = if (!canDeleteCategory(category.id, category.systemKind)) null else { { remove(category.id, false) } },
                     onMove = { delta -> runOperation { viewModel.moveOrganization(category.id, false, delta, state.categories.map { it.id }) } })
             }
             else {
