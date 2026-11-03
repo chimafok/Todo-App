@@ -1,6 +1,6 @@
 # 資料模型：實作狀態與演進
 
-## 1.4.0 測試版遷移
+## 1.4.0 遷移
 
 Room schema9→10：`retention_policy` 新增 `language TEXT NOT NULL DEFAULT 'SYSTEM'`，舊保留期限、revision、updatedAt、任務與其他資料不變。值由 LanguageChoice 限定，語言設定與備份選擇共用該列 revision；retention 更新保留 language，語言更新保留 days。
 
