@@ -1,0 +1,10 @@
+{
+  "approvedDevSource": "8f799b58cc6f5f4aadbb360f2c0bdfde5f0bb64c",
+  "approvedTestApkSha256": "bf6eb776c143e5c4da89355c19fd6b725b6e055df8b4490156dd3483d55434c0",
+  "runtimeFingerprint": "8fad69705761ed6025f3a947d7c4a573be6d557303d51b42a6b62a73cc409795",
+  "appTree": "4bef2787b36ac257ac5d9cb19ae975b1fa5cc317",
+  "releaseBaseMain": "1f54f5f11b7652adeccdcbe80538a10b2c41da24",
+  "snapshotCommit": "33ebf06d87d67bdfb9c6bf6202e6edc940d1e850",
+  "appAndBuildSourcesUnchanged": true,
+  "method": "Main-based branch with the approved dev tree copied exactly before release-only documentation changes; squash merge history does not require rewriting public branches."
+}

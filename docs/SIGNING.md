@@ -1,5 +1,10 @@
 # 官方發布簽章
 
+## 1.4.0 簽章摘要
+
+正式包沿用既有RSA4096發布憑證，套件com.chimafok.todo／code35。簽署僅增加簽章區段，APK payload與未簽署Release相同，App來源與維護者確認的1.4.0-dev01一致。完整公開摘要見 [release-1.4.0.json](verification/release-1.4.0.json)，以下舊版資料保留為歷史。
+
+
 1.0.5 起官方 APK 使用獨立正式發布金鑰，RSA 4096，識別碼 com.chimafok.todo。
 
 憑證 SHA-256（不是 APK 檔案雜湊）：
