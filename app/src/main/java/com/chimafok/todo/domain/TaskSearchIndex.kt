@@ -4,7 +4,7 @@ import com.chimafok.todo.data.*
 
 /** Rebuild when categories, tags or links change; reuse while typing or animating a row. */
 class TaskSearchIndex(categories: List<CategoryEntity>, tags: List<TagEntity>, links: List<TaskTagEntity>) {
-    val categoryNames = categories.associate { it.id to it.name }
+    val categoryNames = categories.associate { it.id to com.chimafok.todo.i18n.categoryName(it) }
     private val tagsByTask = links.groupBy { it.taskId }.mapValues { (_, values) -> values.map { it.tagId }.toSet() }
     private val namesByTask: Map<String, List<String>>
 

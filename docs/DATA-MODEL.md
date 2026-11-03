@@ -1,5 +1,10 @@
 # 資料模型：實作狀態與演進
 
+## 1.4.0 遷移
+
+Room schema9→10：`retention_policy` 新增 `language TEXT NOT NULL DEFAULT 'SYSTEM'`，舊保留期限、revision、updatedAt、任務與其他資料不變。值由 LanguageChoice 限定，語言設定與備份選擇共用該列 revision；retention 更新保留 language，語言更新保留 days。
+
+
 ## 1.3.1 修補：學習分類刪除保護
 
 保護沿用STUDY_ID，學習的systemKind仍為null，不新增enum、資料欄位或migration。介面單項／批量／全選與Repository刪除入口共用固定身分規則；改名不影響保護。批量交易重新預覽並拒絕含學習的整批請求，避免舊預覽或僅隱藏按鈕造成部分刪除。原有學習名稱、排序、任務／系列及備份格式5保持可用。

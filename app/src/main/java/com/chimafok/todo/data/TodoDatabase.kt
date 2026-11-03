@@ -120,7 +120,7 @@ interface TodoDao {
 }
 
 @Database(entities = [TaskEntity::class, CategoryEntity::class, TagEntity::class, TaskTagEntity::class,
-    RecurringSeriesEntity::class, SeriesRuleEntity::class, SeriesTagEntity::class, OccurrenceEntity::class, ReminderEntity::class, ScheduleOutboxEntity::class, SeriesReminderEntity::class, ReminderOverrideEntity::class, RetentionPolicyEntity::class, RetentionAnchorEntity::class, PurgeCancellationEntity::class, NoteImageEntity::class], version = 9, exportSchema = true)
+    RecurringSeriesEntity::class, SeriesRuleEntity::class, SeriesTagEntity::class, OccurrenceEntity::class, ReminderEntity::class, ScheduleOutboxEntity::class, SeriesReminderEntity::class, ReminderOverrideEntity::class, RetentionPolicyEntity::class, RetentionAnchorEntity::class, PurgeCancellationEntity::class, NoteImageEntity::class], version = 10, exportSchema = true)
 @TypeConverters(TodoConverters::class)
 abstract class TodoDatabase : RoomDatabase() {
     abstract fun noteImages(): NoteImageDao
@@ -133,7 +133,7 @@ abstract class TodoDatabase : RoomDatabase() {
     companion object {
         fun create(context: Context, name: String = "todo.db"): TodoDatabase =
             Room.databaseBuilder(context.applicationContext, TodoDatabase::class.java, name)
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10)
                 .addCallback(seedCallback())
                 // No destructive migration fallback: future versions must provide a migration.
                 .build()
@@ -225,6 +225,12 @@ abstract class TodoDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE tasks ADD COLUMN imageIds TEXT NOT NULL DEFAULT ''")
                 db.execSQL("ALTER TABLE recurring_series ADD COLUMN imageIds TEXT NOT NULL DEFAULT ''")
                 db.execSQL("CREATE TABLE IF NOT EXISTS note_images (id TEXT NOT NULL, data TEXT NOT NULL, PRIMARY KEY(id))")
+            }
+        }
+
+        val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE retention_policy ADD COLUMN language TEXT NOT NULL DEFAULT 'SYSTEM'")
             }
         }
 

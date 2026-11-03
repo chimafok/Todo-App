@@ -1,5 +1,7 @@
 package com.chimafok.todo.ui
 
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -32,24 +34,24 @@ fun TaskBatchDialog(state: TodoState, action: String, revisions: Map<String, Lon
     }
     AlertDialog(onDismissRequest = { if (!busy) onDismiss() },
         title = { Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(when (action) { "MOVE" -> "批量移分類"; "TAGS" -> "批量加入標籤"; else -> "移至垃圾桶？" })
-            Text("已選 ${revisions.size} 項任務", style = MaterialTheme.typography.labelLarge,
+            Text(when (action) { "MOVE" -> tr(R.string.text_move_selected_tasks_958200); "TAGS" -> tr(R.string.text_add_tags_to_selected_tasks_7ae66f); else -> tr(R.string.text_move_to_trash_1b2fd4) })
+            Text(tr(R.string.text_s_tasks_selected_b9d830, revisions.size), style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
         } },
         text = { Column(Modifier.heightIn(max = 440.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             when (action) {
                 "MOVE" -> {
-                    Text("選擇目標分類。移入作業的任務需逐項選擇狀態；原本已是作業的項目保留原狀態。")
+                    Text(tr(R.string.text_choose_the_destination_category_choose_a_45b27a))
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) { state.categories.forEach { category ->
                         FilterChip(category.id == targetId, onClick = { targetId = category.id; choices = emptyMap() }, enabled = !busy,
-                            label = { Text(category.name) }, modifier = Modifier.testTag("batch_target_${category.id}"))
+                            label = { Text(com.chimafok.todo.i18n.categoryName(category)) }, modifier = Modifier.testTag("batch_target_${category.id}"))
                     } }
                     entering.forEach { task ->
                         Text(task.title)
                         var menu by remember(task.id) { mutableStateOf(false) }
                         Box {
                             OutlinedButton(onClick = { menu = true }, enabled = !busy, modifier = Modifier.testTag("batch_status_${task.id}")) {
-                                Text(choices[task.id]?.let { statusLabel(TaskStatus.valueOf(it)) } ?: "請選擇作業狀態")
+                                Text(choices[task.id]?.let { statusLabel(TaskStatus.valueOf(it)) } ?: tr(R.string.text_choose_an_assignment_status_3fcfdf))
                             }
                             DropdownMenu(menu, onDismissRequest = { menu = false }) {
                                 TaskStatus.entries.filter { it != TaskStatus.OPEN }.forEach { status ->
@@ -61,18 +63,18 @@ fun TaskBatchDialog(state: TodoState, action: String, revisions: Map<String, Lon
                     }
                 }
                 "TAGS" -> {
-                    Text("加入所選標籤，保留每項任務原有標籤。")
-                    if (state.tags.isEmpty()) Text("請先到「分類與標籤」建立標籤。")
+                    Text(tr(R.string.text_add_selected_tags_keeping_each_task_7e1f55))
+                    if (state.tags.isEmpty()) Text(tr(R.string.text_create_tags_in_categories_tags_first_daa9ba))
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) { state.tags.forEach { tag ->
                         FilterChip(tag.id in tags, onClick = { tags = if (tag.id in tags) tags - tag.id else tags + tag.id }, enabled = !busy,
                             label = { Text(tag.name) }, modifier = Modifier.testTag("batch_tag_${tag.id}"))
                     } }
                 }
-                else -> Text("這些任務將移至垃圾桶並保留 30 天，期間可以復原。")
+                else -> Text(tr(R.string.text_these_tasks_will_move_to_trash_7f00c4))
             }
             if (action != "TRASH" && state.occurrences.any { it.taskId in revisions }) Text(
-                "重複任務也會更新未來新項目的設定；其他已產生紀錄保留。", style = MaterialTheme.typography.bodySmall)
-            if (stale) Text("所選任務已更新，請取消後重新選取。", color = MaterialTheme.colorScheme.error)
+                tr(R.string.text_recurring_tasks_also_update_future_occurrence_60d8b4), style = MaterialTheme.typography.bodySmall)
+            if (stale) Text(tr(R.string.text_selected_tasks_changed_cancel_and_select_b3f235), color = MaterialTheme.colorScheme.error)
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         } },
         confirmButton = { TextButton(enabled = canSave, modifier = Modifier.testTag("confirm_batch"), onClick = {
@@ -87,9 +89,9 @@ fun TaskBatchDialog(state: TodoState, action: String, revisions: Map<String, Lon
                     onSaved()
                 } catch (exception: Exception) {
                     if (exception is kotlinx.coroutines.CancellationException) throw exception
-                    error = exception.message ?: "操作失敗，請重試。"
+                    error = exception.message ?: tr(R.string.text_operation_failed_please_try_again_6d73ff)
                 } finally { busy = false }
             }
-        }) { Text(if (busy) "儲存中…" else "確認") } },
-        dismissButton = { TextButton(enabled = !busy, onClick = onDismiss) { Text("取消") } })
+        }) { Text(if (busy) tr(R.string.text_saving_00190a) else tr(R.string.text_confirm_dce52f)) } },
+        dismissButton = { TextButton(enabled = !busy, onClick = onDismiss) { Text(tr(R.string.text_cancel_2cd0f3)) } })
 }

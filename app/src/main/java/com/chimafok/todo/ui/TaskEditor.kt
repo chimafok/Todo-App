@@ -1,5 +1,6 @@
 package com.chimafok.todo.ui
 
+import com.chimafok.todo.i18n.tr
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -131,12 +132,12 @@ fun TaskEditor(
     val hasDeadlineDate = date.isNotBlank() || (recurringContext == null && frequency != "NONE")
     fun configuredRule(): RecurrenceRule? {
         if (!applyRecurrence) return null
-        val start = requireNotNull(resolvedDate()) { "重複任務請填第一次截止日期" }
+        val start = requireNotNull(resolvedDate()) { tr(R.string.text_enter_the_first_due_date_for_447bec) }
         return RecurrenceRule(start, RecurrenceFrequency.valueOf(frequency), requireNotNull(zone),
-            if (frequency == "EVERY_N_DAYS") requireNotNull(interval.toIntOrNull()) { "間隔須為 1–3650 天" } else 1,
+            if (frequency == "EVERY_N_DAYS") requireNotNull(interval.toIntOrNull()) { tr(R.string.text_the_interval_must_be_days_878fbc) } else 1,
             if (frequency == "WEEKDAYS") weekdays.map { java.time.DayOfWeek.of(it) }.toSet() else emptySet(),
-            if (endMode == "DATE") requireNotNull(parseDateInput(endDate, LocalDate.parse(endReference))) { "請填結束日期" } else null,
-            if (endMode == "COUNT") requireNotNull(count.toIntOrNull()) { "請填有效的總次數" } else null)
+            if (endMode == "DATE") requireNotNull(parseDateInput(endDate, LocalDate.parse(endReference))) { tr(R.string.text_enter_an_end_date_d5f715) } else null,
+            if (endMode == "COUNT") requireNotNull(count.toIntOrNull()) { tr(R.string.text_enter_a_valid_total_occurrence_count_780b98) } else null)
     }
     val hasSingleReminders = recurringContext == null && decodeReminderInputs(reminderInputs).isNotEmpty()
     fun reminderConversionStamp(): String = listOf(reminderInputs, configuredRule()?.dateAt(1), parseTimeInput(time), zone).joinToString("|")
@@ -152,19 +153,19 @@ fun TaskEditor(
     fun save(next: Boolean, pastConfirmed: Boolean = false, seriesConfirmed: Boolean = false, conversionConfirmed: Boolean = false) {
         if (saving || imageBusy) return
         try {
-            require(!versionsLost) { "編輯狀態已重建，請關閉後重新開啟任務，再確認系列修改。" }
-            require(!expectedExisting || existing != null) { "任務已不存在，請關閉表單後重試" }
+            require(!versionsLost) { tr(R.string.text_the_editor_state_was_rebuilt_close_5df832) }
+            require(!expectedExisting || existing != null) { tr(R.string.text_the_task_no_longer_exists_close_0f63c0) }
             val dueTime = parseTimeInput(time)
             val recurrence = configuredRule()
             val dueDate = recurrence?.dateAt(1) ?: resolvedDate()
-            require(recurringContext == null || dueDate != null) { "重複紀錄須保留本次日期" }
-            require(!applyRecurrence || !hasSingleReminders || inheritedRemindersReady) { "請先按「沿用單筆提醒」，檢查系列提醒後再儲存" }
+            require(recurringContext == null || dueDate != null) { tr(R.string.text_recurring_records_must_keep_their_occurrence_9d5b10) }
+            require(!applyRecurrence || !hasSingleReminders || inheritedRemindersReady) { tr(R.string.text_carry_over_single_task_reminders_review_c66bad) }
             val inherit = applyRecurrence && inheritedRemindersReady
-            require(expectedExisting || (!assignment && !study) || statusName != TaskStatus.COMPLETED.name) { "新增作業或學習任務不能直接選擇完成" }
+            require(expectedExisting || (!assignment && !study) || statusName != TaskStatus.COMPLETED.name) { tr(R.string.text_new_assignment_or_study_tasks_cannot_9b2aba) }
             val beginning = resolvedStartDate()
             val draft = TaskDraft(id, title, notes, categoryId, dueDate, dueTime,
                 if (dueDate != null) zone else null,
-                requireNotNull(statusName?.let(TaskStatus::valueOf)) { "請先選擇作業狀態" }, revision.takeIf { it >= 0 }, selectedTags.toSet(),
+                requireNotNull(statusName?.let(TaskStatus::valueOf)) { tr(R.string.text_choose_an_assignment_status_first_b6f8c7) }, revision.takeIf { it >= 0 }, selectedTags.toSet(),
                 recurrence, seriesRevision.takeIf { it >= 0 }, occurrenceRevisions.takeIf { recurringContext != null },
                 if (applyRecurrence && !inherit) null else decodeReminderInputs(reminderInputs).map { it.spec(dueDate, dueTime, zone) },
                 if (applyRecurrence) decodeSeriesReminderInputs(seriesReminderInputs).map { it.spec() } else null,
@@ -176,7 +177,7 @@ fun TaskEditor(
             }
             draft.reminders.orEmpty().forEach { resolveReminder(it, dueDate, dueTime, zone) }
             if (convertingExisting) require(conversionAllowed && draft.status != TaskStatus.COMPLETED) {
-                "已完成任務請先重新開啟，再設定重複"
+                tr(R.string.text_reopen_the_completed_task_before_enabling_1ffefa)
             }
             if (dueDate != null && dueTime != null && (existing == null || existing.dueDate != dueDate ||
                     existing.dueTime != dueTime || existing.zoneId != zone)) {
@@ -207,7 +208,7 @@ fun TaskEditor(
                     onSaved(next)
                 } catch (exception: Exception) {
                     if (exception is kotlinx.coroutines.CancellationException) throw exception
-                    error = exception.message ?: "儲存失敗，輸入已保留，請重試。"
+                    error = exception.message ?: tr(R.string.text_cannot_save_your_input_is_kept_707f25)
                 } finally { saving = false }
             }
         } catch (exception: IllegalArgumentException) { error = exception.message }
@@ -228,8 +229,8 @@ fun TaskEditor(
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             Scaffold(
                 topBar = {
-                    TopAppBar(title = { Text(if (expectedExisting) "編輯任務" else "新增任務") },
-                        navigationIcon = { TextButton(onClick = ::requestExit, enabled = !saving) { Text("取消") } })
+                    TopAppBar(title = { Text(if (expectedExisting) tr(R.string.text_edit_task_89ada5) else tr(R.string.text_add_task_54bff0)) },
+                        navigationIcon = { TextButton(onClick = ::requestExit, enabled = !saving) { Text(tr(R.string.text_cancel_2cd0f3)) } })
                 },
                 bottomBar = {
                     Surface(color = MaterialTheme.colorScheme.background) {
@@ -237,10 +238,10 @@ fun TaskEditor(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             if (!expectedExisting) OutlinedButton(onClick = { save(true) }, enabled = !saving && !imageBusy,
                                 shape = MaterialTheme.shapes.medium,
-                                modifier = Modifier.weight(1f).heightIn(min = 52.dp).testTag("save_next")) { Text("新增下一項") }
+                                modifier = Modifier.weight(1f).heightIn(min = 52.dp).testTag("save_next")) { Text(tr(R.string.text_add_another_89d5d7)) }
                             Button(onClick = { save(false) }, enabled = !saving && !imageBusy, shape = MaterialTheme.shapes.medium,
                                 modifier = Modifier.weight(1f).heightIn(min = 52.dp).testTag("save_task")) {
-                                Text(if (saving) "儲存中…" else if (expectedExisting) "儲存" else "建立")
+                                Text(if (saving) tr(R.string.text_saving_00190a) else if (expectedExisting) tr(R.string.text_save_dba44e) else tr(R.string.text_create_da3402))
                             }
                         }
                     }
@@ -248,51 +249,51 @@ fun TaskEditor(
             ) { padding ->
                 Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    OutlinedTextField(title, { title = it }, label = { Text("任務名稱") },
+                    OutlinedTextField(title, { title = it }, label = { Text(tr(R.string.text_task_name_b7fea4)) },
                         modifier = Modifier.fillMaxWidth().focusRequester(titleFocus).testTag("task_title"), enabled = !saving && !imageBusy,
                         colors = fieldColors, shape = MaterialTheme.shapes.medium,
                         singleLine = true, isError = error != null && title.isBlank())
                     error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("editor_error")) }
-                    if(draftReferencesChanged) Text("草稿中的部分分類或標籤已不存在，已移除失效標籤並使用可用分類，請重新確認。",
+                    if(draftReferencesChanged) Text(tr(R.string.text_some_draft_categories_or_tags_no_b3f57d),
                         color=MaterialTheme.colorScheme.onSurfaceVariant,style=MaterialTheme.typography.bodySmall)
-                    Text("日期與時間", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                    Text(tr(R.string.text_date_and_time_40e256), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                     DeadlineTextField(date, {
                         date = it; deadlineReference = System.currentTimeMillis(); zone = ZoneId.systemDefault().id
                         if (it.isBlank() && !applyRecurrence) time = ""
                     },
-                        label = if (applyRecurrence && recurringContext == null) "第一次截止日期（留空為今天）" else if (applyRecurrence) "截止日期" else "截止日期（選填）", placeholder = "YYYY-MM-DD",
+                        label = if (applyRecurrence && recurringContext == null) tr(R.string.text_first_due_date_blank_means_today_c08e76) else if (applyRecurrence) tr(R.string.text_due_date_318024) else tr(R.string.text_due_date_optional_3b1f39), placeholder = "YYYY-MM-DD",
                         supportingText = if (datePreview != null) { { Text(datePreview) } } else null,
                         trailingIcon = { DatePickerButton(runCatching { resolvedDate() }.getOrNull() ?: LocalDate.now(), R.string.choose_date, enabled = !saving) {
                             date = it.toString(); deadlineReference = System.currentTimeMillis(); zone = ZoneId.systemDefault().id
                         } },
                         colors = fieldColors,
                         modifier = Modifier.fillMaxWidth().testTag("task_date"), enabled = !saving)
-                    DeadlineTextField(time, { time = it; deadlineReference = System.currentTimeMillis(); zone = ZoneId.systemDefault().id }, label = "截止時間（選填）", placeholder = "HH:mm",
+                    DeadlineTextField(time, { time = it; deadlineReference = System.currentTimeMillis(); zone = ZoneId.systemDefault().id }, label = tr(R.string.text_due_time_optional_434ef0), placeholder = "HH:mm",
                         supportingText = if (timePreview != null) { { Text(timePreview) } } else null,
                         trailingIcon = {
                             TextButton(enabled = hasDeadlineDate && !saving, onClick = { showTimePicker = true },
-                                modifier = Modifier.testTag("open_time")) { Text("選擇") }
+                                modifier = Modifier.testTag("open_time")) { Text(tr(R.string.text_choose_a50371)) }
                         }, modifier = Modifier.fillMaxWidth().testTag("task_time"),
                         colors = fieldColors,
                         enabled = !saving && hasDeadlineDate)
                     if (hasDeadlineDate) Text(
-                        "截止時區：" + runCatching {
+                        tr(R.string.text_due_time_zone_1624b9) + runCatching {
                             val parsedDate = resolvedDate()
                             val parsedTime = parseTimeInput(time)
                             if (parsedDate != null && parsedTime != null && zone != null) deadlineZoneLabel(parsedDate, parsedTime, requireNotNull(zone)) else zone
-                        }.getOrNull().orEmpty().ifBlank { zone.orEmpty().ifBlank { "未記錄；修改日期或時間後記錄" } } + if (time.isBlank()) "（只有日期，不指定時刻）" else "",
+                        }.getOrNull().orEmpty().ifBlank { zone.orEmpty().ifBlank { tr(R.string.text_not_recorded_recorded_when_date_or_54236f) } } + if (time.isBlank()) tr(R.string.text_date_only_no_specific_instant_2f9c3c) else "",
                         Modifier.testTag("deadline_zone"), style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    if (date.isNotBlank()) TextButton(onClick = { date = ""; time = "" }, enabled = !saving) { Text("清除日期與時間") }
+                    if (date.isNotBlank()) TextButton(onClick = { date = ""; time = "" }, enabled = !saving) { Text(tr(R.string.text_clear_due_date_and_time_cb620f)) }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    Text("分類與狀態", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                    Text(tr(R.string.text_category_and_status_0f92ed), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                     Box {
                         OutlinedButton(onClick = { categoryMenu = true }, enabled = !saving && !imageBusy, shape = MaterialTheme.shapes.medium,
                             modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) {
-                            Text("分類：${categories.find { it.id == categoryId }?.name ?: "未分類"}")
+                            Text(tr(R.string.text_category_s_e35224, categories.find { it.id == categoryId }?.let { com.chimafok.todo.i18n.categoryName(it) } ?: tr(R.string.text_uncategorized_607089)))
                         }
                         DropdownMenu(categoryMenu, onDismissRequest = { categoryMenu = false }) {
-                            categories.forEach { category -> DropdownMenuItem(text = { Text(category.name) }, onClick = {
+                            categories.forEach { category -> DropdownMenuItem(text = { Text(com.chimafok.todo.i18n.categoryName(category)) }, onClick = {
                                 val wasAssignment = assignment
                                 categoryId = category.id
                                 if (category.systemKind == SystemCategory.ASSIGNMENTS && !wasAssignment) {
@@ -308,7 +309,7 @@ fun TaskEditor(
                         Box {
                             OutlinedButton(onClick = { statusMenu = true }, enabled = !saving && !imageBusy, shape = MaterialTheme.shapes.medium,
                                 modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).testTag("study_status")) {
-                                Text("學習狀態：${statusLabel(statusName?.let(TaskStatus::valueOf) ?: TaskStatus.OPEN, STUDY_ID)}")
+                                Text(tr(R.string.text_study_status_s_349cc1, statusLabel(statusName?.let(TaskStatus::valueOf) ?: TaskStatus.OPEN, STUDY_ID)))
                             }
                             DropdownMenu(statusMenu, onDismissRequest = { statusMenu = false }) {
                                 statusOptions(false, true).filter { (expectedExisting && !convertingExisting) || it != TaskStatus.COMPLETED }.forEach { status ->
@@ -320,29 +321,29 @@ fun TaskEditor(
                         DeadlineTextField(startDateInput, {
                             startDateInput = it; startReference = System.currentTimeMillis(); startZone = ZoneId.systemDefault().id
                             if (it.isBlank()) startTimeInput = ""
-                        }, label = "開始日期（選填）", placeholder = "YYYY-MM-DD",
+                        }, label = tr(R.string.text_start_date_optional_2e6b78), placeholder = "YYYY-MM-DD",
                             supportingText = if (startDatePreview != null) { { Text(startDatePreview) } } else null,
                             trailingIcon = { DatePickerButton(runCatching { resolvedStartDate() }.getOrNull() ?: LocalDate.now(), R.string.choose_date, enabled = !saving) {
                                 startDateInput = it.toString(); startReference = System.currentTimeMillis(); startZone = ZoneId.systemDefault().id
                             } }, colors = fieldColors, modifier = Modifier.fillMaxWidth().testTag("task_start_date"), enabled = !saving)
                         DeadlineTextField(startTimeInput, {
                             startTimeInput = it; startReference = System.currentTimeMillis(); startZone = ZoneId.systemDefault().id
-                        }, label = "開始時間（選填）", placeholder = "HH:mm",
+                        }, label = tr(R.string.text_start_time_optional_7b7f9f), placeholder = "HH:mm",
                             supportingText = if (startTimePreview != null) { { Text(startTimePreview) } } else null,
                             trailingIcon = { TextButton(enabled = startDateInput.isNotBlank() && !saving, onClick = { showStartTimePicker = true },
-                                modifier = Modifier.testTag("open_start_time")) { Text("選擇") } },
+                                modifier = Modifier.testTag("open_start_time")) { Text(tr(R.string.text_choose_a50371)) } },
                             modifier = Modifier.fillMaxWidth().testTag("task_start_time"), colors = fieldColors,
                             enabled = !saving && startDateInput.isNotBlank())
                         if (startDateInput.isNotBlank()) {
-                            Text("開始時區：${startZone.orEmpty()}" + if (startTimeInput.isBlank()) "（只有日期，不指定時刻）" else "",
+                            Text(tr(R.string.text_start_time_zone_s_53b2e5, startZone.orEmpty()) + if (startTimeInput.isBlank()) tr(R.string.text_date_only_no_specific_instant_2f9c3c) else "",
                                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            TextButton(onClick = { startDateInput = ""; startTimeInput = ""; startZone = null }, enabled = !saving) { Text("清除開始日期與時間") }
+                            TextButton(onClick = { startDateInput = ""; startTimeInput = ""; startZone = null }, enabled = !saving) { Text(tr(R.string.text_clear_start_date_and_time_e98377)) }
                         }
                     }
                     if (assignment) Box {
                         OutlinedButton(onClick = { statusMenu = true }, enabled = !saving && (expectedExisting || frequency == "NONE"), shape = MaterialTheme.shapes.medium,
                             modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) {
-                            Text(statusName?.let { "作業狀態：${statusLabel(TaskStatus.valueOf(it))}" } ?: "請選擇作業狀態")
+                            Text(statusName?.let { tr(R.string.text_assignment_status_s_0da7d4, statusLabel(TaskStatus.valueOf(it))) } ?: tr(R.string.text_choose_an_assignment_status_3fcfdf))
                         }
                         DropdownMenu(statusMenu, onDismissRequest = { statusMenu = false }) {
                             TaskStatus.entries.filter { it != TaskStatus.OPEN && ((expectedExisting && !convertingExisting) || it != TaskStatus.COMPLETED) }.forEach { status ->
@@ -354,17 +355,17 @@ fun TaskEditor(
                     }
                     if (!expectedExisting || recurringContext != null || conversionAllowed) {
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                        Text("重複", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                        Text(tr(R.string.text_repeat_cb59ef), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                         if (recurringContext != null) {
                             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 FilterChip(!applyFuture, onClick = { applyFuture = false }, enabled = !saving && !imageBusy,
-                                    label = { Text("僅本次") }, modifier = Modifier.testTag("repeat_scope_single"))
+                                    label = { Text(tr(R.string.text_this_occurrence_e78821)) }, modifier = Modifier.testTag("repeat_scope_single"))
                                 FilterChip(applyFuture, onClick = { applyFuture = true },
                                     enabled = !saving && futureAllowed,
-                                    label = { Text("本次及未來") }, modifier = Modifier.testTag("repeat_scope_future"))
+                                    label = { Text(tr(R.string.text_this_and_future_806e5f)) }, modifier = Modifier.testTag("repeat_scope_future"))
                             }
-                            Text(if (applyFuture) "更新本次、已產生的未來未完成項目及系列規則；過去、已完成及已刪除紀錄保留。" else
-                                if (!futureAllowed) "這次只可修改本次；過去紀錄與已停止系列不重寫未來規則。" else "只修改這一次，保留系列規則。",
+                            Text(if (applyFuture) tr(R.string.text_update_this_occurrence_generated_future_incomplete_53a48c) else
+                                if (!futureAllowed) tr(R.string.text_only_this_occurrence_can_be_edited_96c862) else tr(R.string.text_edit_only_this_occurrence_keep_the_27e41c),
                                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         if (!expectedExisting || applyFuture || conversionAllowed) RecurrenceFields(frequency, interval, weekdays, endMode, endDate, count,
@@ -379,15 +380,15 @@ fun TaskEditor(
                             onEndDate = { endDate = it; endReference = LocalDate.now().toString() }, onCount = { count = it })
                         if (applyRecurrence) {
                             runCatching { configuredRule()?.dateAt(1) }.getOrNull()?.let {
-                                Text("本次日期：$it", style = MaterialTheme.typography.bodySmall, modifier = Modifier.testTag("repeat_first_date"))
+                                Text(tr(R.string.text_occurrence_date_s_25bd41, it), style = MaterialTheme.typography.bodySmall, modifier = Modifier.testTag("repeat_first_date"))
                             }
-                            Text(if (convertingExisting) "這一次保留目前進度；之後的新作業從「未開始」開始。" else "未完成也會繼續產生；每次作業從「未開始」開始。", style = MaterialTheme.typography.bodySmall,
+                            Text(if (convertingExisting) tr(R.string.text_keep_progress_for_this_occurrence_future_8ed16e) else tr(R.string.text_new_occurrences_are_generated_even_when_b5b080), style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     if (expectedExisting && recurringContext == null && existing?.status == TaskStatus.COMPLETED) {
-                        Text("已完成任務請先重新開啟，再設定重複。", style = MaterialTheme.typography.bodySmall,
+                        Text(tr(R.string.text_reopen_the_completed_task_before_enabling_49a0e1), style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.testTag("conversion_reopen_hint"))
                     }
                     if (applyRecurrence) {
@@ -395,52 +396,52 @@ fun TaskEditor(
                             runCatching { parseTimeInput(time) }.getOrNull(), zone, !saving)
                         if (hasSingleReminders) OutlinedCard(Modifier.fillMaxWidth().testTag("reminder_conversion_card")) {
                             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                Text(if (inheritedRemindersReady) "已沿用單筆提醒" else "沿用現有提醒", style = MaterialTheme.typography.titleSmall)
-                                Text("這一次保留目前表單的提醒，設為獨立提醒；之後各次使用上方系列提醒。截止前沿用提前量；固定時間按截止時區換算成日期偏移與時刻。",
+                                Text(if (inheritedRemindersReady) tr(R.string.text_single_task_reminders_carried_over_32f58a) else tr(R.string.text_carry_over_existing_reminders_5138e5), style = MaterialTheme.typography.titleSmall)
+                                Text(tr(R.string.text_keep_this_form_s_reminders_separately_d7a0ad),
                                     style = MaterialTheme.typography.bodySmall)
-                                if (!inheritedRemindersReady && inheritedReminderStamp != null) Text("日期、時間或單筆提醒已改動，請重新沿用並檢查。", color = MaterialTheme.colorScheme.error)
+                                if (!inheritedRemindersReady && inheritedReminderStamp != null) Text(tr(R.string.text_date_time_or_single_task_reminders_978efd), color = MaterialTheme.colorScheme.error)
                                 OutlinedButton(enabled = !saving && !imageBusy, modifier = Modifier.testTag("inherit_single_reminders"), onClick = {
                                     runCatching {
-                                        val day = requireNotNull(configuredRule()?.dateAt(1)) { "請先設定首次日期" }
-                                        val z = requireNotNull(zone) { "請先設定截止時區" }
+                                        val day = requireNotNull(configuredRule()?.dateAt(1)) { tr(R.string.text_set_the_first_date_first_6f83cd) }
+                                        val z = requireNotNull(zone) { tr(R.string.text_set_the_due_time_zone_first_ad95f4) }
                                         val sources = decodeReminderInputs(reminderInputs).map { it.spec(day, parseTimeInput(time), z) }
                                         val inherited = inheritReminderTemplates(sources, day, z)
                                         val extra = decodeSeriesReminderInputs(seriesReminderInputs).filterNot { it.id in inheritedTemplateIds }
-                                        require(inherited.size + extra.size <= 32) { "每個系列最多 32 個提醒，請先減少提醒數量" }
+                                        require(inherited.size + extra.size <= 32) { tr(R.string.text_each_series_supports_at_most_reminders_8fc6c4) }
                                         seriesReminderInputs = encodeSeriesReminderInputs(inherited.map { it.input() } + extra)
                                         inheritedTemplateIds = inherited.map { it.id }
                                         inheritedReminderStamp = reminderConversionStamp()
                                         error = null
                                     }.onFailure { error = it.message }
-                                }) { Text(if (inheritedRemindersReady) "重新沿用單筆提醒" else "沿用單筆提醒") }
+                                }) { Text(if (inheritedRemindersReady) tr(R.string.text_carry_over_single_task_reminders_again_1c2aa2) else tr(R.string.text_carry_over_single_task_reminders_9c5ed6)) }
                             }
                         }
-                        if (recurringContext != null) Text("本次及未來套用系列模板；其他次數單獨自訂的提醒會保留。", style=MaterialTheme.typography.bodySmall)
+                        if (recurringContext != null) Text(tr(R.string.text_apply_the_series_template_to_this_7e59b9), style=MaterialTheme.typography.bodySmall)
                     } else {
                         if (recurringContext != null) {
-                            Text(if (resetReminders) "儲存後重設為系列提醒。" else if (recurringContext.reminderOverridden) "這次有獨立提醒，後續系列修改會保留。" else
-                                "此處只改這一次；其他次數及系列模板不變。",style=MaterialTheme.typography.bodySmall)
+                            Text(if (resetReminders) tr(R.string.text_reset_to_series_reminders_after_saving_49e339) else if (recurringContext.reminderOverridden) tr(R.string.text_this_occurrence_uses_separate_reminders_kept_60d3fb) else
+                                tr(R.string.text_edit_only_this_occurrence_other_occurrences_5d3942),style=MaterialTheme.typography.bodySmall)
                             OutlinedButton(enabled=!saving, modifier=Modifier.testTag("reset_series_reminders"),onClick={
                                 runCatching {
                                     val day=requireNotNull(resolvedDate());val z=requireNotNull(zone);val t=parseTimeInput(time)
                                     reminderInputs=encodeReminderInputs(recurringContext.reminders.filter{it.enabled}.map { occurrenceReminder(it.spec(),id,day,t,z).input() })
                                     resetReminders=true
                                 }.onFailure { error=it.message }
-                            }){Text("重設為系列提醒")}
+                            }){Text(tr(R.string.text_reset_to_series_reminders_8bc47e))}
                         }
                         ReminderFields(reminderInputs, { reminderInputs = it; resetReminders = false }, runCatching { resolvedDate() }.getOrNull(),
                             runCatching { parseTimeInput(time) }.getOrNull(), zone, initialReminders, !saving, allowAdd = true)
                     }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    Text("標籤", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                    if (tags.isEmpty()) Text("可到「分類與標籤」新增標籤。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(tr(R.string.text_tags_9b423a), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                    if (tags.isEmpty()) Text(tr(R.string.text_add_tags_in_categories_tags_fafc2c), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         tags.forEach { tag -> FilterChip(selected = tag.id in selectedTags,
                             onClick = { selectedTags = if (tag.id in selectedTags) selectedTags - tag.id else selectedTags + tag.id },
                             enabled = !saving && !imageBusy, label = { Text(tag.name) }, modifier = Modifier.testTag("editor_tag_${tag.id}")) }
                     }
-                    Text("備註與圖片", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                    OutlinedTextField(notes, { notes = it }, label = { Text("備註") }, modifier = Modifier.fillMaxWidth().testTag("task_notes"),
+                    Text(tr(R.string.text_notes_and_images_7252db), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                    OutlinedTextField(notes, { notes = it }, label = { Text(tr(R.string.text_notes_85914d)) }, modifier = Modifier.fillMaxWidth().testTag("task_notes"),
                         colors = fieldColors, shape = MaterialTheme.shapes.medium,
                         minLines = 3, enabled = !saving)
                     NoteImageField(imageIds, !saving, { imageIds = it }, { imageBusy = it }, onImagePickerActive)
@@ -459,75 +460,75 @@ fun TaskEditor(
         onTime = { time = it.format(DateTimeFormatter.ofPattern("HH:mm")); deadlineReference = System.currentTimeMillis(); zone = ZoneId.systemDefault().id; showTimePicker = false },
     )
     if(showDraftExit) AlertDialog(onDismissRequest={if(!saving)showDraftExit=false},
-        modifier=Modifier.testTag("draft_exit_dialog"),title={Text("保留新增任務草稿？")},
+        modifier=Modifier.testTag("draft_exit_dialog"),title={Text(tr(R.string.text_keep_the_new_task_draft_392e0a))},
         text={Column(verticalArrangement=Arrangement.spacedBy(8.dp)) {
-            Text("保留後可稍後繼續編輯；草稿尚未建立任務，也不會排提醒。")
+            Text(tr(R.string.text_continue_editing_later_a_draft_does_275011))
             error?.let { Text(it,color=MaterialTheme.colorScheme.error) }
         }},
         confirmButton={TextButton(enabled=!saving,modifier=Modifier.testTag("keep_draft"),onClick={
             saving=true
             scope.launch { try { onKeepDraft(snapshotDraft());onDismiss() }
-                catch(e:Exception) { if(e is kotlinx.coroutines.CancellationException)throw e;error="草稿未能保留，請重試。" }
+                catch(e:Exception) { if(e is kotlinx.coroutines.CancellationException)throw e;error=tr(R.string.text_cannot_keep_the_draft_please_try_eb6814) }
                 finally { saving=false } }
-        }) { Text("保留草稿") }},
+        }) { Text(tr(R.string.text_keep_draft_f5140c)) }},
         dismissButton={Row {
             TextButton(enabled=!saving,modifier=Modifier.testTag("discard_draft"),onClick={
                 saving=true
                 scope.launch { try { onDiscardDraft();onDismiss() }
-                    catch(e:Exception) { if(e is kotlinx.coroutines.CancellationException)throw e;error="草稿未能捨棄，請重試。" }
+                    catch(e:Exception) { if(e is kotlinx.coroutines.CancellationException)throw e;error=tr(R.string.text_cannot_discard_the_draft_please_try_98042a) }
                     finally { saving=false } }
-            }) {Text("捨棄")}
-            TextButton(enabled=!saving,onClick={showDraftExit=false},modifier=Modifier.testTag("continue_editing")) {Text("繼續編輯")}
+            }) {Text(tr(R.string.text_discard_4038ba))}
+            TextButton(enabled=!saving,onClick={showDraftExit=false},modifier=Modifier.testTag("continue_editing")) {Text(tr(R.string.text_keep_editing_24a05e))}
         }})
     if (showPastWarning) AlertDialog(
         onDismissRequest = { showPastWarning = false },
         modifier = Modifier.testTag("past_deadline_warning"),
-        title = { Text("截止時間早於現在") },
+        title = { Text(tr(R.string.text_due_time_is_in_the_past_d67628)) },
         text = {
             val warningDate = runCatching { configuredRule()?.dateAt(1) ?: resolvedDate() }.getOrNull()
             val resolvedTime = runCatching { parseTimeInput(time) }.getOrNull()
-            Text(if (resolvedTime == null) "截止日期 $warningDate 已早於今天，仍要儲存嗎？"
-                else "截止為 $warningDate ${resolvedTime.format(DateTimeFormatter.ofPattern("HH:mm"))}（$zone），已早於現在。仍要儲存嗎？")
+            Text(if (resolvedTime == null) tr(R.string.text_due_date_s_is_before_today_4c260a, warningDate)
+                else tr(R.string.text_due_s_s_s_is_in_c2e64e, warningDate, resolvedTime.format(DateTimeFormatter.ofPattern("HH:mm")), zone))
         },
         confirmButton = { TextButton(onClick = { showPastWarning = false; save(pendingNext, pastConfirmed = true) },
-            modifier = Modifier.testTag("confirm_past_deadline")) { Text("仍要儲存") } },
-        dismissButton = { TextButton(onClick = { showPastWarning = false }, modifier = Modifier.testTag("cancel_past_deadline")) { Text("返回修改") } },
+            modifier = Modifier.testTag("confirm_past_deadline")) { Text(tr(R.string.text_save_anyway_4207d3)) } },
+        dismissButton = { TextButton(onClick = { showPastWarning = false }, modifier = Modifier.testTag("cancel_past_deadline")) { Text(tr(R.string.text_back_to_edit_3160fc)) } },
     )
     if (showConversionPreview && (convertingExisting || (applyRecurrence && inheritedRemindersReady))) AlertDialog(
         onDismissRequest = { showConversionPreview = false }, modifier = Modifier.testTag("convert_series_preview"),
-        title = { Text("改為重複任務？") },
+        title = { Text(tr(R.string.text_convert_to_a_recurring_task_2744f4)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(if (expectedExisting) "這項任務會成為系列的第 1 次，保留原本的建立時間與目前進度。" else "建立重複系列，並保留這一次已輸入的提醒。")
+                Text(if (expectedExisting) tr(R.string.text_this_task_becomes_the_first_occurrence_747041) else tr(R.string.text_create_a_recurring_series_and_keep_2b53b5))
                 if (inheritedRemindersReady) {
-                    Text("這一次保留 ${decodeReminderInputs(reminderInputs).size} 個獨立提醒；之後每次套用 ${decodeSeriesReminderInputs(seriesReminderInputs).size} 個系列提醒。")
-                    Text("本次固定提醒保留原時刻與時區。之後固定提醒按截止時區 $zone 的曆日及時間計算，不會重用第一筆的絕對日期。")
-                    Text("這一次不隨後續系列提醒修改；需要時可在「僅本次」重設為系列提醒。")
+                    Text(tr(R.string.text_keep_s_separate_reminders_for_this_92aa54, decodeReminderInputs(reminderInputs).size, decodeSeriesReminderInputs(seriesReminderInputs).size))
+                    Text(tr(R.string.text_this_occurrence_s_fixed_reminders_keep_5a2aa3, zone))
+                    Text(tr(R.string.text_later_series_reminder_edits_do_not_4038fa))
                 }
                 val previewRule = runCatching { configuredRule() }.getOrNull()
-                Text("首次日期：${previewRule?.dateAt(1)}")
-                Text("截止時區：$zone")
+                Text(tr(R.string.text_first_date_s_051546, previewRule?.dateAt(1)))
+                Text(tr(R.string.text_due_time_zone_s_aaf1e8, zone))
                 previewRule?.let { rule ->
-                    val frequencyLabel = if (rule.frequency == RecurrenceFrequency.EVERY_N_DAYS) "每隔 ${rule.intervalDays} 天" else recurrenceLabel(rule.frequency)
-                    val ending = rule.maxCount?.let { "共 $it 次（含這一次）" }
-                        ?: rule.endDate?.let { "至 $it（含當天）" } ?: "一直重複"
-                    Text("重複方式：$frequencyLabel · $ending")
+                    val frequencyLabel = if (rule.frequency == RecurrenceFrequency.EVERY_N_DAYS) tr(R.string.text_every_s_days_c56e4e, rule.intervalDays) else recurrenceLabel(rule.frequency)
+                    val ending = rule.maxCount?.let { tr(R.string.text_s_occurrences_including_this_one_0f2f00, it) }
+                        ?: rule.endDate?.let { tr(R.string.text_until_s_inclusive_4d1d80, it) } ?: tr(R.string.text_never_c329ac)
+                    Text(tr(R.string.text_recurrence_s_s_ef4264, frequencyLabel, ending))
                 }
-                Text("目前進度：${statusName?.let { statusLabel(TaskStatus.valueOf(it)) }.orEmpty()}")
-                Text("總次數包含這一次；開始日期在過去時，會補齊已到日期的紀錄。之後可在「重複紀錄」查閱各次進度。")
-                Text("之後的新作業從「未開始」開始；名稱、備註、分類、標籤與截止採表單值。")
+                Text(tr(R.string.text_current_progress_s_0d851c, statusName?.let { statusLabel(TaskStatus.valueOf(it)) }.orEmpty()))
+                Text(tr(R.string.text_the_total_includes_this_occurrence_when_057095))
+                Text(tr(R.string.text_future_assignments_start_as_not_started_7201e2))
             }
         },
         confirmButton = { TextButton(onClick = {
             showConversionPreview = false
             save(pendingNext, pendingPastApproved, conversionConfirmed = true)
-        }, modifier = Modifier.testTag("confirm_convert_series")) { Text("確認轉換") } },
+        }, modifier = Modifier.testTag("confirm_convert_series")) { Text(tr(R.string.text_confirm_conversion_5080ba)) } },
         dismissButton = { TextButton(onClick = { showConversionPreview = false },
-            modifier = Modifier.testTag("cancel_convert_series")) { Text("返回修改") } },
+            modifier = Modifier.testTag("cancel_convert_series")) { Text(tr(R.string.text_back_to_edit_3160fc)) } },
     )
     if (showSeriesPreview && recurringContext != null) AlertDialog(
         onDismissRequest = { showSeriesPreview = false }, modifier = Modifier.testTag("series_edit_preview"),
-        title = { Text("套用到本次及未來？") },
+        title = { Text(tr(R.string.text_apply_to_this_and_future_occurrences_a66b47)) },
         text = {
             val preview = runCatching {
                 val recurrence = requireNotNull(configuredRule())
@@ -536,17 +537,17 @@ fun TaskEditor(
                     recurringContext.rule, recurringContext.records, DeviceClock)
             }.getOrNull()
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("本次：${runCatching { configuredRule()?.dateAt(1) }.getOrNull()}")
+                Text(tr(R.string.text_this_occurrence_s_8c0b75, runCatching { configuredRule()?.dateAt(1) }.getOrNull()))
                 if (preview != null) {
-                    Text("另外更新 ${preview.updatedCount} 項、重新啟用 ${preview.restoredCount} 項、取消 ${preview.cancelledCount} 項未來紀錄。")
-                    Text("其他項目的進度會保留。一般待辦轉作業設為「未開始」，作業轉一般設為「未完成」。名稱、備註、標籤與截止採表單值。")
-                    Text("過去、已完成及已刪除紀錄保留。規則取消的項目可在歷史查閱，延長規則時可重新啟用。")
-                    Text("系列提醒套用到本次及未來未自訂的項目；單獨自訂的提醒保留。既有固定時刻只有明確改該模板或重設時才重新計算。")
-                } else Text("這次已不能修改系列，請返回後重新開啟。")
+                    Text(tr(R.string.text_also_update_s_reactivate_s_and_f31e51, preview.updatedCount, preview.restoredCount, preview.cancelledCount))
+                    Text(tr(R.string.text_keep_progress_on_other_items_ordinary_c3a581))
+                    Text(tr(R.string.text_keep_past_completed_and_deleted_records_026a8b))
+                    Text(tr(R.string.text_series_reminders_apply_to_this_and_feadd7))
+                } else Text(tr(R.string.text_this_occurrence_can_no_longer_edit_dd79ff))
             }
         },
         confirmButton = { TextButton(onClick = { showSeriesPreview = false; save(pendingNext, pendingPastApproved, seriesConfirmed = true) },
-            modifier = Modifier.testTag("confirm_series_edit")) { Text("確認套用") } },
-        dismissButton = { TextButton(onClick = { showSeriesPreview = false }, modifier = Modifier.testTag("cancel_series_edit")) { Text("返回修改") } },
+            modifier = Modifier.testTag("confirm_series_edit")) { Text(tr(R.string.text_confirm_and_apply_ddf142)) } },
+        dismissButton = { TextButton(onClick = { showSeriesPreview = false }, modifier = Modifier.testTag("cancel_series_edit")) { Text(tr(R.string.text_back_to_edit_3160fc)) } },
     )
 }

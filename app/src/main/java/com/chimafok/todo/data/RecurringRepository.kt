@@ -1,5 +1,7 @@
 package com.chimafok.todo.data
 
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import androidx.room.withTransaction
 import com.chimafok.todo.domain.*
 import kotlinx.coroutines.yield
@@ -28,7 +30,7 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
 
     private fun entityRule(seriesId: String, version: Int, effectiveFrom: Int, draft: TaskDraft): SeriesRuleEntity {
         val rule = requireNotNull(draft.recurrence)
-        require(rule.maxCount == null || rule.maxCount >= effectiveFrom) { "總次數不可早於本次序號 $effectiveFrom" }
+        require(rule.maxCount == null || rule.maxCount >= effectiveFrom) { tr(R.string.text_total_occurrences_cannot_be_less_than_a24d53, effectiveFrom) }
         return SeriesRuleEntity(UUID.randomUUID().toString(), seriesId, version, effectiveFrom, rule.anchor, rule.frequency,
             rule.intervalDays, rule.weekdays.fold(0) { mask, day -> mask or (1 shl (day.value - 1)) },
             draft.dueTime, rule.zoneId, rule.endDate, rule.maxCount, clock.millis(),
@@ -39,22 +41,22 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
     private suspend fun validate(draft: TaskDraft) {
         NoteImages(db).requireImages(draft.imageIds)
         if (draft.inheritSingleReminders) {
-            require(dao.occurrence(draft.id) == null && !draft.reminders.isNullOrEmpty()) { "只能在首次轉換時沿用單筆提醒" }
+            require(dao.occurrence(draft.id) == null && !draft.reminders.isNullOrEmpty()) { tr(R.string.text_single_task_reminders_can_only_be_8e7853) }
             inheritReminderTemplates(draft.reminders, requireNotNull(draft.dueDate), requireNotNull(draft.zoneId))
-            require(draft.seriesReminders != null) { "請先檢查沿用後的系列提醒" }
+            require(draft.seriesReminders != null) { tr(R.string.text_check_the_carried_over_series_reminders_d5353a) }
         } else require(draft.reminders.isNullOrEmpty() && (dao.occurrence(draft.id) != null || db.reminders().forTask(draft.id).none { it.enabled })) {
-            "請先預覽並沿用單筆提醒，再設定重複；不會自動丟棄現有提醒"
+            tr(R.string.text_preview_and_carry_over_single_task_9e9314)
         }
-        require(!draft.resetSeriesReminders) { "系列編輯不能同時重設單次提醒" }
+        require(!draft.resetSeriesReminders) { tr(R.string.text_editing_a_series_cannot_also_reset_987c9b) }
         draft.seriesReminders?.let { specs ->
-            require(specs.size <= 32 && specs.map { it.id }.distinct().size == specs.size) { "每個系列最多 32 個不同提醒" }
+            require(specs.size <= 32 && specs.map { it.id }.distinct().size == specs.size) { tr(R.string.text_each_series_supports_at_most_distinct_fc275b) }
             specs.forEach(::validateSeriesReminder)
         }
-        val category = requireNotNull(dao.category(draft.categoryId)) { "找不到分類" }
+        val category = requireNotNull(dao.category(draft.categoryId)) { tr(R.string.text_category_not_found_a4acb7) }
         validateDraft(draft, category.systemKind == SystemCategory.ASSIGNMENTS)
         val rule = requireNotNull(draft.recurrence)
-        require(draft.dueDate == rule.dateAt(1) && draft.zoneId == rule.zoneId) { "重複日期或時區與預覽不一致" }
-        require(draft.tagIds.all { dao.tag(it) != null }) { "標籤已更新，請重新開啟表單" }
+        require(draft.dueDate == rule.dateAt(1) && draft.zoneId == rule.zoneId) { tr(R.string.text_recurrence_date_or_time_zone_differs_d7ef21) }
+        require(draft.tagIds.all { dao.tag(it) != null }) { tr(R.string.text_tags_changed_please_reopen_the_form_01869b) }
         val old = dao.task(draft.id)
         if (old == null || old.dueDate != draft.dueDate || old.dueTime != draft.dueTime || old.zoneId != draft.zoneId) {
             draft.dueTime?.let { deadlineInstant(requireNotNull(draft.dueDate), it, rule.zoneId) }
@@ -62,23 +64,23 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
     }
 
     suspend fun create(draft: TaskDraft): Unit = db.withTransaction {
-        require(draft.expectedRevision == null) { "請以新增任務建立重複系列" }
-        require(if (draft.categoryId == STUDY_ID) draft.status in listOf(TaskStatus.OPEN, TaskStatus.IN_PROGRESS) else draft.status == if (dao.category(draft.categoryId)?.systemKind == SystemCategory.ASSIGNMENTS) TaskStatus.NOT_STARTED else TaskStatus.OPEN) { "重複任務的新一次須從未完成開始" }
+        require(draft.expectedRevision == null) { tr(R.string.text_create_a_recurring_series_using_add_a26e41) }
+        require(if (draft.categoryId == STUDY_ID) draft.status in listOf(TaskStatus.OPEN, TaskStatus.IN_PROGRESS) else draft.status == if (dao.category(draft.categoryId)?.systemKind == SystemCategory.ASSIGNMENTS) TaskStatus.NOT_STARTED else TaskStatus.OPEN) { tr(R.string.text_a_new_recurring_occurrence_must_start_f04fd6) }
         val old = dao.series(draft.id)
         if (old != null) {
             val stored = requireNotNull(dao.latestRule(old.id))
-            require(!draft.resetSeriesReminders && (draft.inheritSingleReminders || draft.reminders.isNullOrEmpty())) { "請先明確沿用單筆提醒" }
-            require(draft.dueDate == stored.rule().dateAt(1) && draft.zoneId == stored.zoneId) { "重複日期或時區與預覽不一致" }
+            require(!draft.resetSeriesReminders && (draft.inheritSingleReminders || draft.reminders.isNullOrEmpty())) { tr(R.string.text_explicitly_carry_over_single_task_reminders_f3d32f) }
+            require(draft.dueDate == stored.rule().dateAt(1) && draft.zoneId == stored.zoneId) { tr(R.string.text_recurrence_date_or_time_zone_differs_d7ef21) }
             require(old.title == validatedTitle(draft.title) && old.notes == draft.notes && old.imageIds == draft.imageIds && old.categoryId == draft.categoryId &&
                 stored.rule() == draft.recurrence && stored.dueTime == draft.dueTime &&
                 stored.startDayOffset == draft.startDate?.let { Math.toIntExact(java.time.temporal.ChronoUnit.DAYS.between(requireNotNull(draft.dueDate), it)) } &&
                 stored.startTime == draft.startTime && stored.startZoneId == draft.startZoneId && dao.seriesTagIds(old.id).toSet() == draft.tagIds &&
-                (draft.seriesReminders == null || db.reminders().templatesFor(old.id).filter { it.enabled }.map { it.spec() }.toSet() == draft.seriesReminders.toSet())) { "新增識別碼衝突" }
+                (draft.seriesReminders == null || db.reminders().templatesFor(old.id).filter { it.enabled }.map { it.spec() }.toSet() == draft.seriesReminders.toSet())) { tr(R.string.text_new_item_id_conflict_fcc5c3) }
             if (draft.inheritSingleReminders) require(db.reminders().overridden(draft.id) &&
-                db.reminders().forTask(draft.id).filter { it.enabled }.map { it.spec() }.toSet() == draft.reminders?.toSet()) { "新增提醒識別碼衝突" }
+                db.reminders().forTask(draft.id).filter { it.enabled }.map { it.spec() }.toSet() == draft.reminders?.toSet()) { tr(R.string.text_new_reminder_id_conflict_ceae10) }
             return@withTransaction
         }
-        require(dao.task(draft.id) == null) { "此任務已存在，不能重複建立系列" }
+        require(dao.task(draft.id) == null) { tr(R.string.text_this_task_already_exists_and_cannot_a6249a) }
         validate(draft)
         if (draft.inheritSingleReminders) {
             TaskRepository(db, clock).save(draft.copy(recurrence = null, seriesReminders = null, inheritSingleReminders = false))
@@ -100,11 +102,11 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
 
     /** Adopt the existing task as slot one; later slots keep the normal deterministic IDs. */
     suspend fun convert(draft: TaskDraft): Unit = db.withTransaction {
-        val original = requireNotNull(dao.task(draft.id)) { "任務已不存在，請重新開啟編輯" }
-        require(draft.expectedRevision != null && original.revision == draft.expectedRevision) { "任務已更新，請重新開啟編輯" }
-        require(original.deletedAt == null) { "此任務已在垃圾桶，請先復原" }
-        require(original.status != TaskStatus.COMPLETED && draft.status != TaskStatus.COMPLETED) { "已完成任務請先重新開啟，再設定重複" }
-        require(dao.occurrence(draft.id) == null && dao.series(draft.id) == null) { "任務已屬於重複系列，請重新開啟編輯" }
+        val original = requireNotNull(dao.task(draft.id)) { tr(R.string.text_the_task_no_longer_exists_please_b22bc8) }
+        require(draft.expectedRevision != null && original.revision == draft.expectedRevision) { tr(R.string.text_the_task_changed_please_reopen_the_438782) }
+        require(original.deletedAt == null) { tr(R.string.text_this_task_is_in_trash_restore_6ccd7b) }
+        require(original.status != TaskStatus.COMPLETED && draft.status != TaskStatus.COMPLETED) { tr(R.string.text_reopen_the_completed_task_before_enabling_1ffefa) }
+        require(dao.occurrence(draft.id) == null && dao.series(draft.id) == null) { tr(R.string.text_this_task_already_belongs_to_a_940ac4) }
         validate(draft)
         TaskRepository(db, clock).save(draft.copy(recurrence = null, seriesReminders = null, inheritSingleReminders = false))
         val now = clock.millis()
@@ -127,13 +129,13 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
         validate(draft)
         val occurrence = requireNotNull(dao.occurrence(draft.id))
         val series = requireNotNull(dao.series(occurrence.seriesId))
-        require(series.deletedAt == null && series.lifecycle != SeriesLifecycle.STOPPED) { "系列已停止，請只修改這一次" }
-        require(series.revision == draft.expectedSeriesRevision) { "重複系列已更新，請重新開啟編輯" }
+        require(series.deletedAt == null && series.lifecycle != SeriesLifecycle.STOPPED) { tr(R.string.text_the_series_stopped_edit_only_this_49465e) }
+        require(series.revision == draft.expectedSeriesRevision) { tr(R.string.text_the_recurring_series_changed_please_reopen_ac8c54) }
         val old = requireNotNull(dao.task(draft.id))
-        require(old.deletedAt == null && old.revision == draft.expectedRevision) { "任務已更新，請重新開啟編輯" }
+        require(old.deletedAt == null && old.revision == draft.expectedRevision) { tr(R.string.text_the_task_changed_please_reopen_the_438782) }
         val latest = requireNotNull(dao.latestRule(series.id))
         val records = dao.seriesOccurrences(series.id).map { SeriesEditRecord(it, requireNotNull(dao.task(it.taskId))) }
-        require(records.associate { it.task.id to it.task.revision } == draft.expectedOccurrenceRevisions) { "系列內的紀錄已更新，請重新開啟編輯" }
+        require(records.associate { it.task.id to it.task.revision } == draft.expectedOccurrenceRevisions) { tr(R.string.text_series_records_changed_please_reopen_the_31e841) }
         val previousTemplates = db.reminders().templatesFor(series.id).filter { it.enabled }.map { it.spec() }
         val plan = planSeriesEdit(draft, SeriesEditRecord(occurrence, old), latest, records, clock)
         snapshotRetired(series.id, latest.zoneId)
@@ -282,16 +284,16 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
 
     suspend fun stop(id: String, revision: Long) = db.withTransaction {
         val series = requireNotNull(dao.series(id))
-        require(series.revision == revision && series.deletedAt == null) { "系列已更新，請重試" }
+        require(series.revision == revision && series.deletedAt == null) { tr(R.string.text_the_series_changed_please_try_again_739ea9) }
         dao.updateSeries(series.copy(lifecycle = SeriesLifecycle.STOPPED, updatedAt = clock.millis(), revision = series.revision + 1))
     }
 
     suspend fun delete(id: String, revision: Long, expectedTasks: Map<String, Long>, includeHistory: Boolean) = db.withTransaction {
         val series = requireNotNull(dao.series(id))
-        require(series.revision == revision && series.deletedAt == null) { "系列已更新，請重新檢查" }
+        require(series.revision == revision && series.deletedAt == null) { tr(R.string.text_the_series_changed_please_check_again_97c730) }
         val refs = dao.seriesOccurrences(id)
         val tasks = refs.map { requireNotNull(dao.task(it.taskId)) }
-        require(tasks.associate { it.id to it.revision } == expectedTasks) { "系列紀錄已更新，請重新檢查" }
+        require(tasks.associate { it.id to it.revision } == expectedTasks) { tr(R.string.text_series_records_changed_please_check_again_489b62) }
         val zone = ZoneId.of(requireNotNull(dao.latestRule(id)).zoneId)
         val today = LocalDate.now(clock.withZone(zone))
         val now = clock.millis()
@@ -308,8 +310,8 @@ class RecurringRepository(private val db: TodoDatabase, private val clock: Clock
 
     suspend fun restoreSeries(id: String, revision: Long) = db.withTransaction {
         val series = requireNotNull(dao.series(id))
-        val deleted = requireNotNull(series.deletedAt) { "系列不在垃圾桶" }
-        require(series.revision == revision && !retentionExpired(deleted, TRASH_DAYS, clock.millis())) { "系列已更新或已超過保留期限" }
+        val deleted = requireNotNull(series.deletedAt) { tr(R.string.text_the_series_is_not_in_trash_51574f) }
+        require(series.revision == revision && !retentionExpired(deleted, TRASH_DAYS, clock.millis())) { tr(R.string.text_the_series_changed_or_its_retention_21700c) }
         dao.seriesOccurrences(id).filter { it.deletedWithSeriesAt == deleted }.forEach { ref ->
             val task = requireNotNull(dao.task(ref.taskId))
             if (task.deletedAt == deleted) dao.update(task.copy(deletedAt = null, updatedAt = clock.millis(), revision = task.revision + 1))

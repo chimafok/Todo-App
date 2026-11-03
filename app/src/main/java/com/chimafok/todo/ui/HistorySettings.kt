@@ -1,5 +1,7 @@
 package com.chimafok.todo.ui
 
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.rememberScrollState
@@ -31,16 +33,16 @@ fun HistorySettings(state: TodoState, viewModel: TodoViewModel) {
     var error by rememberSaveable { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    Text("完成紀錄保留", style = MaterialTheme.typography.titleLarge)
-    Text("目前：${current?.let { "$it 天" } ?: "永久保留"}", Modifier.testTag("retention_current"))
-    Text("只處理一般待辦與作業的已完成紀錄。重複紀錄獨立保存。到期先移到垃圾桶，仍可在 30 天內復原。", style = MaterialTheme.typography.bodySmall)
+    Text(tr(R.string.text_completed_record_retention_973ef2), style = MaterialTheme.typography.titleLarge)
+    Text(tr(R.string.text_current_s_d0b9d1, current?.let { tr(R.string.text_s_days_5c0556, it) } ?: tr(R.string.text_keep_forever_14b99e)), Modifier.testTag("retention_current"))
+    Text(tr(R.string.text_applies_only_to_completed_ordinary_tasks_cb52c2), style = MaterialTheme.typography.bodySmall)
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        listOf("FOREVER" to "永久", "30" to "30 天", "90" to "90 天", "365" to "365 天", "CUSTOM" to "自訂").forEach { (key,label) ->
+        listOf("FOREVER" to tr(R.string.text_forever_3e71cc), "30" to tr(R.string.text_days_84ad29), "90" to tr(R.string.text_days_cb82f4), "365" to tr(R.string.text_days_ef9523), "CUSTOM" to tr(R.string.text_custom_1fe988)).forEach { (key,label) ->
             FilterChip(option == key, onClick = { option = key; error = null }, enabled = !busy,
                 label = { Text(label) }, modifier = Modifier.testTag("retention_$key"))
         }
     }
-    if (option == "CUSTOM") OutlinedTextField(custom, { custom = it; error = null }, label = { Text("保留天數") },
+    if (option == "CUSTOM") OutlinedTextField(custom, { custom = it; error = null }, label = { Text(tr(R.string.text_days_to_keep_ee61d3)) },
         singleLine = true, enabled = !busy, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         modifier = Modifier.fillMaxWidth().testTag("retention_days"))
     error?.let { Text(it, Modifier.testTag("retention_error"), color = MaterialTheme.colorScheme.error) }
@@ -57,14 +59,14 @@ fun HistorySettings(state: TodoState, viewModel: TodoViewModel) {
             } catch (e: Exception) { if (e is kotlinx.coroutines.CancellationException) throw e; error = e.message }
             finally { busy = false }
         }
-    }) { Text("預覽並套用") }
-    Text("天數從實際完成時計算。復原後重新給予所選保留天數，原完成時間仍保留。背景清理可能受手機省電限制；重新開啟也會檢查。", style = MaterialTheme.typography.bodySmall)
+    }) { Text(tr(R.string.text_preview_and_apply_dcb996)) }
+    Text(tr(R.string.text_days_are_counted_from_completion_restored_c25664), style = MaterialTheme.typography.bodySmall)
     if (showPreview) AlertDialog(onDismissRequest = { if (!busy) showPreview = false }, modifier = Modifier.testTag("retention_preview"),
-        title = { Text("變更完成紀錄保留？") },
+        title = { Text(tr(R.string.text_change_completed_record_retention_cc5447)) },
         text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            if (frozenPreview == null) Text("程式已重新啟動，預覽已失效；請返回修改並重新預覽。", color = MaterialTheme.colorScheme.error)
-            Text("保留期限：${previewDays?.let { "$it 天" } ?: "永久"}")
-            Text("目前有 ${previewTasks.size} 項已完成任務會移到垃圾桶，從移入時再保留 30 天。重複歷史及未完成任務會保留。")
+            if (frozenPreview == null) Text(tr(R.string.text_the_app_restarted_and_the_preview_32b6bf), color = MaterialTheme.colorScheme.error)
+            Text(tr(R.string.text_retention_period_s_103a41, previewDays?.let { tr(R.string.text_s_days_5c0556, it) } ?: tr(R.string.text_forever_3e71cc)))
+            Text(tr(R.string.text_s_completed_tasks_will_move_to_02245e, previewTasks.size))
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         } },
         confirmButton = { TextButton(enabled = !busy && frozenPreview != null, modifier = Modifier.testTag("confirm_retention"), onClick = {
@@ -72,8 +74,8 @@ fun HistorySettings(state: TodoState, viewModel: TodoViewModel) {
             scope.launch { try { viewModel.applyRetention(requireNotNull(frozenPreview)); showPreview = false; viewModel.retainedRetention = null }
                 catch (e: Exception) { if (e is kotlinx.coroutines.CancellationException) throw e; error = e.message }
                 finally { busy = false } }
-        }) { Text("確認套用") } },
-        dismissButton = { TextButton(enabled = !busy, onClick = { showPreview = false; error = null }, modifier = Modifier.testTag("cancel_retention")) { Text("返回修改") } })
+        }) { Text(tr(R.string.text_confirm_and_apply_ddf142)) } },
+        dismissButton = { TextButton(enabled = !busy, onClick = { showPreview = false; error = null }, modifier = Modifier.testTag("cancel_retention")) { Text(tr(R.string.text_back_to_edit_3160fc)) } })
 }
 
 @Composable
@@ -82,11 +84,11 @@ fun PurgeDialog(preview: PurgePreview, viewModel: TodoViewModel, onDismiss: () -
     var error by rememberSaveable { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     AlertDialog(onDismissRequest = { if (!busy) onDismiss() }, modifier = Modifier.testTag("purge_confirmation"),
-        title = { Text(if (preview.allTrash) "清空全部垃圾桶？" else "永久刪除這項任務？") },
+        title = { Text(if (preview.allTrash) tr(R.string.text_empty_all_trash_913dd9) else tr(R.string.text_permanently_delete_this_task_2c7f72)) },
         text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("將永久刪除 ${preview.tasks.size} 項任務" + if (preview.series.isNotEmpty()) "與 ${preview.series.size} 個已刪除的系列。" else "。")
-            if (preview.allTrash) Text("包含搜尋及篩選未顯示的全部垃圾桶資料。")
-            Text("刪除後無法復原，相關標籤關聯與提醒也會移除。其他紀錄及有效的系列規則保留。")
+            Text(tr(R.string.text_permanently_delete_s_tasks_339d35, preview.tasks.size) + if (preview.series.isNotEmpty()) tr(R.string.text_and_s_deleted_series_4a42de, preview.series.size) else "。")
+            if (preview.allTrash) Text(tr(R.string.text_includes_all_trash_data_including_items_6f9eae))
+            Text(tr(R.string.text_this_cannot_be_undone_related_tag_6d0589))
             error?.let { Text(it, Modifier.testTag("purge_error"), color = MaterialTheme.colorScheme.error) }
         } },
         confirmButton = { TextButton(enabled = !busy, modifier = Modifier.testTag("confirm_purge"), colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error), onClick = {
@@ -94,8 +96,8 @@ fun PurgeDialog(preview: PurgePreview, viewModel: TodoViewModel, onDismiss: () -
             scope.launch { try { viewModel.purge(preview); onDismiss() }
                 catch (e: Exception) { if (e is kotlinx.coroutines.CancellationException) throw e; error = e.message }
                 finally { busy = false } }
-        }) { Text("永久刪除") } },
-        dismissButton = { TextButton(enabled = !busy, onClick = onDismiss, modifier = Modifier.testTag("cancel_purge")) { Text("取消") } })
+        }) { Text(tr(R.string.text_delete_permanently_667198)) } },
+        dismissButton = { TextButton(enabled = !busy, onClick = onDismiss, modifier = Modifier.testTag("cancel_purge")) { Text(tr(R.string.text_cancel_2cd0f3)) } })
 }
 
 @Composable
@@ -114,30 +116,30 @@ fun TrashToolbar(state: TodoState, viewModel: TodoViewModel, clock: Clock, enabl
     var error by rememberSaveable { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text("30 天後自動永久刪除", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 12.dp))
-        TextButton(enabled = enabled && !selectionMode && (tasks > 0 || groups.isNotEmpty()), onClick = onEmpty, modifier = Modifier.testTag("empty_trash")) { Text("清空全部…") }
+        Text(tr(R.string.text_automatically_deleted_permanently_after_days_ec45fb), style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 12.dp))
+        TextButton(enabled = enabled && !selectionMode && (tasks > 0 || groups.isNotEmpty()), onClick = onEmpty, modifier = Modifier.testTag("empty_trash")) { Text(tr(R.string.text_empty_all_ee87e0)) }
     }
     if (groups.isNotEmpty()) Column(Modifier.fillMaxWidth().heightIn(max = 180.dp).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp)) {
-        if(selectionMode)TextButton(enabled=enabled,onClick=onSelectAllSeries,modifier=Modifier.testTag("select_all_trash_series")){Text("全選已刪系列")}
+        if(selectionMode)TextButton(enabled=enabled,onClick=onSelectAllSeries,modifier=Modifier.testTag("select_all_trash_series")){Text(tr(R.string.text_select_all_deleted_series_7aa243))}
         groups.forEach { series -> Row(Modifier.fillMaxWidth().testTag("trash_series_${series.id}").combinedClickable(
             enabled=enabled && onLongSeries!=null,onClick={if(selectionMode)onToggleSeries(series.id) else onLongSeries?.invoke(series.id)},
-            onLongClick={onLongSeries?.invoke(series.id)},onLongClickLabel="選取系列"),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+            onLongClick={onLongSeries?.invoke(series.id)},onLongClickLabel=tr(R.string.text_select_series_af0ee8)),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
             if(selectionMode)Checkbox(series.id in selectedSeries,onCheckedChange={onToggleSeries(series.id)},enabled=enabled,modifier=Modifier.testTag("select_trash_series_${series.id}"))
             val remaining=remainingCounts[series.id] ?: 0
-            Text("${series.title} · 剩餘 $remaining 項", Modifier.weight(1f).padding(top = 12.dp), style = MaterialTheme.typography.bodySmall)
+            Text(tr(R.string.text_s_s_remaining_58241c, series.title, remaining), Modifier.weight(1f).padding(top = 12.dp), style = MaterialTheme.typography.bodySmall)
             TextButton(enabled = enabled && !selectionMode && !retentionExpired(requireNotNull(series.deletedAt),TRASH_DAYS,clock.millis()), modifier = Modifier.testTag("trash_restore_series_${series.id}"), onClick = {
                 restoreId = series.id; revision = series.revision; error = null
-            }) { Text("復原系列") }
+            }) { Text(tr(R.string.text_restore_series_9fbd02)) }
         } }
     }
     restoreId?.let { id -> state.series.find { it.id == id }?.let { series ->
         val remaining=remainingCounts[id] ?: 0
-        AlertDialog(onDismissRequest = { if (!busy) restoreId = null }, title = { Text("復原重複系列？") },
-            text = { Column { Text("「${series.title}」與剩餘 $remaining 項同次刪除的紀錄會復原。已永久刪除的紀錄無法復原；先前單獨刪除的項目保留在垃圾桶。"); error?.let { Text(it, color = MaterialTheme.colorScheme.error) } } },
+        AlertDialog(onDismissRequest = { if (!busy) restoreId = null }, title = { Text(tr(R.string.text_restore_recurring_series_b13107)) },
+            text = { Column { Text(tr(R.string.text_restore_s_and_its_s_remaining_aa8a27, series.title, remaining)); error?.let { Text(it, color = MaterialTheme.colorScheme.error) } } },
             confirmButton = { TextButton(enabled = !busy, modifier = Modifier.testTag("confirm_trash_restore_series"), onClick = {
                 busy = true; scope.launch { try { viewModel.restoreSeries(id, revision); restoreId = null }
                     catch (e: Exception) { if (e is kotlinx.coroutines.CancellationException) throw e; error = e.message }
                     finally { busy = false } }
-            }) { Text("復原剩餘資料") } }, dismissButton = { TextButton(enabled = !busy, onClick = { restoreId = null }) { Text("取消") } })
+            }) { Text(tr(R.string.text_restore_remaining_data_feb5e4)) } }, dismissButton = { TextButton(enabled = !busy, onClick = { restoreId = null }) { Text(tr(R.string.text_cancel_2cd0f3)) } })
     } }
 }

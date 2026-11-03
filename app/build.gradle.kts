@@ -14,10 +14,13 @@ android {
         applicationId = "com.chimafok.todo"
         minSdk = 26
         targetSdk = 37
-        versionCode = 34
-        versionName = "1.3.1"
+        versionCode = 35
+        versionName = "1.4.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+
+    // Bundle every supported language for offline switching, including future AAB builds.
+    bundle { language { enableSplit = false } }
 
     buildFeatures {
         compose = true
