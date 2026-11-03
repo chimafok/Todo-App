@@ -1,6 +1,6 @@
 # 備份格式與還原契約
 
-## 1.4.0 測試版：格式6／schema10
+## 1.4.0：格式6／schema10
 
 格式6沿用格式5的十三個資料陣列與圖片規則，在 `data.settings` 的 general 列加入 `language`，值限定 `SYSTEM`、`TRADITIONAL`、`SIMPLIFIED`、`ENGLISH`。格式6設定列必須帶非空且有效的 language。Room retention_policy 增加同名非空欄位，遷移預設 SYSTEM；保留 days、revision 與 updatedAt。
 

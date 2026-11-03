@@ -1,16 +1,16 @@
 # Todo
 
-繁體中文、固定深色介面的 Android 待辦 App。任務儲存在本機，支援重複任務、多個提醒、分類標籤與 JSON 備份，不需要帳號。
+支援繁體中文、簡體中文與英文的固定深色 Android 待辦 App。任務儲存在本機，支援重複任務、多個提醒、分類標籤與 JSON 備份，不需要帳號。
 
 [下載 APK](https://github.com/chimafok/Todo-App/releases) · [使用說明](docs/USER-GUIDE.md) · [安裝與更新](docs/INSTALL.md) · [回報問題](https://github.com/chimafok/Todo-App/issues/new/choose)
 
-- Android 8.0（API 26）以上，介面以繁體中文提供。
+- Android 8.0（API 26）以上，可選繁中、簡中、英文或跟隨系統。
 - Kotlin、Jetpack Compose、Material 3 與 Room。
 - 目前為持續開發中的個人專案；正式發布金鑰不代表所有手機與背景情境均已完成驗收，請閱讀[已知限制](docs/KNOWN-ISSUES.md)。
 
-## 多語言測試版
+## 介面語言
 
-1.4.0-dev01 新增繁體中文、簡體中文、英文及「跟隨系統」選項，入口為「設定 → 介面語言」；系統語言不支援時使用英文。自訂內容與截止／提醒時區保持原樣。此功能先提供開發簽章測試包，正式版仍為1.3.1；測試版與正式版安裝及資料分開。翻譯協作見 [TRANSLATING](docs/TRANSLATING.md)，備份格式6相容範圍見 [BACKUP-FORMAT](docs/BACKUP-FORMAT.md)。
+1.4.0起提供繁體中文、簡體中文、English及「跟隨系統」，入口為「設定 → 介面語言」；不支援的系統語言使用英文。自訂內容與截止／提醒時區保持原樣。語言偏好隨格式6備份保存，並可讀取舊格式1–5。翻譯協作見 [TRANSLATING](docs/TRANSLATING.md)。
 
 ## 功能
 
