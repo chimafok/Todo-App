@@ -1,5 +1,7 @@
 package com.chimafok.todo.ui
 
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -36,10 +38,10 @@ fun BackupSettings(viewModel:TodoViewModel) {
     var error by rememberSaveable { mutableStateOf<String?>(null) }
     val exportLauncher=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         viewModel.externalDocumentFlow=false
-        if(uri==null){message="已取消匯出";exportToken=null}
+        if(uri==null){message=tr(R.string.text_export_canceled_ec28ff);exportToken=null}
         else exportToken?.let { pending -> busy=true;scope.launch {
-            try { withContext(Dispatchers.IO){files.export(pending,uri)};message="備份已匯出";error=null;exportToken=null }
-            catch(e:Exception){if(e is kotlinx.coroutines.CancellationException)throw e;error="匯出失敗：${e.message ?: "請重新選擇儲存位置"}"}
+            try { withContext(Dispatchers.IO){files.export(pending,uri)};message=tr(R.string.text_backup_exported_61b8a6);error=null;exportToken=null }
+            catch(e:Exception){if(e is kotlinx.coroutines.CancellationException)throw e;error=tr(R.string.text_export_failed_s_949334, e.message ?: tr(R.string.text_choose_the_save_location_again_1e8423))}
             finally { busy=false }
         } }
     }
@@ -47,7 +49,7 @@ fun BackupSettings(viewModel:TodoViewModel) {
         viewModel.externalDocumentFlow=false
         if(uri!=null){busy=true;error=null;scope.launch {
             try { val prepared=withContext(Dispatchers.IO){files.import(uri)};token=prepared;message=null }
-            catch(e:Exception){if(e is kotlinx.coroutines.CancellationException)throw e;error="無法匯入：${e.message ?: "檔案格式錯誤"}"}
+            catch(e:Exception){if(e is kotlinx.coroutines.CancellationException)throw e;error=tr(R.string.text_cannot_import_s_aeb4c5, e.message ?: tr(R.string.text_invalid_file_format_a2cf55))}
             finally { busy=false }
         } }
     }
@@ -57,20 +59,20 @@ fun BackupSettings(viewModel:TodoViewModel) {
                 val prepared=withContext(Dispatchers.IO){files.stage(viewModel.exportBackup())};exportToken=prepared
                 viewModel.externalDocumentFlow=true
                 exportLauncher.launch("Todo-${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmm"))}.json")
-            } catch(e:Exception){if(e is kotlinx.coroutines.CancellationException)throw e;viewModel.externalDocumentFlow=false;error="匯出失敗：${e.message ?: "請重試"}"}
+            } catch(e:Exception){if(e is kotlinx.coroutines.CancellationException)throw e;viewModel.externalDocumentFlow=false;error=tr(R.string.text_export_failed_s_949334, e.message ?: tr(R.string.text_please_try_again_1721bd))}
             finally { busy=false }
         }
     }
-    Text("備份與還原",style=MaterialTheme.typography.titleLarge)
-    Text("JSON 明文檔案，請選擇合適的儲存位置。包含任務、完成紀錄、重複系列、垃圾桶、分類與標籤排序及一般設定；不含草稿與系統權限。",style=MaterialTheme.typography.bodySmall)
+    Text(tr(R.string.text_backup_and_restore_ee1dad),style=MaterialTheme.typography.titleLarge)
+    Text(tr(R.string.text_unencrypted_json_file_choose_an_appropriate_71f2dd),style=MaterialTheme.typography.bodySmall)
     FlowRow(horizontalArrangement=Arrangement.spacedBy(10.dp), verticalArrangement=Arrangement.spacedBy(8.dp)) {
-        Button(enabled=!busy,onClick=::export,modifier=Modifier.testTag("export_backup")){Text("匯出備份")}
+        Button(enabled=!busy,onClick=::export,modifier=Modifier.testTag("export_backup")){Text(tr(R.string.text_export_backup_b5a254))}
         OutlinedButton(enabled=!busy,onClick={error=null;try{viewModel.externalDocumentFlow=true;importLauncher.launch(arrayOf("*/*"))}
-            catch(e:Exception){viewModel.externalDocumentFlow=false;error=e.message ?: "無法開啟檔案選擇器"}},modifier=Modifier.testTag("import_backup")){Text("選擇備份檔")}
+            catch(e:Exception){viewModel.externalDocumentFlow=false;error=e.message ?: tr(R.string.text_cannot_open_the_file_picker_beffea)}},modifier=Modifier.testTag("import_backup")){Text(tr(R.string.text_choose_backup_file_f95ea6))}
     }
     message?.let { Text(it,Modifier.testTag("backup_message")) }
     error?.let { Text(it,Modifier.testTag("backup_error"),color=MaterialTheme.colorScheme.error) }
-    if(busy) Text("正在處理檔案…",Modifier.testTag("backup_file_busy"))
+    if(busy) Text(tr(R.string.text_processing_file_352207),Modifier.testTag("backup_file_busy"))
     token?.let { session -> RestoreBackupDialog(session,viewModel,files,busy,error ?: message,::export) { token=null } }
 }
 
@@ -90,66 +92,67 @@ private fun RestoreBackupDialog(token:String,viewModel:TodoViewModel,files:Backu
         busy=true
         try {
             val next=withContext(Dispatchers.IO){viewModel.previewBackup(files.document(token),RestoreMode.valueOf(mode),selected())}
-            if(acceptedFingerprint!=null && acceptedFingerprint!=next.localFingerprint){preview=null;error="本機資料已更新，請按重新預覽再確認。"}
+            if(acceptedFingerprint!=null && acceptedFingerprint!=next.localFingerprint){preview=null;error=tr(R.string.text_local_data_changed_preview_again_before_b13126)}
             else {acceptedFingerprint=next.localFingerprint;preview=next;error=null}
-        } catch(e:Exception){if(e is kotlinx.coroutines.CancellationException)throw e;preview=null;error=e.message ?: "無法預覽此備份"}
+        } catch(e:Exception){if(e is kotlinx.coroutines.CancellationException)throw e;preview=null;error=e.message ?: tr(R.string.text_cannot_preview_this_backup_78b182)}
         finally { busy=false }
     }
     Dialog(onDismissRequest={if(!busy && !exportBusy)onDismiss()},properties=DialogProperties(usePlatformDefaultWidth=false)) {
         Surface(Modifier.fillMaxSize().padding(16.dp).testTag("backup_preview"),shape=MaterialTheme.shapes.extraLarge) {
             Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
-                Text("檢查並還原備份",style=MaterialTheme.typography.headlineSmall)
+                Text(tr(R.string.text_review_and_restore_backup_b18649),style=MaterialTheme.typography.headlineSmall)
                 Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-                    listOf(RestoreMode.MERGE to "合併",RestoreMode.REPLACE to "完整取代").forEach { (value,label) ->
+                    listOf(RestoreMode.MERGE to tr(R.string.text_merge_818474),RestoreMode.REPLACE to tr(R.string.text_replace_all_68b101)).forEach { (value,label) ->
                         FilterChip(selected=mode==value.name,enabled=!busy && !exportBusy,label={Text(label)},modifier=Modifier.testTag("backup_mode_${value.name}"),onClick={mode=value.name;choices=emptyMap();acceptedFingerprint=null;preview=null})
                     }
                 }
                 val p=preview
                 LazyColumn(Modifier.weight(1f).testTag("backup_review_list"),verticalArrangement=Arrangement.spacedBy(12.dp)) {
                     item {
-                        Text(if(mode==RestoreMode.REPLACE.name)"完整取代會移除目前所有任務與垃圾桶，再放入檔案資料（含檔案中的垃圾桶），並還原檔案排序及一般設定。舊格式未包含的設定會保留本機值。" else "合併依 ID 及修改時間判斷。較舊備份不會自動蓋過較新的進度；垃圾桶同 ID、系列衝突及不同的一般設定需要明確選擇。")
-                        Text("已永久刪除的 ID 可能由舊備份重新加入。匯入的一般完成項會獲得新的保留期限，原完成時間仍保留。垃圾桶沿用原刪除日期，不延長原本的 30 天期限。過去提醒不補發。",style=MaterialTheme.typography.bodySmall)
+                        Text(if(mode==RestoreMode.REPLACE.name)tr(R.string.text_replace_all_removes_current_tasks_and_25a175) else tr(R.string.text_merge_compares_ids_and_modification_times_94b362))
+                        Text(tr(R.string.text_permanently_deleted_ids_may_return_from_a82c29),style=MaterialTheme.typography.bodySmall)
                     }
                     if(p!=null) {
                         item { Column(Modifier.testTag(if(busy)"backup_recalculating" else "backup_ready"),verticalArrangement=Arrangement.spacedBy(6.dp)) {
-                            Text("本機 ${p.plan.localTaskCount} 項任務；檔案 ${p.plan.fileTaskCount} 項任務。")
-                            Text("新增 ${p.plan.added}、更新 ${p.plan.changed}、移除 ${p.plan.removed} 項任務。")
-                            Text("結果：${p.plan.graph.rows("categories").size} 個分類、${p.plan.graph.rows("tags").size} 個標籤、${p.plan.graph.rows("recurring_series").size} 個系列。")
-                            Text("結果圖片：${p.plan.graph.rows("note_images").size} 張；圖片會隨選定的任務或系列版本一起還原。")
-                            Text("結果垃圾桶：${p.plan.graph.rows("tasks").count { it["deletedAt"] != null }} 項任務、${p.plan.graph.rows("recurring_series").count { it["deletedAt"] != null }} 個系列。")
-                            Text("還原後完成紀錄保留：${p.plan.graph.rows("settings").singleOrNull()?.get("completedRetentionDays")?.let { "$it 天" } ?: "永久"}；分類與標籤排序按選定資料還原。")
-                            if(p.plan.sameNames>0)Text("有 ${p.plan.sameNames} 組同名但不同 ID 的分類／標籤，會各自保留。")
-                            Text("${p.plan.conflicts.size} 組衝突；每組選擇後才可確認。")
+                            Text(tr(R.string.text_local_s_tasks_file_s_tasks_d4cce0, p.plan.localTaskCount, p.plan.fileTaskCount))
+                            Text(tr(R.string.text_add_s_update_s_remove_s_3d41f3, p.plan.added, p.plan.changed, p.plan.removed))
+                            Text(tr(R.string.text_result_s_categories_s_tags_s_72d7eb, p.plan.graph.rows("categories").size, p.plan.graph.rows("tags").size, p.plan.graph.rows("recurring_series").size))
+                            Text(tr(R.string.text_result_s_images_attachments_are_restored_66d62d, p.plan.graph.rows("note_images").size))
+                            Text(tr(R.string.text_result_in_trash_s_tasks_s_6f433b, p.plan.graph.rows("tasks").count { it["deletedAt"] != null }, p.plan.graph.rows("recurring_series").count { it["deletedAt"] != null }))
+                            Text(tr(R.string.text_completed_record_retention_after_restore_s_26f607, p.plan.graph.rows("settings").singleOrNull()?.get("completedRetentionDays")?.let { tr(R.string.text_s_days_5c0556, it) } ?: tr(R.string.text_forever_3e71cc)))
+                            Text(tr(R.string.restored_language, com.chimafok.todo.i18n.languageName(p.plan.graph.rows("settings").singleOrNull()?.optionalText("language"))))
+                            if(p.plan.sameNames>0)Text(tr(R.string.text_s_groups_of_categories_or_tags_1d5522, p.plan.sameNames))
+                            Text(tr(R.string.text_s_conflicts_choose_a_version_for_20aecd, p.plan.conflicts.size))
                         } }
                         items(p.plan.conflicts,key={it.id}) { conflict ->
                             OutlinedCard(Modifier.fillMaxWidth().testTag("backup_conflict_${conflict.id}")) {
                                 Column(Modifier.padding(12.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
                                     Text(conflict.label,style=MaterialTheme.typography.titleMedium);Text(conflict.reason)
-                                    Text("本機：${backupSideSummary(conflict.local)}",style=MaterialTheme.typography.bodySmall)
-                                    Text("檔案：${backupSideSummary(conflict.incoming)}",style=MaterialTheme.typography.bodySmall)
-                                    TextButton(onClick={detail=conflict},enabled=!busy){Text("檢視完整明細")}
+                                    Text(tr(R.string.text_local_s_b3905e, backupSideSummary(conflict.local)),style=MaterialTheme.typography.bodySmall)
+                                    Text(tr(R.string.text_file_s_c1de99, backupSideSummary(conflict.incoming)),style=MaterialTheme.typography.bodySmall)
+                                    TextButton(onClick={detail=conflict},enabled=!busy){Text(tr(R.string.text_view_full_details_6bdc9a))}
                                     Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                                         BackupChoice.entries.forEach { choice -> FilterChip(selected=choices[conflict.id]==choice.name,enabled=!busy,
-                                            onClick={choices=choices+(conflict.id to choice.name)},label={Text(if(choice==BackupChoice.LOCAL)"保留本機" else "採用檔案")},modifier=Modifier.testTag("backup_choice_${conflict.id}_${choice.name}")) }
+                                            onClick={choices=choices+(conflict.id to choice.name)},label={Text(if(choice==BackupChoice.LOCAL)tr(R.string.text_keep_local_1d2b63) else tr(R.string.text_use_file_7d6f4c))},modifier=Modifier.testTag("backup_choice_${conflict.id}_${choice.name}")) }
                                     }
                                 }
                             }
                         }
                     }
-                    if(busy)item { Text("正在檢查…") }
+                    if(busy)item { Text(tr(R.string.text_checking_15ad10)) }
                 }
                 error?.let { Text(it,Modifier.testTag("backup_preview_error"),color=MaterialTheme.colorScheme.error) }
-                TextButton(enabled=!busy && !exportBusy,onClick=onExport,modifier=Modifier.testTag("backup_export_before_restore")){Text("先匯出目前資料")}
+                TextButton(enabled=!busy && !exportBusy,onClick=onExport,modifier=Modifier.testTag("backup_export_before_restore")){Text(tr(R.string.text_export_current_data_first_494167))}
                 transferStatus?.let { Text(it,Modifier.testTag("backup_transfer_status"),style=MaterialTheme.typography.bodySmall) }
-                if(error!=null)TextButton(enabled=!busy,onClick={acceptedFingerprint=null;choices=emptyMap();epoch++},modifier=Modifier.testTag("backup_refresh")){Text("重新預覽")}
+                if(error!=null)TextButton(enabled=!busy,onClick={acceptedFingerprint=null;choices=emptyMap();epoch++},modifier=Modifier.testTag("backup_refresh")){Text(tr(R.string.text_preview_again_bc05f4))}
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
-                    OutlinedButton(enabled=!busy && !exportBusy,onClick=onDismiss,modifier=Modifier.weight(1f).testTag("cancel_backup_restore")){Text("取消")}
+                    OutlinedButton(enabled=!busy && !exportBusy,onClick=onDismiss,modifier=Modifier.weight(1f).testTag("cancel_backup_restore")){Text(tr(R.string.text_cancel_2cd0f3))}
                     Button(enabled=!busy && !exportBusy && error==null && p!=null && p.plan.conflicts.all { it.id in choices },modifier=Modifier.weight(1f).testTag("confirm_backup_restore"),onClick={
                         val accepted=preview ?: return@Button;busy=true;error=null
                         scope.launch { try { withContext(Dispatchers.IO){viewModel.applyBackup(files.document(token),accepted,selected())};onDismiss() }
-                            catch(e:Exception){if(e is kotlinx.coroutines.CancellationException)throw e;error=e.message ?: "還原失敗，原資料保留"}
+                            catch(e:Exception){if(e is kotlinx.coroutines.CancellationException)throw e;error=e.message ?: tr(R.string.text_restore_failed_original_data_kept_5484c4)}
                             finally {busy=false} }
-                    }){Text(if(mode==RestoreMode.REPLACE.name)"確認完整取代" else "確認合併")}
+                    }){Text(if(mode==RestoreMode.REPLACE.name)tr(R.string.text_confirm_replacement_bf11ba) else tr(R.string.text_confirm_merge_b44627))}
                 }
             }
         }
@@ -158,24 +161,25 @@ private fun RestoreBackupDialog(token:String,viewModel:TodoViewModel,files:Backu
         Surface(Modifier.fillMaxSize().padding(16.dp),shape=MaterialTheme.shapes.extraLarge) {
             Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
                 Text(conflict.label,style=MaterialTheme.typography.titleLarge)
-                val rows=remember(conflict) { backupDetails("本機",conflict.local)+backupDetails("檔案",conflict.incoming) }
+                val rows=remember(conflict) { backupDetails(tr(R.string.text_local_019e29),conflict.local)+backupDetails(tr(R.string.text_file_a11ac5),conflict.incoming) }
                 LazyColumn(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(12.dp)){items(rows.size){Text(rows[it]());HorizontalDivider()}}
-                TextButton(onClick={detail=null}){Text("返回選擇")}
+                TextButton(onClick={detail=null}){Text(tr(R.string.text_back_to_choices_0fed12))}
             }
         }
     } }
 }
 private fun backupTime(value:Any?):String=(value as? Number)?.toLong()?.takeIf { it>0 }?.let {
     Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-} ?: "未知"
+} ?: tr(R.string.text_unknown_4d8c1c)
 private fun backupSideSummary(g:BackupGraph):String = if(g.rows("settings").isNotEmpty())
-    "完成紀錄保留：${g.rows("settings").single()["completedRetentionDays"]?.let { "$it 天" } ?: "永久"}"
-    else "${g.rows("tasks").size} 項任務、${g.rows("recurring_series").size} 個系列、${referencedImageIds(g).size} 張圖片；"+
-    (g.rows("tasks").firstOrNull()?.let { "${statusLabel(TaskStatus.valueOf(it.text("status")), it.optionalText("categoryId"))}，修改 ${backupTime(it["updatedAt"])}" }
-        ?: (g.rows("categories")+g.rows("tags")).firstOrNull()?.let { "${it.text("name")}，修改 ${backupTime(it["updatedAt"])}" } ?: "整組規則與關聯")
+    tr(R.string.text_completed_record_retention_s_a4cf43, g.rows("settings").single()["completedRetentionDays"]?.let { tr(R.string.text_s_days_5c0556, it) } ?: tr(R.string.text_forever_3e71cc)) +
+        " · " + tr(R.string.language_summary, com.chimafok.todo.i18n.languageName(g.rows("settings").single().optionalText("language")))
+    else tr(R.string.text_s_tasks_s_series_s_images_728f14, g.rows("tasks").size, g.rows("recurring_series").size, referencedImageIds(g).size)+
+    (g.rows("tasks").firstOrNull()?.let { tr(R.string.text_s_modified_s_36aeef, statusLabel(TaskStatus.valueOf(it.text("status")), it.optionalText("categoryId")), backupTime(it["updatedAt"])) }
+        ?: (g.rows("categories")+g.rows("tags")).firstOrNull()?.let { tr(R.string.text_s_modified_s_36aeef, it.text("name"), backupTime(it["updatedAt"])) } ?: tr(R.string.text_full_rules_and_relationships_bacb09))
 private fun backupTaskDetail(r:BackupRow):String = "${r.text("title")}\n${statusLabel(TaskStatus.valueOf(r.text("status")), r.optionalText("categoryId"))}"+
-    " · 開始 ${r["startDate"] ?: "未填"} ${r["startTime"] ?: ""} ${r["startZoneId"] ?: ""} · 截止 ${r["dueDate"] ?: "未安排"} ${r["dueTime"] ?: ""} ${r["zoneId"] ?: ""}\n修改 ${backupTime(r["updatedAt"])}"+
-    (if(r["deletedAt"]!=null)" · 垃圾桶" else "")+" · 圖片 ${com.chimafok.todo.domain.decodeImageIds(r.optionalText("imageIds").orEmpty()).size} 張\n${r.text("notes") }"
+    tr(R.string.text_start_s_s_s_due_s_dcb045, r["startDate"] ?: tr(R.string.text_not_set_64747f), r["startTime"] ?: "", r["startZoneId"] ?: "", r["dueDate"] ?: tr(R.string.text_unscheduled_7c525e), r["dueTime"] ?: "", r["zoneId"] ?: "", backupTime(r["updatedAt"]))+
+    (if(r["deletedAt"]!=null)tr(R.string.text_trash_5929cf) else "")+tr(R.string.text_s_images_s_19e0a8, com.chimafok.todo.domain.decodeImageIds(r.optionalText("imageIds").orEmpty()).size, r.text("notes") )
 
 /** Keep text formatting lazy so opening a large series does not eagerly build every note string. */
 private fun backupDetails(source:String,g:BackupGraph):List<()->String> = buildList {
@@ -186,21 +190,21 @@ private fun backupDetails(source:String,g:BackupGraph):List<()->String> = buildL
     val custom=g.rows("reminder_overrides").map { it.text("taskId") }.toSet()
     val titles=g.rows("tasks").associate { it.text("id") to it.text("title") }
     g.rows("tasks").forEach { r->add {
-        backupTaskDetail(r)+10.toChar()+"分類：${categories[r.text("categoryId")] ?: "未分類"}；標籤："+
+        backupTaskDetail(r)+10.toChar()+tr(R.string.text_category_s_tags_64b07a, categories[r.text("categoryId")] ?: tr(R.string.text_uncategorized_607089))+
             links[r.text("id")].orEmpty().mapNotNull { tags[it.text("tagId")] }.joinToString("、")+
-            if(r.text("id") in custom)10.toChar()+"本次提醒為獨立設定" else ""
+            if(r.text("id") in custom)10.toChar()+tr(R.string.text_this_occurrence_uses_separate_reminders_2efaea) else ""
     } }
-    g.rows("recurring_series").forEach { r->add { "${r.text("title")} · 已產生至第 ${r.long("cursor")} 次 · "+when(r["lifecycle"]){"ACTIVE"->"持續重複";"ENDED"->"已結束";"TRASHED"->"垃圾桶";else->"已停止"} } }
-    val frequencies=mapOf("DAILY" to "每日","WEEKLY" to "每週","MONTHLY" to "每月","WEEKDAYS" to "指定星期","EVERY_N_DAYS" to "每隔 N 天")
-    g.rows("series_rules").forEach { r->add { "規則 ${r.long("version")}，由第 ${r.long("effectiveFrom")} 次起：${frequencies[r.text("frequency")]}，間隔 ${r.long("intervalDays")} 天"+
-        10.toChar()+"起日 ${r.text("anchor")} ${r["dueTime"] ?: ""} ${r.text("zoneId")}；結束 ${r["endDate"] ?: r["maxCount"]?.let { "$it 次" } ?: "不限"}"+
-        if(r["frequency"]=="WEEKDAYS")"；星期 "+(1..7).filter { r.int("weekdayMask") and (1 shl(it-1))!=0 }.joinToString("、") else "" } }
-    g.rows("series_reminders").forEach { r->add { "系列提醒："+(if(r["kind"]=="RELATIVE_DUE")"提前 ${r["offsetMinutes"]} 分鐘" else "每次日期偏移 ${r["dayOffset"]} 天，${r["time"] ?: "依截止時間"}")+"；日期基準 ${r["baseTime"]}"+if(r["enabled"]==true)"（啟用）" else "（停用）" } }
-    g.rows("reminders").forEach { r->add { "${titles[r.text("taskId")] ?: "任務"} 的提醒："+(if(r["kind"]=="FIXED")
+    g.rows("recurring_series").forEach { r->add { tr(R.string.text_s_generated_through_occurrence_s_a68830, r.text("title"), r.long("cursor"))+when(r["lifecycle"]){"ACTIVE"->tr(R.string.text_recurring_0ee582);"ENDED"->tr(R.string.text_ended_eea860);"TRASHED"->tr(R.string.text_trash_d7b740);else->tr(R.string.text_stopped_f00645)} } }
+    val frequencies=mapOf("DAILY" to tr(R.string.text_daily_fd7b67),"WEEKLY" to tr(R.string.text_weekly_a8a3df),"MONTHLY" to tr(R.string.text_monthly_68b21a),"WEEKDAYS" to tr(R.string.text_selected_weekdays_990286),"EVERY_N_DAYS" to tr(R.string.text_every_n_days_9e9e21))
+    g.rows("series_rules").forEach { r->add { tr(R.string.text_rule_s_from_occurrence_s_s_5b986f, r.long("version"), r.long("effectiveFrom"), frequencies[r.text("frequency")], r.long("intervalDays"))+
+        10.toChar()+tr(R.string.text_first_date_s_s_s_end_e0a3c3, r.text("anchor"), r["dueTime"] ?: "", r.text("zoneId"), r["endDate"] ?: r["maxCount"]?.let { tr(R.string.text_s_occurrences_38fe0e, it) } ?: tr(R.string.text_no_limit_f203d5))+
+        if(r["frequency"]=="WEEKDAYS")tr(R.string.text_weekdays_1490cc)+(1..7).filter { r.int("weekdayMask") and (1 shl(it-1))!=0 }.joinToString("、") else "" } }
+    g.rows("series_reminders").forEach { r->add { tr(R.string.text_series_reminders_c647b1)+(if(r["kind"]=="RELATIVE_DUE")tr(R.string.text_s_minutes_before_due_8b49eb, r["offsetMinutes"]) else tr(R.string.text_each_occurrence_offset_s_days_s_c05302, r["dayOffset"], r["time"] ?: tr(R.string.text_use_due_time_9a3aa3)))+tr(R.string.text_date_only_baseline_s_f21ed4, r["baseTime"])+if(r["enabled"]==true)tr(R.string.text_enabled_a09385) else tr(R.string.text_disabled_6f2390) } }
+    g.rows("reminders").forEach { r->add { tr(R.string.text_reminders_for_s_9c1015, titles[r.text("taskId")] ?: tr(R.string.text_task_c72c77))+(if(r["kind"]=="FIXED")
         Instant.ofEpochMilli(r.long("fixedAt")).atZone(ZoneId.of(r.text("zoneId"))).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS VV"))
-        else "提前 ${r["offsetMinutes"]} 分鐘，日期基準 ${r["baseTime"]} ${r["zoneId"]}")+if(r["enabled"]==true)"（啟用）" else "（停用）" } }
+        else tr(R.string.text_s_minutes_before_due_date_only_caac86, r["offsetMinutes"], r["baseTime"], r["zoneId"]))+if(r["enabled"]==true)tr(R.string.text_enabled_a09385) else tr(R.string.text_disabled_6f2390) } }
     g.rows("occurrences").forEach { r->r.optionalText("snapshot")?.let { json->add {
-        val old=OccurrenceSnapshot.read(json);"第 ${r.long("sequence")} 次歷史快照：${old?.title} · ${old?.category} · ${old?.tags?.joinToString("、")}"+10.toChar()+(old?.notes ?: "")
+        val old=OccurrenceSnapshot.read(json);tr(R.string.text_snapshot_of_occurrence_s_s_s_8b431b, r.long("sequence"), old?.title, old?.category, old?.tags?.joinToString("、"))+10.toChar()+(old?.notes ?: "")
     } } }
-    if(g.rows("tasks").isEmpty() && g.rows("recurring_series").isEmpty())(g.rows("categories")+g.rows("tags")).forEach { r->add { "${r.text("name")} · 排序 ${r["sortOrder"] ?: "沿用本機"} · 修改 ${backupTime(r["updatedAt"])}" } }
+    if(g.rows("tasks").isEmpty() && g.rows("recurring_series").isEmpty())(g.rows("categories")+g.rows("tags")).forEach { r->add { tr(R.string.text_s_order_s_modified_s_8620e3, r.text("name"), r["sortOrder"] ?: tr(R.string.text_keep_local_value_856df0), backupTime(r["updatedAt"])) } }
 }

@@ -1,5 +1,7 @@
 package com.chimafok.todo.ui
 
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -31,7 +33,7 @@ internal fun DeleteFutureSeriesDialog(id: String, state: TodoState, viewModel: T
                 // Rotation keeps the frozen map in the ViewModel. A new process cannot
                 // silently substitute a larger/newer scope for the old confirmation.
                 preview = viewModel.seriesActionPreview?.takeIf { it.id == id && it.revision == expectedRevision }
-                check(preview != null) { "請關閉後重新預覽" }
+                check(preview != null) { tr(R.string.text_close_and_preview_again_2318be) }
             } else {
                 val rule = requireNotNull(state.rules.filter { it.seriesId == id }.maxByOrNull { it.version })
                 zone = rule.zoneId
@@ -42,19 +44,19 @@ internal fun DeleteFutureSeriesDialog(id: String, state: TodoState, viewModel: T
             }
         } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
-            error = "無法預覽系列，請關閉後重試。"
+            error = tr(R.string.text_cannot_preview_the_series_close_and_ddd8e0)
         }
     }
     AlertDialog(onDismissRequest = { if (!busy) onDismiss() },
         modifier = Modifier.testTag("delete_future_dialog"),
-        title = { Text("刪除未來任務？") },
+        title = { Text(tr(R.string.text_delete_future_tasks_215333)) },
         text = { Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(series?.title ?: "重複系列")
-            if (preview == null && error == null) Text("正在核對系列紀錄…")
+            Text(series?.title ?: tr(R.string.text_recurring_series_3b72e0))
+            if (preview == null && error == null) Text(tr(R.string.text_checking_series_records_518b18))
             preview?.let {
-                Text("停止此系列，不再產生新任務；將 ${boundary} 之後的 ${it.futureCount} 項未完成任務移至垃圾桶。")
-                Text("保留今天、過去及全部已完成紀錄。垃圾桶保留 30 天；本次操作不會自動重新啟用系列。")
-                if (it.futureCount == 0) Text("目前沒有已產生的未來未完成項目；確認後仍會停止後續重複。")
+                Text(tr(R.string.text_stop_this_series_from_generating_new_0fcac9, boundary, it.futureCount))
+                Text(tr(R.string.text_keep_today_past_and_all_completed_d243c6))
+                if (it.futureCount == 0) Text(tr(R.string.text_no_future_incomplete_occurrences_have_been_e80fe0))
             }
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         } },
@@ -63,16 +65,16 @@ internal fun DeleteFutureSeriesDialog(id: String, state: TodoState, viewModel: T
                 busy = true
                 scope.launch {
                     try {
-                        check(boundary == LocalDate.now(Clock.system(ZoneId.of(requireNotNull(zone)))).toString()) { "日期已改變，請關閉後重新檢查。" }
+                        check(boundary == LocalDate.now(Clock.system(ZoneId.of(requireNotNull(zone)))).toString()) { tr(R.string.text_the_date_changed_close_and_check_adb5ad) }
                         val frozen = requireNotNull(preview)
                         viewModel.deleteSeries(id, frozen.revision, frozen.tasks, false)
                         onDismiss()
                     } catch (e: Exception) {
                         if (e is kotlinx.coroutines.CancellationException) throw e
-                        error = e.message ?: "系列已變更，請關閉後重新檢查。"
+                        error = e.message ?: tr(R.string.text_the_series_changed_close_and_check_5de146)
                     } finally { busy = false }
                 }
-            }) { Text(if (busy) "儲存中…" else "刪除未來任務") } },
+            }) { Text(if (busy) tr(R.string.text_saving_00190a) else tr(R.string.text_delete_future_tasks_27e4a5)) } },
         dismissButton = { TextButton(enabled = !busy, onClick = onDismiss,
-            modifier = Modifier.testTag("cancel_delete_future")) { Text("取消") } })
+            modifier = Modifier.testTag("cancel_delete_future")) { Text(tr(R.string.text_cancel_2cd0f3)) } })
 }

@@ -1,5 +1,6 @@
 package com.chimafok.todo.ui
 
+import com.chimafok.todo.i18n.tr
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -46,19 +47,19 @@ private fun TodoDatePicker(initial: LocalDate, onDismiss: () -> Unit, onDate: (L
             TextButton(enabled = state.selectedDateMillis != null, onClick = {
                 // DatePicker's midnight is UTC, not a timestamp in the device's zone.
                 state.selectedDateMillis?.let { onDate(Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate()) }
-            }, modifier = Modifier.testTag("confirm_date")) { Text("確定") }
+            }, modifier = Modifier.testTag("confirm_date")) { Text(tr(R.string.text_ok_20db9f)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss, modifier = Modifier.testTag("cancel_date")) { Text("取消") } },
+        dismissButton = { TextButton(onClick = onDismiss, modifier = Modifier.testTag("cancel_date")) { Text(tr(R.string.text_cancel_2cd0f3)) } },
         colors = DatePickerDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Column(Modifier.verticalScroll(rememberScrollState()).testTag("date_picker")) {
             DatePicker(
                 state = state,
                 showModeToggle = true,
-                title = { Text("選擇日期", Modifier.padding(start = 24.dp, end = 24.dp, top = 4.dp), style = MaterialTheme.typography.labelLarge) },
+                title = { Text(tr(R.string.text_choose_date_55e2f6), Modifier.padding(start = 24.dp, end = 24.dp, top = 4.dp), style = MaterialTheme.typography.labelLarge) },
                 headline = {
                     val selected = state.selectedDateMillis?.let { Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate() }
-                    Text(selected?.format(DateTimeFormatter.ofPattern("yyyy 年 M 月 d 日", Locale.TAIWAN)) ?: "尚未選擇日期",
+                    Text(selected?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd", com.chimafok.todo.i18n.I18n.locale)) ?: tr(R.string.text_no_date_selected_a7010e),
                         Modifier.padding(horizontal = 24.dp, vertical = 12.dp), style = MaterialTheme.typography.headlineSmall)
                 },
                 colors = DatePickerDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
@@ -76,21 +77,21 @@ fun TodoTimePicker(initial: LocalTime, onDismiss: () -> Unit, onTime: (LocalTime
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         title = { Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text("選擇截止時間", style = MaterialTheme.typography.titleLarge)
-            Text("24 小時制", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(tr(R.string.text_choose_time_9f8b0c), style = MaterialTheme.typography.titleLarge)
+            Text(tr(R.string.text_hour_time_b5a060), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         } },
         text = {
             Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).testTag("time_picker"),
                 horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = !dial, onClick = { dial = false }, label = { Text("輸入時間") })
-                    FilterChip(selected = dial, onClick = { dial = true }, label = { Text("時鐘") })
+                    FilterChip(selected = !dial, onClick = { dial = false }, label = { Text(tr(R.string.text_enter_time_341b45)) })
+                    FilterChip(selected = dial, onClick = { dial = true }, label = { Text(tr(R.string.text_clock_119cdf)) })
                 }
                 if (dial) TimePicker(state = state, layoutType = TimePickerLayoutType.Vertical) else TimeInput(state = state)
             }
         },
         confirmButton = { TextButton(onClick = { onTime(LocalTime.of(state.hour, state.minute)) },
-            modifier = Modifier.testTag("confirm_time")) { Text("確定") } },
-        dismissButton = { TextButton(onClick = onDismiss, modifier = Modifier.testTag("cancel_time")) { Text("取消") } },
+            modifier = Modifier.testTag("confirm_time")) { Text(tr(R.string.text_ok_20db9f)) } },
+        dismissButton = { TextButton(onClick = onDismiss, modifier = Modifier.testTag("cancel_time")) { Text(tr(R.string.text_cancel_2cd0f3)) } },
     )
 }

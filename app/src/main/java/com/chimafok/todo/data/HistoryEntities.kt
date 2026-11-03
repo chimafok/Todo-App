@@ -3,7 +3,8 @@ package com.chimafok.todo.data
 import androidx.room.*
 
 @Entity(tableName = "retention_policy")
-data class RetentionPolicyEntity(@PrimaryKey val id: Int = 1, val days: Int? = null, val revision: Long = 0, val updatedAt: Long = 0)
+data class RetentionPolicyEntity(@PrimaryKey val id: Int = 1, val days: Int? = null, val revision: Long = 0, val updatedAt: Long = 0,
+    @ColumnInfo(defaultValue = "'SYSTEM'") val language: String = "SYSTEM")
 
 @Entity(tableName = "retention_anchors", foreignKeys = [ForeignKey(entity = TaskEntity::class,
     parentColumns = ["id"], childColumns = ["taskId"], onDelete = ForeignKey.CASCADE)])

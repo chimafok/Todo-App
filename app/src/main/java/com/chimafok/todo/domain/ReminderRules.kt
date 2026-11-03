@@ -1,5 +1,7 @@
 package com.chimafok.todo.domain
 
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import java.time.*
 
 enum class ReminderKind { FIXED, RELATIVE_DUE }
@@ -8,22 +10,22 @@ data class ReminderSpec(val id: String, val kind: ReminderKind, val zoneId: Stri
     val fixedAt: Long? = null, val offsetMinutes: Int? = null, val baseTime: LocalTime = DEFAULT_REMINDER_TIME)
 
 fun resolveReminder(spec: ReminderSpec, date: LocalDate?, time: LocalTime?, deadlineZone: String?): Long {
-    require(spec.id.isNotBlank()) { "提醒識別碼不可空白" }
+    require(spec.id.isNotBlank()) { tr(R.string.text_reminder_id_cannot_be_blank_a51f4f) }
     ZoneId.of(spec.zoneId)
     return when (spec.kind) {
         ReminderKind.FIXED -> {
-            require(spec.offsetMinutes == null) { "固定提醒不能同時設定相對時間" }
-            requireNotNull(spec.fixedAt) { "請填提醒日期與時間" }.also { Instant.ofEpochMilli(it) }
+            require(spec.offsetMinutes == null) { tr(R.string.text_a_fixed_reminder_cannot_also_have_7841a2) }
+            requireNotNull(spec.fixedAt) { tr(R.string.text_enter_a_reminder_date_and_time_b57618) }.also { Instant.ofEpochMilli(it) }
         }
         ReminderKind.RELATIVE_DUE -> {
-            require(spec.fixedAt == null) { "相對提醒不能同時設定固定時間" }
-            val offset = requireNotNull(spec.offsetMinutes) { "請填提前分鐘數" }
-            require(offset in 0..5_256_000) { "提前分鐘數須為 0–5256000" }
-            val day = requireNotNull(date) { "相對提醒需要截止日期；請改成固定提醒或刪除此提醒" }
+            require(spec.fixedAt == null) { tr(R.string.text_a_relative_reminder_cannot_also_have_aae6a8) }
+            val offset = requireNotNull(spec.offsetMinutes) { tr(R.string.text_enter_minutes_before_due_ed5517) }
+            require(offset in 0..5_256_000) { tr(R.string.text_minutes_before_due_must_be_2b34c7) }
+            val day = requireNotNull(date) { tr(R.string.text_a_relative_reminder_requires_a_due_4725a1) }
             // Legacy date-only tasks may have no saved deadline zone. The reminder
             // captures its own zone without fabricating the task's historical zone.
             val zone = ZoneId.of(deadlineZone ?: spec.zoneId)
-            if (time != null) require(deadlineZone != null) { "截止時間缺少時區" }
+            if (time != null) require(deadlineZone != null) { tr(R.string.text_the_due_time_requires_a_time_6c3eea) }
             val base = day.atTime(time ?: spec.baseTime).atZone(zone).toInstant()
             base.minus(Duration.ofMinutes(offset.toLong())).toEpochMilli()
         }
@@ -31,14 +33,15 @@ fun resolveReminder(spec: ReminderSpec, date: LocalDate?, time: LocalTime?, dead
 }
 
 /** Store one canonical minute offset; UI quantities never truncate or overflow. */
-enum class ReminderOffsetUnit(val label: String, val minutes: Long) {
-    MINUTES("分鐘", 1), HOURS("小時", 60), DAYS("天", 1440)
+enum class ReminderOffsetUnit(private val labelId: Int, val minutes: Long) {
+    MINUTES(R.string.text_minutes_c26fdd, 1), HOURS(R.string.text_hours_507ac2, 60), DAYS(R.string.text_days_49da61, 1440);
+    val label: String get() = tr(labelId)
 }
 fun reminderOffsetMinutes(quantity: String, unit: ReminderOffsetUnit): Int {
     val text = quantity.trim()
-    require(text.matches(Regex("[0-9]+"))) { "請填有效的提前數字（整數，0 表示截止時）" }
-    val amount = requireNotNull(text.toLongOrNull()) { "提醒提前量超出範圍" }
-    require(amount <= 5_256_000L / unit.minutes) { "提醒提前量不可超過 5256000 分鐘（3650 天）" }
+    require(text.matches(Regex("[0-9]+"))) { tr(R.string.text_enter_a_valid_whole_number_offset_6a5e1b) }
+    val amount = requireNotNull(text.toLongOrNull()) { tr(R.string.text_reminder_offset_out_of_range_f21630) }
+    require(amount <= 5_256_000L / unit.minutes) { tr(R.string.text_reminder_offset_cannot_exceed_minutes_days_4da56b) }
     return (amount * unit.minutes).toInt()
 }
 fun reminderOffsetDisplay(minutes: Int): Pair<String, ReminderOffsetUnit> {
@@ -52,7 +55,7 @@ fun fixedReminderDefaultTime(date: LocalDate?, time: LocalTime?, deadlineZone: S
     reminderZone: String, base: LocalTime = DEFAULT_REMINDER_TIME): LocalTime {
     val target = ZoneId.of(reminderZone)
     if (time == null) return base
-    requireNotNull(date) { "截止時間需要截止日期" }
-    val source = requireNotNull(deadlineZone) { "截止時間缺少時區" }
+    requireNotNull(date) { tr(R.string.text_a_due_time_requires_a_due_40fa33) }
+    val source = requireNotNull(deadlineZone) { tr(R.string.text_the_due_time_requires_a_time_6c3eea) }
     return deadlineInstant(date, time, source).atZone(target).toLocalTime()
 }

@@ -18,11 +18,15 @@ object ReminderRuntime {
         if (::database.isInitialized) return
         val app = context.applicationContext
         database = TodoDatabase.create(app)
+        val preference = runBlocking(Dispatchers.IO) { database.history().policy()?.language ?: "SYSTEM" }
+        com.chimafok.todo.i18n.I18n.initialize(app, preference)
         gateway = AndroidReminderGateway(app)
         engine = ReminderEngine(database, gateway)
         scope.launch {
             database.invalidationTracker.createFlow("schedule_outbox", "recurring_series", "series_reminders", "retention_policy", "purge_cancellations").collect {
                 try {
+                    com.chimafok.todo.i18n.I18n.setChoice(database.history().policy()?.language ?: "SYSTEM")
+                    if (app.getSystemService(android.app.NotificationManager::class.java).getNotificationChannel(AndroidReminderGateway.CHANNEL) != null) gateway.ensureChannel()
                     if (database.browser().hasReminders() || database.dao().allSeries().any { it.deletedAt != null || it.lifecycle == SeriesLifecycle.ACTIVE } ||
                         database.browser().hasTrash() || database.history().policy()?.days != null || database.history().cancellations().isNotEmpty()) {
                         gateway.ensureChannel()
@@ -96,7 +100,13 @@ object ReminderRuntime {
         scope.launch { try { block(engine) } finally { done() } }
     }
 }
-class TodoApplication : Application() { override fun onCreate() { super.onCreate(); ReminderRuntime.start(this) } }
+class TodoApplication : Application() {
+    override fun onCreate() { super.onCreate(); ReminderRuntime.start(this) }
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        com.chimafok.todo.i18n.I18n.refreshSystem()
+    }
+}
 class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val pending = goAsync()

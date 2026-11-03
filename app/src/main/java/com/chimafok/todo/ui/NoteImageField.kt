@@ -1,5 +1,6 @@
 package com.chimafok.todo.ui
 
+import com.chimafok.todo.i18n.tr
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -48,7 +49,7 @@ internal fun NoteImageField(encoded: String, enabled: Boolean, onChange: (String
             importing = true; onBusy(true); error = null
             scope.launch {
                 try { onChange(encodeImageIds(images.import(context, uris, currentIds))) }
-                catch (e: Exception) { if (e is kotlinx.coroutines.CancellationException) throw e; error = e.message ?: "圖片未能加入，請重試。" }
+                catch (e: Exception) { if (e is kotlinx.coroutines.CancellationException) throw e; error = e.message ?: tr(R.string.text_cannot_add_the_image_please_try_cad937) }
                 finally { importing = false; onBusy(false) }
             }
         }
@@ -59,9 +60,9 @@ internal fun NoteImageField(encoded: String, enabled: Boolean, onChange: (String
             modifier = Modifier.testTag("note_add_images"), onClick = {
                 error = null; pickerPending = true; onPickerActive(true)
                 try { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
-                catch (e: Exception) { pickerPending = false; onPickerActive(false); error = "無法開啟系統選圖器，請稍後重試。" }
-            }) { Text(if (importing) "處理圖片中…" else "加入圖片") }
-        Text("圖片保存在本機；會縮小並壓縮，點縮圖可查看。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                catch (e: Exception) { pickerPending = false; onPickerActive(false); error = tr(R.string.text_cannot_open_the_system_photo_picker_3bf025) }
+            }) { Text(if (importing) tr(R.string.text_processing_images_90486f) else tr(R.string.text_add_images_970ae4)) }
+        Text(tr(R.string.text_images_are_stored_locally_resized_and_571608), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("note_image_error")) }
     }
 }
@@ -74,12 +75,12 @@ internal fun NoteImageGallery(encoded: String, onRemove: ((String) -> Unit)? = n
         itemsIndexed(ids, key = { _, id -> id }) { index, id ->
             Box(Modifier.size(104.dp)) {
                 Surface(shape = MaterialTheme.shapes.medium, modifier = Modifier.size(104.dp).clickable { viewing = id }.testTag("note_image_$index")) {
-                    NoteImage(id, true, "圖片 ${index + 1}，點擊放大", Modifier.fillMaxSize())
+                    NoteImage(id, true, tr(R.string.text_image_s_tap_to_enlarge_87f152, index + 1), Modifier.fillMaxSize())
                 }
                 onRemove?.let { remove ->
                     IconButton(onClick = { remove(id) }, modifier = Modifier.align(Alignment.TopEnd).size(48.dp).testTag("note_image_remove_$index")) {
                         Surface(shape = CircleShape, color = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f)) {
-                            Icon(painterResource(R.drawable.ic_close), "移除圖片 ${index + 1}",
+                            Icon(painterResource(R.drawable.ic_close), tr(R.string.text_remove_image_s_905d90, index + 1),
                                 Modifier.size(28.dp).padding(5.dp), tint = MaterialTheme.colorScheme.onSurface)
                         }
                     }
@@ -92,8 +93,8 @@ internal fun NoteImageGallery(encoded: String, onRemove: ((String) -> Unit)? = n
             Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                 Column {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Text("圖片 ${ids.indexOf(id) + 1}/${ids.size}", Modifier.weight(1f).padding(16.dp))
-                        TextButton(onClick = { viewing = null }, modifier = Modifier.testTag("note_image_close")) { Text("關閉") }
+                        Text(tr(R.string.text_image_s_s_cae5c2, ids.indexOf(id) + 1, ids.size), Modifier.weight(1f).padding(16.dp))
+                        TextButton(onClick = { viewing = null }, modifier = Modifier.testTag("note_image_close")) { Text(tr(R.string.text_close_c7fddd)) }
                     }
                     key(id) {
                         var scale by remember { mutableFloatStateOf(1f) }
@@ -103,12 +104,12 @@ internal fun NoteImageGallery(encoded: String, onRemove: ((String) -> Unit)? = n
                             if (scale == 1f) { x = 0f; y = 0f } else { x = (x + pan.x).coerceIn(-2000f, 2000f); y = (y + pan.y).coerceIn(-2000f, 2000f) }
                         }
                         Box(Modifier.weight(1f).fillMaxWidth().transformable(transform), contentAlignment = Alignment.Center) {
-                            NoteImage(id, false, "圖片 ${ids.indexOf(id) + 1}", Modifier.fillMaxSize().graphicsLayer { scaleX = scale; scaleY = scale; translationX = x; translationY = y })
+                            NoteImage(id, false, tr(R.string.text_image_s_911ad3, ids.indexOf(id) + 1), Modifier.fillMaxSize().graphicsLayer { scaleX = scale; scaleY = scale; translationX = x; translationY = y })
                         }
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                        TextButton(enabled = ids.indexOf(id) > 0, onClick = { viewing = ids[ids.indexOf(id) - 1] }) { Text("上一張") }
-                        TextButton(enabled = ids.indexOf(id) < ids.lastIndex, onClick = { viewing = ids[ids.indexOf(id) + 1] }) { Text("下一張") }
+                        TextButton(enabled = ids.indexOf(id) > 0, onClick = { viewing = ids[ids.indexOf(id) - 1] }) { Text(tr(R.string.text_previous_image_a3b6d8)) }
+                        TextButton(enabled = ids.indexOf(id) < ids.lastIndex, onClick = { viewing = ids[ids.indexOf(id) + 1] }) { Text(tr(R.string.text_next_image_c3b16d)) }
                     }
                 }
             }
@@ -126,5 +127,5 @@ private fun NoteImage(id: String, thumbnail: Boolean, description: String, modif
     }
     val loaded = bitmap
     if (loaded != null) Image(loaded.asImageBitmap(), description, modifier, contentScale = if (thumbnail) ContentScale.Crop else ContentScale.Fit)
-    else Box(modifier, contentAlignment = Alignment.Center) { Text(if (failed) "圖片無法載入" else "載入圖片…", style = MaterialTheme.typography.bodySmall) }
+    else Box(modifier, contentAlignment = Alignment.Center) { Text(if (failed) tr(R.string.text_cannot_load_image_845573) else tr(R.string.text_loading_image_c763a6), style = MaterialTheme.typography.bodySmall) }
 }
