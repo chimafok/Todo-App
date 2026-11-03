@@ -1,5 +1,7 @@
 package com.chimafok.todo.domain
 
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import com.chimafok.todo.data.TaskEntity
 import java.time.*
 import java.util.UUID
@@ -17,14 +19,14 @@ data class RecurrenceRule(
     val maxCount: Int? = null,
 ) {
     init {
-        require(anchor.year in 1..9999) { "開始日期超出範圍" }
+        require(anchor.year in 1..9999) { tr(R.string.text_start_date_out_of_range_f5cecb) }
         ZoneId.of(zoneId)
-        require(intervalDays in 1..3650 && (frequency == RecurrenceFrequency.EVERY_N_DAYS || intervalDays == 1)) { "間隔須為 1–3650 天" }
-        require(if (frequency == RecurrenceFrequency.WEEKDAYS) weekdays.isNotEmpty() else weekdays.isEmpty()) { "請選擇指定星期" }
-        require(endDate == null || (endDate.year in 1..9999 && endDate >= anchor)) { "結束日期不可早於開始日期" }
-        require(maxCount == null || maxCount >= 1) { "重複次數須大於零" }
-        require(endDate == null || maxCount == null) { "請只選一種結束條件" }
-        require(endDate == null || rawDate(1)?.let { it <= endDate } == true) { "結束前沒有符合的日期" }
+        require(intervalDays in 1..3650 && (frequency == RecurrenceFrequency.EVERY_N_DAYS || intervalDays == 1)) { tr(R.string.text_the_interval_must_be_days_878fbc) }
+        require(if (frequency == RecurrenceFrequency.WEEKDAYS) weekdays.isNotEmpty() else weekdays.isEmpty()) { tr(R.string.text_select_weekdays_779c9d) }
+        require(endDate == null || (endDate.year in 1..9999 && endDate >= anchor)) { tr(R.string.text_the_end_date_cannot_precede_the_b3df90) }
+        require(maxCount == null || maxCount >= 1) { tr(R.string.text_occurrence_count_must_be_greater_than_b6b7e8) }
+        require(endDate == null || maxCount == null) { tr(R.string.text_choose_only_one_end_condition_daa511) }
+        require(endDate == null || rawDate(1)?.let { it <= endDate } == true) { tr(R.string.text_no_matching_dates_before_the_end_e1f7e3) }
     }
 
     private fun rawDate(sequence: Int): LocalDate? = try {
@@ -43,7 +45,7 @@ data class RecurrenceRule(
     } catch (_: DateTimeException) { null } catch (_: ArithmeticException) { null }
 
     fun dateAt(sequence: Int): LocalDate? {
-        require(sequence >= 1) { "序號須由 1 開始" }
+        require(sequence >= 1) { tr(R.string.text_sequence_numbers_must_start_at_048d18) }
         if (maxCount != null && sequence > maxCount) return null
         return rawDate(sequence)?.takeIf { endDate == null || it <= endDate }
     }
@@ -66,7 +68,7 @@ fun planOccurrences(seriesId: String, rule: RecurrenceRule, cursor: Int, now: In
     advanceAfterSequence: Int? = null, limit: Int = 256, throughDate: LocalDate? = null): RecurrenceBatch {
     require(seriesId.isNotBlank() && cursor >= 0 && limit in 1..1000)
     require(advanceAfterSequence == null || advanceAfterSequence in 0..cursor)
-    require(cursor == 0 || rule.dateAt(cursor) != null) { "規則與已保存游標不一致" }
+    require(cursor == 0 || rule.dateAt(cursor) != null) { tr(R.string.text_the_rule_does_not_match_the_e7f05b) }
     val today = throughDate ?: now.atZone(ZoneId.of(rule.zoneId)).toLocalDate()
     var position = cursor
     val slots = mutableListOf<RecurrenceSlot>()

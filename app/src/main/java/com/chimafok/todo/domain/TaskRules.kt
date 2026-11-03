@@ -1,5 +1,7 @@
 package com.chimafok.todo.domain
 
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalTime
@@ -41,25 +43,25 @@ fun canDeleteCategory(id: String, systemKind: SystemCategory?): Boolean = system
 
 fun validatedTitle(title: String): String {
     val result = title.trim()
-    require(result.isNotEmpty() && result.length <= 200) { "名稱須為 1–200 個字元" }
+    require(result.isNotEmpty() && result.length <= 200) { tr(R.string.text_task_names_must_contain_characters_8e4dfe) }
     return result
 }
 
 fun validateDraft(draft: TaskDraft, assignment: Boolean) {
     validatedTitle(draft.title)
     decodeImageIds(draft.imageIds)
-    require(draft.notes.length <= 20_000) { "備註不可超過 20,000 個字元" }
-    require(draft.dueTime == null || draft.dueDate != null) { "設定時間前請先選擇日期" }
-    require(draft.dueTime == null || draft.zoneId != null) { "截止時間缺少時區" }
+    require(draft.notes.length <= 20_000) { tr(R.string.text_notes_cannot_exceed_characters_4ee22c) }
+    require(draft.dueTime == null || draft.dueDate != null) { tr(R.string.text_choose_a_date_before_setting_a_6c327e) }
+    require(draft.dueTime == null || draft.zoneId != null) { tr(R.string.text_the_due_time_requires_a_time_6c3eea) }
     draft.zoneId?.let(ZoneId::of)
-    require(draft.startDate == null || draft.startDate.year in 1..9999) { "開始日期超出範圍" }
-    require(draft.startTime == null || draft.startDate != null) { "設定開始時間前請先選擇開始日期" }
-    require(draft.startTime == null || draft.startZoneId != null) { "開始時間缺少時區" }
-    require(draft.startDate != null || draft.startZoneId == null) { "開始時區缺少日期" }
+    require(draft.startDate == null || draft.startDate.year in 1..9999) { tr(R.string.text_start_date_out_of_range_f5cecb) }
+    require(draft.startTime == null || draft.startDate != null) { tr(R.string.text_choose_a_start_date_before_setting_144485) }
+    require(draft.startTime == null || draft.startZoneId != null) { tr(R.string.text_the_start_time_requires_a_time_9b40e3) }
+    require(draft.startDate != null || draft.startZoneId == null) { tr(R.string.text_the_start_time_zone_requires_a_f7f3b8) }
     draft.startZoneId?.let(ZoneId::of)
     if (draft.startDate != null && draft.startTime != null) deadlineInstant(draft.startDate, draft.startTime, requireNotNull(draft.startZoneId))
     val allowed = statusOptions(assignment, draft.categoryId == STUDY_ID)
-    require(draft.status in allowed) { "任務狀態與分類不相符" }
+    require(draft.status in allowed) { tr(R.string.text_task_status_does_not_match_its_7cb5a5) }
 }
 
 fun isOverdue(date: LocalDate?, time: LocalTime?, zoneId: String?, clock: Clock): Boolean {
@@ -77,8 +79,8 @@ fun statusOptions(assignment: Boolean, study: Boolean = false): List<TaskStatus>
 
 fun convertStatus(status: TaskStatus, assignment: Boolean, selected: TaskStatus? = null, study: Boolean = false): TaskStatus =
     if (assignment) {
-        requireNotNull(selected) { "請選擇作業狀態" }.also {
-            require(it != TaskStatus.OPEN) { "請選擇作業狀態" }
+        requireNotNull(selected) { tr(R.string.text_choose_an_assignment_status_3fcfdf) }.also {
+            require(it != TaskStatus.OPEN) { tr(R.string.text_choose_an_assignment_status_3fcfdf) }
         }
     } else if (study) when (status) {
         TaskStatus.COMPLETED -> TaskStatus.COMPLETED
@@ -90,11 +92,11 @@ fun nextAssignmentStatus(status: TaskStatus): TaskStatus = when (status) {
     TaskStatus.NOT_STARTED -> TaskStatus.IN_PROGRESS
     TaskStatus.IN_PROGRESS -> TaskStatus.DONE_UNSUBMITTED
     TaskStatus.DONE_UNSUBMITTED -> TaskStatus.COMPLETED
-    else -> error("此狀態無法快速推進")
+    else -> error(tr(R.string.text_this_status_cannot_advance_directly_ac4c25))
 }
 
 fun nextProgressStatus(status: TaskStatus, study: Boolean): TaskStatus = if (!study) nextAssignmentStatus(status) else when (status) {
     TaskStatus.OPEN -> TaskStatus.IN_PROGRESS
     TaskStatus.IN_PROGRESS -> TaskStatus.COMPLETED
-    else -> error("此學習狀態無法快速推進")
+    else -> error(tr(R.string.text_this_study_status_cannot_advance_directly_ba998e))
 }

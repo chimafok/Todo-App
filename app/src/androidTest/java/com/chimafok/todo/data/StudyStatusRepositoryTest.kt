@@ -73,12 +73,12 @@ class StudyStatusRepositoryTest {
         r.save(TaskDraft("study","學習",categoryId=STUDY_ID,status=TaskStatus.IN_PROGRESS))
         r.trash("study",a.dao().task("study")!!.revision)
         val exported=BackupRepository(a,clock).export("1.2.0-dev01")
-        val root=JSONObject(exported);assertEquals(5,root.getInt("formatVersion"));assertEquals(9,root.getInt("schemaVersion"))
+        val root=JSONObject(exported);assertEquals(6,root.getInt("formatVersion"));assertEquals(10,root.getInt("schemaVersion"))
         val backup=BackupFormat.decode(exported);val target=BackupRepository(b,clock)
         target.apply(backup,target.preview(backup,RestoreMode.REPLACE),emptyMap())
         assertEquals(TaskStatus.IN_PROGRESS,b.dao().task("study")!!.status);assertNotNull(b.dao().task("study")!!.deletedAt)
         val old=JSONObject(exported);old.put("formatVersion",2).put("schemaVersion",8)
-        val data = old.getJSONObject("data"); data.remove("note_images")
+        val data = old.getJSONObject("data"); data.remove("note_images"); data.getJSONArray("settings").optJSONObject(0)?.remove("language")
         listOf("tasks", "recurring_series").forEach { table -> val rows = data.getJSONArray(table); for (n in 0 until rows.length()) rows.getJSONObject(n).remove("imageIds") }
         rejected {BackupFormat.decode(old.toString())}
         old.getJSONObject("data").getJSONArray("tasks").getJSONObject(0).put("status","OPEN")

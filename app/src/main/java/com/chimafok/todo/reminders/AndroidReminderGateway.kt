@@ -1,5 +1,6 @@
 package com.chimafok.todo.reminders
 
+import com.chimafok.todo.i18n.tr
 import android.Manifest
 import android.app.*
 import android.content.*
@@ -18,7 +19,7 @@ class AndroidReminderGateway(private val context: Context) : ReminderGateway {
     private val alarms get() = context.getSystemService(AlarmManager::class.java)
     private val notifications get() = context.getSystemService(NotificationManager::class.java)
     companion object { const val CHANNEL = "task_reminders" }
-    fun ensureChannel() { notifications.createNotificationChannel(NotificationChannel(CHANNEL, "任務提醒", NotificationManager.IMPORTANCE_DEFAULT)) }
+    fun ensureChannel() { notifications.createNotificationChannel(NotificationChannel(CHANNEL, tr(R.string.text_task_reminders_6d43c5), NotificationManager.IMPORTANCE_DEFAULT)) }
     override fun notificationsAllowed(): Boolean = (Build.VERSION.SDK_INT < 33 ||
         context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) &&
         notifications.areNotificationsEnabled() && notifications.getNotificationChannel(CHANNEL)?.importance != NotificationManager.IMPORTANCE_NONE
@@ -49,11 +50,11 @@ class AndroidReminderGateway(private val context: Context) : ReminderGateway {
             .putExtra("reminderTaskId", task.id).putExtra("reminderTaskRevision", task.revision),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val done = broadcast(reminder, key, "COMPLETE")
-        val due = task.dueDate?.let { "截止 $it${task.dueTime?.let { time -> " $time" }.orEmpty()}" } ?: "沒有截止日期"
+        val due = task.dueDate?.let { tr(R.string.text_due_s_s_887085, it, task.dueTime?.let { time -> " $time" }.orEmpty()) } ?: tr(R.string.text_no_due_date_f623e5)
         notifications.notify(reminder.id, 0, Notification.Builder(context, CHANNEL)
             .setSmallIcon(R.drawable.ic_notification).setColor(0xFF57D6E5.toInt()).setContentTitle(task.title).setContentText(due)
             .setStyle(Notification.BigTextStyle().bigText(due)).setContentIntent(open)
-            .addAction(Notification.Action.Builder(null, "完成", done).build())
+            .addAction(Notification.Action.Builder(null, tr(R.string.text_completed_c0b3fb), done).build())
             .setAutoCancel(true).setOnlyAlertOnce(true).setCategory(Notification.CATEGORY_REMINDER).build())
     }
     fun openNotifications() = openSettings(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName))
@@ -67,8 +68,8 @@ class AndroidReminderGateway(private val context: Context) : ReminderGateway {
 }
 
 fun reminderStateLabel(state: String): String = when (state) {
-    "DELIVERED" -> "已發出"; "MISSED" -> "已錯過，不補發"; "CANCELED" -> "已取消"
-    "BLOCKED" -> "通知未開啟"; else -> "等待提醒"
+    "DELIVERED" -> tr(R.string.text_delivered_5981e9); "MISSED" -> tr(R.string.text_missed_will_not_be_sent_again_5f27b0); "CANCELED" -> tr(R.string.text_canceled_a37778)
+    "BLOCKED" -> tr(R.string.text_notifications_disabled_41ab9a); else -> tr(R.string.text_waiting_for_reminder_844bd1)
 }
 fun reminderInstantLabel(at: Long): String = Instant.ofEpochMilli(at).atZone(ZoneId.systemDefault())
     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm z"))

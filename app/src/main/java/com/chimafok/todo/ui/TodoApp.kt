@@ -1,5 +1,6 @@
 package com.chimafok.todo.ui
 
+import com.chimafok.todo.i18n.tr
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
@@ -101,7 +102,7 @@ fun TodoApp(viewModel: TodoViewModel) {
         scope.launch {
             try { block() } catch (exception: Exception) {
                 if (exception is kotlinx.coroutines.CancellationException) throw exception
-                snackbar.showSnackbar(exception.message ?: "操作失敗，請重試。")
+                snackbar.showSnackbar(exception.message ?: tr(R.string.text_operation_failed_please_try_again_6d73ff))
             } finally { actionBusy = false }
         }
     }
@@ -138,7 +139,7 @@ fun TodoApp(viewModel: TodoViewModel) {
                     // dropping the retained row. No delayed or optimistic DB write.
                     val observed = viewModel.state.first { snapshot -> snapshot.error != null ||
                         snapshot.tasks.none { it.id == task.id && it.status != status } }
-                    check(observed.error == null) { "完成已儲存，但讀取畫面失敗，請重新載入。" }
+                    check(observed.error == null) { tr(R.string.text_completion_saved_but_the_screen_could_413f40) }
                     animate(0f, 1f, animationSpec = tween(320)) { value, _ -> completionProgress[task.id] = value }
                 } finally {
                     completionProgress.remove(task.id)
@@ -157,7 +158,7 @@ fun TodoApp(viewModel: TodoViewModel) {
             ModalDrawerSheet(drawerContainerColor = MaterialTheme.colorScheme.surfaceContainerLow) {
                 Column(Modifier.verticalScroll(rememberScrollState()).padding(12.dp)) {
                     Row(Modifier.fillMaxWidth().testTag("drawer_home")
-                        .clickable(onClickLabel = "回到日程") { viewModel.goHome(); scope.launch { drawerState.close() } }
+                        .clickable(onClickLabel = tr(R.string.text_back_to_agenda_ad3306)) { viewModel.goHome(); scope.launch { drawerState.close() } }
                         .padding(horizontal = 12.dp, vertical = 28.dp),
                         horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.size(48.dp).background(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.shapes.medium),
@@ -166,13 +167,13 @@ fun TodoApp(viewModel: TodoViewModel) {
                         }
                         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                             Text("Todo", style = MaterialTheme.typography.headlineSmall)
-                            Text("個人待辦", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(tr(R.string.text_personal_tasks_ecdf52), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                     HorizontalDivider(Modifier.padding(bottom = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
                     Destination.entries.forEach { item ->
                         if (item == Destination.ORGANIZE) {
-                            Text("管理", Modifier.padding(start = 16.dp, top = 24.dp, bottom = 12.dp),
+                            Text(tr(R.string.text_manage_bb6d99), Modifier.padding(start = 16.dp, top = 24.dp, bottom = 12.dp),
                                 style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         NavigationDrawerItem(
@@ -194,7 +195,7 @@ fun TodoApp(viewModel: TodoViewModel) {
                             modifier = Modifier.padding(vertical = 3.dp).testTag("nav_${item.name}"),
                         )
                     }
-                    Text("資料儲存在本機", Modifier.padding(start = 16.dp, top = 28.dp, bottom = 16.dp),
+                    Text(tr(R.string.text_data_is_stored_locally_91ff28), Modifier.padding(start = 16.dp, top = 28.dp, bottom = 16.dp),
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
@@ -209,7 +210,7 @@ fun TodoApp(viewModel: TodoViewModel) {
                         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                             Text(stringResource(destination.label()), Modifier.testTag("page_title"), style = MaterialTheme.typography.titleLarge)
                             if (destination == Destination.AGENDA) Text(
-                                LocalDate.now(clock).format(DateTimeFormatter.ofPattern("M 月 d 日 EEEE", Locale.TAIWAN)),
+                                LocalDate.now(clock).format(DateTimeFormatter.ofPattern(if (com.chimafok.todo.i18n.I18n.locale.language == "en") "EEEE, MMM d" else "M 月 d 日 EEEE", com.chimafok.todo.i18n.I18n.locale)),
                                 style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     },
@@ -232,7 +233,7 @@ fun TodoApp(viewModel: TodoViewModel) {
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         icon = { Icon(painterResource(R.drawable.ic_add), stringResource(R.string.add_task)) },
-                        text = { Text("新增任務") })
+                        text = { Text(tr(R.string.text_add_task_54bff0)) })
                 }
             },
         ) { padding ->
@@ -240,28 +241,28 @@ fun TodoApp(viewModel: TodoViewModel) {
                 if(editorId == null && (viewModel.newTaskDraft != null || viewModel.draftLoadError != null)) {
                     ElevatedCard(Modifier.fillMaxWidth().padding(horizontal=20.dp,vertical=6.dp).testTag("new_task_draft")) {
                         FlowRow(Modifier.padding(12.dp),horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(4.dp)) {
-                            Text(viewModel.draftLoadError ?: "有一份未完成的草稿",Modifier.padding(vertical=12.dp),style=MaterialTheme.typography.bodyMedium)
+                            Text(viewModel.draftLoadError ?: tr(R.string.text_you_have_an_unfinished_draft_42de36),Modifier.padding(vertical=12.dp),style=MaterialTheme.typography.bodyMedium)
                             if(viewModel.newTaskDraft != null) TextButton(enabled=!state.loading && !checkingDraft,onClick=::resumeDraft,
-                                modifier=Modifier.testTag("resume_draft")) { Text("繼續編輯") }
+                                modifier=Modifier.testTag("resume_draft")) { Text(tr(R.string.text_keep_editing_24a05e)) }
                             TextButton(enabled=!checkingDraft,onClick={
                                 checkingDraft=true
                                 scope.launch { try {viewModel.discardNewTaskDraft()}
-                                    catch(e:Exception) {if(e is kotlinx.coroutines.CancellationException)throw e;snackbar.showSnackbar("草稿未能捨棄，請重試。")}
+                                    catch(e:Exception) {if(e is kotlinx.coroutines.CancellationException)throw e;snackbar.showSnackbar(tr(R.string.text_cannot_discard_the_draft_please_try_98042a))}
                                     finally {checkingDraft=false} }
-                            },modifier=Modifier.testTag("delete_saved_draft")) {Text("捨棄草稿")}
+                            },modifier=Modifier.testTag("delete_saved_draft")) {Text(tr(R.string.text_discard_draft_1357dc))}
                         }
                     }
                 }
                 DelayedLoadingIndicator(viewModel.reconciling && !state.loading, modifier = Modifier.testTag("maintenance_loading"))
                 viewModel.recurrenceError?.let { message -> Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
                     Text(message, Modifier.weight(1f), color = MaterialTheme.colorScheme.error)
-                    TextButton(onClick = { viewModel.reconcile(force = true) }) { Text("重試") }
+                    TextButton(onClick = { viewModel.reconcile(force = true) }) { Text(tr(R.string.text_retry_7e59d0)) }
                 } }
                 if (state.loading) {
                     DelayedLoadingIndicator(true, modifier = Modifier.testTag("startup_loading"))
                 } else if (state.error != null) {
                     Text(state.error!!, Modifier.padding(24.dp), color = MaterialTheme.colorScheme.error)
-                    Button(onClick = viewModel::reload, modifier = Modifier.padding(horizontal = 24.dp)) { Text("重試") }
+                    Button(onClick = viewModel::reload, modifier = Modifier.padding(horizontal = 24.dp)) { Text(tr(R.string.text_retry_7e59d0)) }
                 } else when (destination) {
                     Destination.AGENDA, Destination.UNSCHEDULED, Destination.COMPLETED, Destination.TRASH -> {
                         if (destination == Destination.COMPLETED) {
@@ -309,12 +310,14 @@ fun TodoApp(viewModel: TodoViewModel) {
                     Destination.ORGANIZE -> OrganizationScreen(state, viewModel)
                     Destination.SETTINGS -> Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Text("提醒與通知", style = MaterialTheme.typography.titleLarge)
+                        Text(tr(R.string.text_reminders_and_notifications_b758c2), style = MaterialTheme.typography.titleLarge)
                         ReminderCapabilities()
-                        Text("手機重啟後恢復未來提醒；已錯過的提醒不補發。完成未繳交仍會提醒，真正完成才取消。", style = MaterialTheme.typography.bodyMedium)
-                        Text("若手機限制背景執行，請檢查 Todo 的背景及省電設定。強制停止後須再次開啟 App。", style = MaterialTheme.typography.bodySmall)
+                        Text(tr(R.string.text_future_reminders_resume_after_a_phone_a0c246), style = MaterialTheme.typography.bodyMedium)
+                        Text(tr(R.string.text_if_background_activity_is_restricted_check_efbb4e), style = MaterialTheme.typography.bodySmall)
                         HorizontalDivider()
-                        Text("本機資料", style = MaterialTheme.typography.titleMedium)
+                        Text(tr(R.string.text_local_data_0a1460), style = MaterialTheme.typography.titleMedium)
+                        LanguageSettings(viewModel)
+                        HorizontalDivider()
                         HistorySettings(state, viewModel)
                         HorizontalDivider()
                         BackupSettings(viewModel)
@@ -326,14 +329,14 @@ fun TodoApp(viewModel: TodoViewModel) {
     state.tasks.find { it.id == viewModel.notificationTaskId }?.let { task ->
         AlertDialog(onDismissRequest = viewModel::dismissReminderDetail, title = { Text(task.title) }, text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("目前狀態：${statusLabel(task.status, task.categoryId)}")
-                task.dueDate?.let { Text("截止 $it ${task.dueTime?.toString().orEmpty()} ${task.zoneId.orEmpty()}") }
+                Text(tr(R.string.text_current_status_s_e84da1, statusLabel(task.status, task.categoryId)))
+                task.dueDate?.let { Text(tr(R.string.text_due_s_s_s_56b289, it, task.dueTime?.toString().orEmpty(), task.zoneId.orEmpty())) }
                 if (task.notes.isNotBlank()) LinkifiedNotes(task.notes)
                 NoteImageGallery(task.imageIds)
-                if (editorId != null) Text("目前有未儲存的編輯，請先完成或關閉，再編輯這項任務。")
+                if (editorId != null) Text(tr(R.string.text_you_have_unsaved_edits_finish_or_2bbdeb))
             }
-        }, confirmButton = { TextButton(enabled = editorId == null, onClick = { editExisting = true; editorId = task.id; editorDate = null; viewModel.dismissReminderDetail() }) { Text("編輯") } },
-            dismissButton = { TextButton(onClick = viewModel::dismissReminderDetail) { Text("關閉") } })
+        }, confirmButton = { TextButton(enabled = editorId == null, onClick = { editExisting = true; editorId = task.id; editorDate = null; viewModel.dismissReminderDetail() }) { Text(tr(R.string.text_edit_e0d448)) } },
+            dismissButton = { TextButton(onClick = viewModel::dismissReminderDetail) { Text(tr(R.string.text_close_c7fddd)) } })
     }
     val tasksById = remember(state.tasks) { state.tasks.associateBy { it.id } }
     val existing = if (editExisting) tasksById[editorId] else null
@@ -366,28 +369,28 @@ fun TodoApp(viewModel: TodoViewModel) {
             )
         }
     }
-    if(offerDraft) AlertDialog(onDismissRequest={if(!checkingDraft)offerDraft=false},title={Text("要繼續上次草稿嗎？")},
-        text={Text(viewModel.draftLoadError ?: "可以接著編輯，或捨棄原草稿再新增。")},
+    if(offerDraft) AlertDialog(onDismissRequest={if(!checkingDraft)offerDraft=false},title={Text(tr(R.string.text_continue_the_previous_draft_662498))},
+        text={Text(viewModel.draftLoadError ?: tr(R.string.text_continue_editing_or_discard_the_draft_21c177))},
         confirmButton={if(viewModel.newTaskDraft != null) TextButton(enabled=!checkingDraft,onClick=::resumeDraft,
-            modifier=Modifier.testTag("open_saved_draft")) {Text("繼續草稿")}},
+            modifier=Modifier.testTag("open_saved_draft")) {Text(tr(R.string.text_continue_draft_1c51f1))}},
         dismissButton={Row {
             TextButton(enabled=!checkingDraft,modifier=Modifier.testTag("discard_and_create"),onClick={
                 checkingDraft=true
                 scope.launch {try { viewModel.discardNewTaskDraft();offerDraft=false;createFresh(offeredDate?.let(LocalDate::parse)) }
-                    catch(e:Exception) {if(e is kotlinx.coroutines.CancellationException)throw e;snackbar.showSnackbar("草稿未能捨棄，請重試。")}
+                    catch(e:Exception) {if(e is kotlinx.coroutines.CancellationException)throw e;snackbar.showSnackbar(tr(R.string.text_cannot_discard_the_draft_please_try_98042a))}
                     finally {checkingDraft=false} }
-            }) {Text("捨棄並新增")}
-            TextButton(enabled=!checkingDraft,onClick={offerDraft=false}) {Text("取消")}
+            }) {Text(tr(R.string.text_discard_and_add_new_7277d1))}
+            TextButton(enabled=!checkingDraft,onClick={offerDraft=false}) {Text(tr(R.string.text_cancel_2cd0f3))}
         }})
     state.tasks.find { it.id == deleteId }?.let { task ->
-        AlertDialog(onDismissRequest = { deleteId = null }, title = { Text("移至垃圾桶？") },
-            text = { Text("「${task.title}」將保留 30 天，期間可以復原。" +
-                if (state.occurrences.any { it.taskId == task.id }) "只刪除這一次；其他紀錄與重複規則保留。" else "") },
-            confirmButton = { TextButton(onClick = { deleteId = null; action { viewModel.trash(task) } }) { Text("移至垃圾桶") } },
-            dismissButton = { TextButton(onClick = { deleteId = null }) { Text("取消") } })
+        AlertDialog(onDismissRequest = { deleteId = null }, title = { Text(tr(R.string.text_move_to_trash_1b2fd4)) },
+            text = { Text(tr(R.string.text_s_will_be_kept_for_days_5df61f, task.title) +
+                if (state.occurrences.any { it.taskId == task.id }) tr(R.string.text_delete_only_this_occurrence_keep_other_771d5a) else "") },
+            confirmButton = { TextButton(onClick = { deleteId = null; action { viewModel.trash(task) } }) { Text(tr(R.string.text_move_to_trash_f86355)) } },
+            dismissButton = { TextButton(onClick = { deleteId = null }) { Text(tr(R.string.text_cancel_2cd0f3)) } })
     }
     state.tasks.find { it.id == statusId }?.let { task ->
-        AlertDialog(onDismissRequest = { statusId = null }, title = { Text(if (task.categoryId == STUDY_ID) "選擇學習狀態" else "選擇作業狀態") }, text = {
+        AlertDialog(onDismissRequest = { statusId = null }, title = { Text(if (task.categoryId == STUDY_ID) tr(R.string.text_choose_study_status_982bfe) else tr(R.string.text_choose_assignment_status_a4e8ba)) }, text = {
             Column { statusOptions(task.categoryId == ASSIGNMENTS_ID, task.categoryId == STUDY_ID).forEach { status ->
                 TextButton(onClick = { statusId = null; updateStatus(task, status) },
                     modifier = Modifier.fillMaxWidth().testTag("choose_status_${status.name}"),
@@ -395,18 +398,18 @@ fun TodoApp(viewModel: TodoViewModel) {
                     AssignmentStatusIcon(status)
                     Spacer(Modifier.width(16.dp))
                     Text(statusLabel(status, task.categoryId), Modifier.weight(1f))
-                    if (status == task.status) Icon(painterResource(R.drawable.ic_status_completed), "目前狀態",
+                    if (status == task.status) Icon(painterResource(R.drawable.ic_status_completed), tr(R.string.text_current_status_a27329),
                         Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
                 }
             } }
-        }, confirmButton = { TextButton(onClick = { statusId = null }) { Text("取消") } })
+        }, confirmButton = { TextButton(onClick = { statusId = null }) { Text(tr(R.string.text_cancel_2cd0f3)) } })
     }
     restoreSeriesId?.let { id -> state.series.find { it.id == id }?.let { series ->
         val count = state.occurrences.count { it.seriesId == id && it.deletedWithSeriesAt == series.deletedAt }
-        AlertDialog(onDismissRequest = { restoreSeriesId = null }, title = { Text("復原重複系列？") },
-            text = { Text("「${series.title}」與剩餘 $count 項同次刪除的紀錄會復原。已永久刪除的紀錄無法復原；原先個別刪除的項目仍留在垃圾桶。") },
+        AlertDialog(onDismissRequest = { restoreSeriesId = null }, title = { Text(tr(R.string.text_restore_recurring_series_b13107)) },
+            text = { Text(tr(R.string.text_restore_s_and_s_remaining_records_9a29ed, series.title, count)) },
             confirmButton = { TextButton(enabled = !actionBusy, modifier = Modifier.testTag("restore_series_confirm"), onClick = {
                 restoreSeriesId = null; action { viewModel.restoreSeries(id, restoreSeriesRevision) }
-            }) { Text("復原系列") } }, dismissButton = { TextButton(onClick = { restoreSeriesId = null }) { Text("取消") } })
+            }) { Text(tr(R.string.text_restore_series_9fbd02)) } }, dismissButton = { TextButton(onClick = { restoreSeriesId = null }) { Text(tr(R.string.text_cancel_2cd0f3)) } })
     } }
 }

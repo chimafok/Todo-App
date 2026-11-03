@@ -1,5 +1,6 @@
 package com.chimafok.todo.ui
 
+import com.chimafok.todo.i18n.tr
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.ui.draw.clip
@@ -50,11 +51,11 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 fun statusLabel(status: TaskStatus, categoryId: String? = null): String = when (status) {
-    TaskStatus.OPEN -> if (categoryId == STUDY_ID) "未開始" else "未完成"
-    TaskStatus.NOT_STARTED -> "未開始"
-    TaskStatus.IN_PROGRESS -> "進行中"
-    TaskStatus.DONE_UNSUBMITTED -> "完成未繳交"
-    TaskStatus.COMPLETED -> "完成"
+    TaskStatus.OPEN -> if (categoryId == STUDY_ID) tr(R.string.text_not_started_e94431) else tr(R.string.text_incomplete_6707de)
+    TaskStatus.NOT_STARTED -> tr(R.string.text_not_started_e94431)
+    TaskStatus.IN_PROGRESS -> tr(R.string.text_in_progress_e7e586)
+    TaskStatus.DONE_UNSUBMITTED -> tr(R.string.text_done_not_submitted_c13e37)
+    TaskStatus.COMPLETED -> tr(R.string.text_completed_c0b3fb)
 }
 
 fun displayDate(date: LocalDate, today: LocalDate = LocalDate.now()): String =
@@ -105,7 +106,7 @@ fun TaskList(
     val displayedTasks = remember(state.tasks, pendingView, finishingSnapshot) {
         if (pendingView && finishingSnapshot.isNotEmpty()) state.tasks.map { finishingSnapshot[it.id] ?: it } else state.tasks
     }
-    val searchIndex = remember(state.categories, state.tags, state.taskTags) { TaskSearchIndex(state.categories, state.tags, state.taskTags) }
+    val searchIndex = remember(state.categories, state.tags, state.taskTags, com.chimafok.todo.i18n.I18n.locale) { TaskSearchIndex(state.categories, state.tags, state.taskTags) }
     val occurrencesByTask = remember(state.occurrences) { state.occurrences.associateBy { it.taskId } }
     val rulesById = remember(state.rules) { state.rules.associateBy { it.id } }
     val remindersByTask = remember(state.reminders) { state.reminders.groupBy { it.taskId } }
@@ -137,15 +138,15 @@ fun TaskList(
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 110.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (jumpDate != null && destination == Destination.AGENDA) item(key = "jump") {
-            TextButton(onClick = onClearJump) { Text("返回今天") }
+            TextButton(onClick = onClearJump) { Text(tr(R.string.text_back_to_today_e09528)) }
         }
         if (destination == Destination.TRASH) item {
-            Text("刪除後保留 30 天", Modifier.padding(vertical = 12.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(tr(R.string.text_kept_for_days_after_deletion_1dae66), Modifier.padding(vertical = 12.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         groups.forEach { group ->
             val groupKey = group.date?.toString() ?: "undated"
             if(group.date==null && moreDated) item(key="more_dated") {
-                OutlinedButton(enabled=actionsEnabled,onClick=onMoreDated,modifier=Modifier.fillMaxWidth().testTag("load_more_tasks")) { Text("載入更多任務") }
+                OutlinedButton(enabled=actionsEnabled,onClick=onMoreDated,modifier=Modifier.fillMaxWidth().testTag("load_more_tasks")) { Text(tr(R.string.text_load_more_tasks_bddce6)) }
             }
             item(key = "header_$groupKey") {
                 Row(Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 4.dp), horizontalArrangement = Arrangement.SpaceBetween,
@@ -154,9 +155,9 @@ fun TaskList(
                     FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(4.dp)) {
                     Text(
                         when {
-                            destination == Destination.TRASH -> "已刪除任務"
-                            group.date == null -> if (destination == Destination.COMPLETED) "無截止日期" else "未安排"
-                            group.date == today && destination == Destination.AGENDA -> "今天"
+                            destination == Destination.TRASH -> tr(R.string.text_deleted_tasks_f841a8)
+                            group.date == null -> if (destination == Destination.COMPLETED) tr(R.string.text_no_due_date_6ae390) else tr(R.string.text_unscheduled_7c525e)
+                            group.date == today && destination == Destination.AGENDA -> tr(R.string.text_today_d5f5a7)
                             else -> displayDate(group.date, today)
                         }, style = if (group.date == today && destination == Destination.AGENDA) MaterialTheme.typography.headlineSmall
                             else MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold,
@@ -164,39 +165,39 @@ fun TaskList(
                     val count=if(counts.isEmpty()) null else counts[group.date] ?: 0
                     Surface(shape=RoundedCornerShape(8.dp),color=if(count != null && count>0) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
                         modifier=Modifier.align(Alignment.CenterVertically)) {
-                        Text(count?.let { "$it 項" } ?: "…",Modifier.padding(horizontal=8.dp,vertical=4.dp).testTag("count_$groupKey"),
+                        Text(count?.let { tr(R.string.text_s_items_cfad0b, it) } ?: "…",Modifier.padding(horizontal=8.dp,vertical=4.dp).testTag("count_$groupKey"),
                             style=MaterialTheme.typography.labelMedium,color=if(count != null && count>0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     }
                     if (group.date != null) Text(
                         if (group.date == today && destination == Destination.AGENDA) displayDate(today)
-                        else group.date.format(DateTimeFormatter.ofPattern("EEEE", Locale.TAIWAN)),
+                        else group.date.format(DateTimeFormatter.ofPattern("EEEE", com.chimafok.todo.i18n.I18n.locale)),
                         style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     if (destination == Destination.AGENDA) {
-                        TextButton(onClick = { onAdd(group.date) }, modifier = Modifier.testTag("add_$groupKey")) { Text("＋ 新增") }
+                        TextButton(onClick = { onAdd(group.date) }, modifier = Modifier.testTag("add_$groupKey")) { Text(tr(R.string.text_add_07a04d)) }
                     }
                 }
             }
             if (group.tasks.isEmpty()) item(key = "empty_$groupKey") {
                 if(counts.isEmpty()) Spacer(Modifier.height(8.dp)) else EmptyTasks(title = when {
-                    filtered -> "沒有符合的任務"
-                    destination == Destination.TRASH -> "垃圾桶是空的"
-                    destination == Destination.COMPLETED -> "還沒有完成紀錄"
-                    group.date == today -> "今天沒有待辦"
-                    group.date == null -> "沒有未安排的待辦"
-                    else -> "當天沒有待辦"
+                    filtered -> tr(R.string.text_no_matching_tasks_bd0ce7)
+                    destination == Destination.TRASH -> tr(R.string.text_trash_is_empty_510eda)
+                    destination == Destination.COMPLETED -> tr(R.string.text_no_completed_records_yet_362cff)
+                    group.date == today -> tr(R.string.text_no_tasks_today_6162f3)
+                    group.date == null -> tr(R.string.text_no_unscheduled_tasks_2ba8f2)
+                    else -> tr(R.string.text_no_tasks_on_this_day_01c8a9)
                 })
             }
             items(group.tasks, key = { it.id }) { task ->
-                TaskCard(task, searchIndex.categoryNames[task.categoryId] ?: "未分類", clock,
+                TaskCard(task, searchIndex.categoryNames[task.categoryId] ?: tr(R.string.text_uncategorized_607089), clock,
                     destination == Destination.TRASH, actionsEnabled && task.id !in finishingTasks,
                     onEdit, onComplete, onReopen, onStatus, onAdvance, onDelete, onRestore,
                     completion = if (pendingView) completionProgress[task.id] else null,
                     selectionMode = selectionMode, selected = task.id in selectedIds, onToggleSelection = onToggleSelection,
                     onLongSelect = onLongSelect,
                     recurringLabel = occurrencesByTask[task.id]?.let { ref ->
-                        rulesById[ref.ruleId]?.frequency?.let { "重複 · ${recurrenceLabel(it)}" }
+                        rulesById[ref.ruleId]?.frequency?.let { tr(R.string.text_recurring_s_dbfe22, recurrenceLabel(it)) }
                     },
                     tags = searchIndex.tagNames(task.id),
                     reminders = remindersByTask[task.id].orEmpty(), onPurge = onPurge,
@@ -208,7 +209,7 @@ fun TaskList(
         }
         if(moreUndated) item(key="more_undated") {
             OutlinedButton(enabled=actionsEnabled,onClick=onMoreUndated,modifier=Modifier.fillMaxWidth().testTag("load_more_undated")) {
-                Text(if(destination==Destination.COMPLETED) "載入更多無截止日期紀錄" else "載入更多未安排任務")
+                Text(if(destination==Destination.COMPLETED) tr(R.string.text_load_more_records_without_due_dates_ddc45b) else tr(R.string.text_load_more_unscheduled_tasks_296d8f))
             }
         }
     }
@@ -232,7 +233,7 @@ internal fun TaskCard(
     val assignment = task.categoryId == ASSIGNMENTS_ID
     val study = task.categoryId == STUDY_ID
     val hasProgress = assignment || study
-    val progressName = if (study) "學習" else "作業"
+    val progressName = if (study) tr(R.string.text_study_dcb987) else tr(R.string.text_assignments_d87d04)
     val overdue = !readOnly && task.status != TaskStatus.COMPLETED && isOverdue(task.dueDate, task.dueTime, task.zoneId, clock)
     val completed = task.status == TaskStatus.COMPLETED || completion != null
     val feedback = completion ?: 0f
@@ -240,7 +241,7 @@ internal fun TaskCard(
         .graphicsLayer { scaleX = 1f - feedback * 0.015f; scaleY = 1f - feedback * 0.015f }
         .animateContentSize(tween(220)).clip(MaterialTheme.shapes.large)
         .combinedClickable(enabled=enabled,role=Role.Button,
-            onLongClickLabel=if(onLongSelect!=null && !readOnly) "選取任務" else null,
+            onLongClickLabel=if(onLongSelect!=null && !readOnly) tr(R.string.text_select_task_6a0154) else null,
             onLongClick=if(onLongSelect!=null && !readOnly && completion==null) ({onLongSelect(task.id)}) else null,
             onClick={if(selectionMode) {if(!readOnly)onToggleSelection(task.id)} else expanded = !expanded}),
         shape = MaterialTheme.shapes.large,
@@ -258,18 +259,18 @@ internal fun TaskCard(
                     if (selectionMode) {
                         Checkbox(selected, onCheckedChange = { onToggleSelection(task.id) }, enabled = enabled && !readOnly,
                             modifier = Modifier.size(48.dp).testTag("select_${task.id}").semantics {
-                                contentDescription = "選取：${task.title}"
+                                contentDescription = tr(R.string.text_select_s_a90c94, task.title)
                             })
                     } else if (hasProgress) {
                         val shownStatus = if (completion != null) TaskStatus.COMPLETED else task.status
                         if (inTrash) {
                             AssignmentStatusIcon(shownStatus, Modifier.semantics {
-                                contentDescription = "${progressName}狀態：${statusLabel(shownStatus, task.categoryId)}"
+                                contentDescription = tr(R.string.text_s_status_s_9fdb3d, progressName, statusLabel(shownStatus, task.categoryId))
                             })
                         } else {
                             IconButton(onClick = { onStatus(task) }, enabled = enabled && !readOnly,
                                 modifier = Modifier.size(48.dp).testTag("status_${task.id}").semantics {
-                                    contentDescription = "選擇${progressName}狀態：${task.title}"
+                                    contentDescription = tr(R.string.text_choose_s_status_s_e515b0, progressName, task.title)
                                     stateDescription = statusLabel(shownStatus, task.categoryId)
                                 }) {
                                 AnimatedContent(shownStatus, label = "assignment status") { AssignmentStatusIcon(it) }
@@ -277,7 +278,7 @@ internal fun TaskCard(
                         }
                     } else if (completion != null) {
                         Box(Modifier.size(48.dp).testTag("complete_${task.id}").semantics(mergeDescendants = true) {
-                            contentDescription = "已完成：${task.title}"
+                            contentDescription = tr(R.string.text_completed_s_960607, task.title)
                             toggleableState = ToggleableState.On
                             role = Role.Checkbox
                             disabled()
@@ -294,14 +295,14 @@ internal fun TaskCard(
                             onCheckedChange = { onComplete(task) }, modifier = Modifier.size(48.dp)
                                 .testTag("complete_${task.id}").semantics {
                                     role = Role.Checkbox
-                                    contentDescription = "完成：${task.title}"
+                                    contentDescription = tr(R.string.text_complete_s_3d6fec, task.title)
                                 }) {
                             Icon(painterResource(R.drawable.ic_status_not_started), null, Modifier.size(24.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     } else {
                         Icon(painterResource(if (completed) R.drawable.ic_status_completed else R.drawable.ic_status_not_started),
-                            contentDescription = if (completed) "已完成" else "未完成",
+                            contentDescription = if (completed) tr(R.string.text_completed_f28461) else tr(R.string.text_incomplete_6707de),
                             tint = if (completed) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
@@ -313,7 +314,7 @@ internal fun TaskCard(
                     MetadataPill(category, if (assignment) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary)
                     recurringLabel?.let { MetadataPill(it, MaterialTheme.colorScheme.tertiary) }
                     tags.forEach { MetadataPill("# $it") }
-                    if (overdue) MetadataPill("逾期", MaterialTheme.colorScheme.error)
+                    if (overdue) MetadataPill(tr(R.string.text_overdue_da7ece), MaterialTheme.colorScheme.error)
                     if (hasProgress && task.status !in listOf(TaskStatus.OPEN, TaskStatus.NOT_STARTED, TaskStatus.COMPLETED)) {
                         MetadataPill(statusLabel(task.status), if (task.status == TaskStatus.DONE_UNSUBMITTED) assignmentStatusColor(task.status)
                             else MaterialTheme.colorScheme.onSurfaceVariant)
@@ -321,17 +322,17 @@ internal fun TaskCard(
                     }
                     task.startDate?.takeIf { task.categoryId == STUDY_ID }?.let { date ->
                         val localStart = task.startTime?.let { date.atTime(it).atZone(java.time.ZoneId.of(requireNotNull(task.startZoneId))).withZoneSameInstant(clock.zone) }
-                        Text("開始 ${displayDate(localStart?.toLocalDate() ?: date, LocalDate.now(clock))}${localStart?.format(DateTimeFormatter.ofPattern(" HH:mm")) ?: ""}",
+                        Text(tr(R.string.text_start_s_s_6ebb4c, displayDate(localStart?.toLocalDate() ?: date, LocalDate.now(clock)), localStart?.format(DateTimeFormatter.ofPattern(" HH:mm")) ?: ""),
                             modifier = Modifier.testTag("task_start_${task.id}"), style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     task.dueDate?.let { date ->
                         val localDeadline = task.dueInstant()?.atZone(clock.zone)
-                        val prefix = if (localDeadline != null && task.zoneId != clock.zone.id) "當地截止" else "截止"
+                        val prefix = if (localDeadline != null && task.zoneId != clock.zone.id) tr(R.string.text_due_locally_34b749) else tr(R.string.text_due_fb37c6)
                         Text("$prefix ${displayDate(localDeadline?.toLocalDate() ?: date, LocalDate.now(clock))}${localDeadline?.let { " ${it.format(DateTimeFormatter.ofPattern("HH:mm"))}" } ?: ""}",
                             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         if (task.dueTime != null && task.zoneId != clock.zone.id) Text(
-                            "原設定 ${displayDate(date, LocalDate.now(clock))} ${task.dueTime.format(DateTimeFormatter.ofPattern("HH:mm"))} · ${task.zoneId}",
+                            tr(R.string.text_original_s_s_s_f7d66b, displayDate(date, LocalDate.now(clock)), task.dueTime.format(DateTimeFormatter.ofPattern("HH:mm")), task.zoneId),
                             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
@@ -342,31 +343,31 @@ internal fun TaskCard(
                 NoteImageGallery(task.imageIds)
                 reminders.orderedFor(task).filter { it.enabled }.forEach { reminder ->
                     val trigger = runCatching { com.chimafok.todo.domain.resolveReminder(reminder.spec(), task.dueDate, task.dueTime, task.zoneId) }.getOrNull()
-                    Text("提醒：${trigger?.let { com.chimafok.todo.reminders.reminderInstantLabel(it) }.orEmpty()} · ${com.chimafok.todo.reminders.reminderStateLabel(reminder.state)}",
+                    Text(tr(R.string.text_reminder_s_s_d5f9ee, trigger?.let { com.chimafok.todo.reminders.reminderInstantLabel(it) }.orEmpty(), com.chimafok.todo.reminders.reminderStateLabel(reminder.state)),
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 historyDescription?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                if (task.zoneId != null && task.zoneId != clock.zone.id) Text("時區：${task.zoneId}", style = MaterialTheme.typography.bodySmall)
+                if (task.zoneId != null && task.zoneId != clock.zone.id) Text(tr(R.string.text_time_zone_s_4c666b, task.zoneId), style = MaterialTheme.typography.bodySmall)
                 if (inTrash) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilledTonalButton(onClick = { onRestore(task) }, enabled = enabled) { Text("復原") }
+                        FilledTonalButton(onClick = { onRestore(task) }, enabled = enabled) { Text(tr(R.string.text_restore_2abdcb)) }
                         onPurge?.let { purge -> TextButton(onClick = { purge(task) }, enabled = enabled,
-                            modifier = Modifier.testTag("purge_${task.id}"), colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text("永久刪除…") } }
+                            modifier = Modifier.testTag("purge_${task.id}"), colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text(tr(R.string.text_delete_permanently_15a9d2)) } }
                     }
                 } else if (!readOnly) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilledTonalButton(onClick = { onEdit(task) }, enabled = enabled) { Text("編輯") }
+                        FilledTonalButton(onClick = { onEdit(task) }, enabled = enabled) { Text(tr(R.string.text_edit_e0d448)) }
                         if (task.status == TaskStatus.COMPLETED) {
-                            TextButton(onClick = { onReopen(task) }, enabled = enabled) { Text("重新開啟") }
+                            TextButton(onClick = { onReopen(task) }, enabled = enabled) { Text(tr(R.string.text_reopen_d82e4e)) }
                         } else if (hasProgress) {
-                            TextButton(onClick = { onAdvance(task) }, enabled = enabled) { Text("推進至${statusLabel(nextProgressStatus(task.status, study))}") }
+                            TextButton(onClick = { onAdvance(task) }, enabled = enabled) { Text(tr(R.string.text_advance_to_s_01798d, statusLabel(nextProgressStatus(task.status, study)))) }
                         }
                         TextButton(onClick = { onDelete(task) }, enabled = enabled,
-                            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text("刪除") }
+                            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text(tr(R.string.text_delete_3c8f5b)) }
                         onDeleteFuture?.let { delete ->
                             TextButton(onClick = delete, enabled = enabled,
                                 modifier = Modifier.testTag("delete_future_${task.id}"),
-                                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text("刪除未來任務…") }
+                                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text(tr(R.string.text_delete_future_tasks_2d7630)) }
                         }
                     }
                 }

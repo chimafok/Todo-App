@@ -1,5 +1,7 @@
 package com.chimafok.todo.data
 
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import androidx.room.*
 import com.chimafok.todo.domain.TaskStatus
 import kotlinx.coroutines.Dispatchers
@@ -179,8 +181,8 @@ class HistoryBrowserRepository(private val db: TodoDatabase) {
 
     suspend fun actionPreview(id: String, clock: Clock): SeriesActionPreview = withContext(Dispatchers.IO) {
         db.withTransaction {
-            val series = requireNotNull(db.dao().series(id)) { "系列已不存在" }
-            require(series.deletedAt == null) { "系列已刪除，請重新確認" }
+            val series = requireNotNull(db.dao().series(id)) { tr(R.string.text_the_series_no_longer_exists_ae5a78) }
+            require(series.deletedAt == null) { tr(R.string.text_the_series_was_deleted_please_check_3554ab) }
             val rule = requireNotNull(db.dao().latestRule(id))
             val today = LocalDate.now(clock.withZone(ZoneId.of(rule.zoneId)))
             val rows = db.browser().actionRows(id)

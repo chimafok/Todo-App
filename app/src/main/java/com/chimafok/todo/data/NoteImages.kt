@@ -1,5 +1,7 @@
 package com.chimafok.todo.data
 
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import android.content.Context
 import android.graphics.*
 import android.media.ExifInterface
@@ -32,12 +34,12 @@ const val NOTE_IMAGE_MAX_BYTES = 768 * 1024
 const val NOTE_IMAGE_MAX_EDGE = 1536
 fun imageHash(bytes: ByteArray) = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it.toInt() and 255) }
 fun validateImageData(id: String, data: String): ByteArray {
-    require(data.length <= (NOTE_IMAGE_MAX_BYTES + 2) / 3 * 4) { "圖片附件過大" }
+    require(data.length <= (NOTE_IMAGE_MAX_BYTES + 2) / 3 * 4) { tr(R.string.text_image_attachment_too_large_7ada9a) }
     val bytes = Base64.getDecoder().decode(data)
-    require(bytes.size <= NOTE_IMAGE_MAX_BYTES && Base64.getEncoder().encodeToString(bytes) == data && imageHash(bytes) == id) { "圖片附件損壞或校驗值不符" }
+    require(bytes.size <= NOTE_IMAGE_MAX_BYTES && Base64.getEncoder().encodeToString(bytes) == data && imageHash(bytes) == id) { tr(R.string.text_image_attachment_corrupted_or_checksum_mismatch_edc7ed) }
     val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
     BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
-    require(options.outMimeType == "image/jpeg" && options.outWidth in 1..NOTE_IMAGE_MAX_EDGE && options.outHeight in 1..NOTE_IMAGE_MAX_EDGE) { "圖片格式或尺寸不支援" }
+    require(options.outMimeType == "image/jpeg" && options.outWidth in 1..NOTE_IMAGE_MAX_EDGE && options.outHeight in 1..NOTE_IMAGE_MAX_EDGE) { tr(R.string.text_unsupported_image_format_or_dimensions_30d087) }
     return bytes
 }
 
@@ -71,19 +73,19 @@ class NoteImages(private val db: TodoDatabase) {
     }
 
     private fun normalize(context: Context, uri: Uri): NoteImageEntity {
-            require(uri.scheme == "content") { "請透過系統選圖器選取圖片" }
-            val raw = requireNotNull(context.contentResolver.openInputStream(uri)) { "無法讀取所選圖片" }.use { input ->
+            require(uri.scheme == "content") { tr(R.string.text_please_choose_images_using_the_system_17e083) }
+            val raw = requireNotNull(context.contentResolver.openInputStream(uri)) { tr(R.string.text_cannot_read_the_selected_image_74c67a) }.use { input ->
                 val out = ByteArrayOutputStream(); val buffer = ByteArray(8192)
                 while (true) { val n = input.read(buffer); if (n < 0) break
-                    require(out.size() + n <= 25 * 1024 * 1024) { "原始圖片不可超過 25 MiB" }; out.write(buffer, 0, n) }
+                    require(out.size() + n <= 25 * 1024 * 1024) { tr(R.string.text_original_images_cannot_exceed_mib_0caf35) }; out.write(buffer, 0, n) }
                 out.toByteArray()
             }
             val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
             BitmapFactory.decodeByteArray(raw, 0, raw.size, bounds)
-            require(bounds.outWidth > 0 && bounds.outHeight > 0 && bounds.outWidth.toLong() * bounds.outHeight <= 100_000_000) { "無法讀取圖片，或原始尺寸過大" }
+            require(bounds.outWidth > 0 && bounds.outHeight > 0 && bounds.outWidth.toLong() * bounds.outHeight <= 100_000_000) { tr(R.string.text_cannot_read_the_image_or_its_0bbe35) }
             var sample = 1
             while (maxOf(bounds.outWidth, bounds.outHeight) / sample > NOTE_IMAGE_MAX_EDGE * 2) sample *= 2
-            val decoded = requireNotNull(BitmapFactory.decodeByteArray(raw, 0, raw.size, BitmapFactory.Options().apply { inSampleSize = sample })) { "無法解碼圖片" }
+            val decoded = requireNotNull(BitmapFactory.decodeByteArray(raw, 0, raw.size, BitmapFactory.Options().apply { inSampleSize = sample })) { tr(R.string.text_cannot_decode_the_image_9eb49f) }
             var bitmap = decoded
             try {
                 val orientation = runCatching { ExifInterface(ByteArrayInputStream(raw)).getAttributeInt(ExifInterface.TAG_ORIENTATION, 1) }.getOrDefault(1)
@@ -104,7 +106,7 @@ class NoteImages(private val db: TodoDatabase) {
                 var bytes: ByteArray
                 do { val out = ByteArrayOutputStream(); check(bitmap.compress(Bitmap.CompressFormat.JPEG, quality, out)); bytes = out.toByteArray(); quality -= 10 }
                 while (bytes.size > NOTE_IMAGE_MAX_BYTES && quality >= 40)
-                require(bytes.size <= NOTE_IMAGE_MAX_BYTES) { "圖片壓縮後仍過大，請先縮小圖片" }
+                require(bytes.size <= NOTE_IMAGE_MAX_BYTES) { tr(R.string.text_the_compressed_image_is_still_too_1a6102) }
                 return NoteImageEntity(imageHash(bytes), Base64.getEncoder().encodeToString(bytes))
             } finally { if (!bitmap.isRecycled) bitmap.recycle() }
     }
@@ -115,7 +117,7 @@ class NoteImages(private val db: TodoDatabase) {
         BitmapFactory.decodeByteArray(bytes, 0, bytes.size, BitmapFactory.Options().apply { inSampleSize = if (thumbnail) 4 else 1 })
     }
 
-    suspend fun requireImages(encoded: String) { decodeImageIds(encoded).forEach { require(db.noteImages().image(it) != null) { "圖片附件已不存在，請重新選取" } } }
+    suspend fun requireImages(encoded: String) { decodeImageIds(encoded).forEach { require(db.noteImages().image(it) != null) { tr(R.string.text_the_image_attachment_no_longer_exists_23b2bf) } } }
 
     /** Run after the editor has closed. Keep saved drafts and all historical snapshots. */
     suspend fun prune(draftIds: List<String>) = db.withTransaction {

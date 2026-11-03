@@ -1,5 +1,7 @@
 package com.chimafok.todo.data
 
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import java.security.MessageDigest
 
 typealias BackupRow = Map<String, Any?>
@@ -29,15 +31,19 @@ val previousBackupTables = linkedMapOf<String, TableSpec>().apply {
     extend("occurrences", Field("deletedWithSeriesAt", "INTEGER", false))
     put("settings", TableSpec(listOf(Field("id", "TEXT", true), Field("completedRetentionDays", "INTEGER", false), Field("updatedAt", "INTEGER", true)), listOf("id")))
 }
-val backupTables = linkedMapOf<String, TableSpec>().apply {
+val imageBackupTables = linkedMapOf<String, TableSpec>().apply {
     putAll(previousBackupTables)
     listOf("tasks", "recurring_series").forEach { name -> val old = getValue(name); put(name, old.copy(fields = old.fields + Field("imageIds", "TEXT", true))) }
     put("note_images", TableSpec(listOf(Field("id", "TEXT", true), Field("data", "TEXT", true)), listOf("id")))
 }
+val backupTables = LinkedHashMap(imageBackupTables).apply {
+    val old = getValue("settings")
+    put("settings", old.copy(fields = old.fields + Field("language", "TEXT", false)))
+}
 fun referencedImageIds(graph: BackupGraph): Set<String> = buildSet {
     (graph.rows("tasks") + graph.rows("recurring_series")).forEach { addAll(com.chimafok.todo.domain.decodeImageIds(it.optionalText("imageIds").orEmpty())) }
     graph.rows("occurrences").forEach { row -> row.optionalText("snapshot")?.let { snapshot ->
-        require(snapshot.length <= 1_000_000) { "歷史快照過大" }
+        require(snapshot.length <= 1_000_000) { tr(R.string.text_history_snapshot_too_large_efa8f9) }
         val value = strictJson(snapshot) as Map<*, *>
         addAll(com.chimafok.todo.domain.decodeImageIds((value["imageIds"] as String?).orEmpty()))
     } }
@@ -74,12 +80,12 @@ fun backupHash(value: Any?) = MessageDigest.getInstance("SHA-256").digest(canoni
 data class BackupGraph(val tables: Map<String, List<BackupRow>>) {
     fun rows(table: String) = tables[table].orEmpty()
     fun portable(): BackupGraph {
-        return BackupGraph(backupTables.mapValues { (table,spec) -> rows(table).map { row -> spec.fields.associate { it.name to (row[it.name] ?: if (it.name == "imageIds") "" else null) } } })
+        return BackupGraph(backupTables.mapValues { (table,spec) -> rows(table).map { row -> spec.fields.associate { it.name to (row[it.name] ?: if (it.name == "imageIds") "" else if (table == "settings" && it.name == "language") "SYSTEM" else null) } } })
     }
     fun normalized() = backupTables.keys.associateWith { t -> rows(t).sortedBy { rowKey(t,it) } }
     fun content()=semantic().mapValues { (_,rows)->rows.map(::backupBody) }
     fun semantic(): Map<String,List<BackupRow>> = backupTables.mapValues { (t,spec) -> rows(t).map { row ->
-        spec.fields.filterNot { it.name in setOf("state","resolvedAt") }.associate { it.name to (row[it.name] ?: if (it.name == "imageIds") "" else null) } +
+        spec.fields.filterNot { it.name in setOf("state","resolvedAt") }.associate { it.name to (row[it.name] ?: if (it.name == "imageIds") "" else if (t == "settings" && it.name == "language") "SYSTEM" else null) } +
             if(t in setOf("tasks","recurring_series")) mapOf("deletedAt" to row["deletedAt"]) else emptyMap()
     }.sortedBy { rowKey(t,it) } }
 }
@@ -99,7 +105,9 @@ fun planBackup(local: BackupGraph, file: BackupGraph, mode: RestoreMode, choices
             var next = (local.rows(table).mapNotNull { (it["sortOrder"] as Number?)?.toLong() }.maxOrNull() ?: -1L) + 1
             rows.map { r -> if (r["sortOrder"] != null) r else r + ("sortOrder" to (known[r.text("id")]?.get("sortOrder") ?: next++)) }
         } else rows
-    } + ("settings" to file.rows("settings").ifEmpty { local.rows("settings") }))
+    } + ("settings" to file.rows("settings").ifEmpty { local.rows("settings") }.map { row ->
+        row + ("language" to (row["language"] ?: local.rows("settings").singleOrNull()?.get("language") ?: "SYSTEM"))
+    }))
     if(mode==RestoreMode.REPLACE) return planCounts(local,incoming,emptyList(),incoming)
     fun units(graph: BackupGraph): Map<String,BackupGraph> {
         val refs=graph.rows("occurrences").associate { it.text("taskId") to it.text("seriesId") }
@@ -161,9 +169,9 @@ fun planBackup(local: BackupGraph, file: BackupGraph, mode: RestoreMode, choices
             if(automatic!=null)selected+=if(automatic==BackupChoice.FILE)y else x
             else {
                 val label=(x.rows("tasks")+y.rows("tasks")).map { it.text("title") }.distinct().take(2).joinToString("、").ifEmpty {
-                    (x.rows("categories")+y.rows("categories")+x.rows("tags")+y.rows("tags")).firstOrNull()?.text("name") ?: if(preferences) "一般設定：完成紀錄保留期限" else "重複系列"
+                    (x.rows("categories")+y.rows("categories")+x.rows("tags")+y.rows("tags")).firstOrNull()?.text("name") ?: if(preferences) tr(R.string.text_general_settings_retention_and_language_a63e43) else tr(R.string.text_recurring_series_3b72e0)
                 }
-                conflicts+=BackupConflict(key,label,if(preferences)"保留期限不同，請明確選擇一般設定。" else if(trash)"本機或檔案含垃圾桶紀錄，請明確選擇保留的狀態。" else if(missing)"系列或關聯內容不同，需整組選擇以保留資料一致。" else "修改時間相同、未知或各部分較新的方向不同。",display(x,local),display(y,incoming))
+                conflicts+=BackupConflict(key,label,if(preferences)tr(R.string.text_retention_or_language_differs_please_choose_dbdb59) else if(trash)tr(R.string.text_local_or_imported_data_contains_trash_63377d) else if(missing)tr(R.string.text_series_or_related_data_differs_choose_4cc033) else tr(R.string.text_modification_times_are_equal_unknown_or_6fc70a),display(x,local),display(y,incoming))
                 selected+=if(choices[key]==BackupChoice.FILE)y else x
             }
         }

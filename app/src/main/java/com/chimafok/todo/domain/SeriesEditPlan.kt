@@ -1,5 +1,7 @@
 package com.chimafok.todo.domain
 
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import com.chimafok.todo.data.*
 import java.time.*
 
@@ -18,10 +20,10 @@ fun canEditSeriesFrom(record: SeriesEditRecord, clock: Clock): Boolean =
 /** Pure preview used by both the editor and the transaction; never removes consumed slots. */
 fun planSeriesEdit(draft: TaskDraft, current: SeriesEditRecord, latest: SeriesRuleEntity,
     records: List<SeriesEditRecord>, clock: Clock): SeriesEditPlan {
-    require(canEditSeriesFrom(current, clock)) { "過去、已完成或規則取消的紀錄只能修改本次" }
+    require(canEditSeriesFrom(current, clock)) { tr(R.string.text_past_completed_or_rule_canceled_records_cb061b) }
     val input = requireNotNull(draft.recurrence)
     val sequence = current.occurrence.sequence
-    require(input.maxCount == null || input.maxCount >= sequence) { "總次數不可早於本次序號 $sequence" }
+    require(input.maxCount == null || input.maxCount >= sequence) { tr(R.string.text_total_occurrences_cannot_be_less_than_a24d53, sequence) }
     val sameCalendar = latest.effectiveFrom <= sequence && draft.dueDate == current.task.dueDate &&
         latest.frequency == input.frequency && latest.intervalDays == input.intervalDays &&
         latest.weekdayMask == input.weekdays.fold(0) { mask, day -> mask or (1 shl (day.value - 1)) } &&
