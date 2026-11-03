@@ -24,7 +24,7 @@ APK SHA-256: `2e8532687e01d5a16d1b25ee8f715a5fabf97582ef6287ad6364f25ac29e88ce`.
 - Separate API 26 rounds: language UI 3 and language backup/migration 2: 5 cases. All 44 had zero failure/error/skipped; this was not one full historical suite run.
 - Covered switching/recreation/drafts, unchanged custom content/zones, notification text, format 6 round-trip/settings conflicts, legacy language preservation, invalid-language rejection and language-only restore preserving retention anchors. API 26 also had manual inspection of all three settings screens.
 
-The maintainer approved that test APK and official 1.4.0 was published on 2026-11-03. It is no longer awaiting approval or superseded by an alleged current 1.3.1. See [development-1.4.0.json](../verification/development-1.4.0.json) for original failures and retests.
+The maintainer approved that test APK and official 1.4.0 was published on 2026-11-03. These development results remain historical records. See [development-1.4.0.json](../verification/development-1.4.0.json) for original failures and retests.
 
 ## Incomplete validation
 

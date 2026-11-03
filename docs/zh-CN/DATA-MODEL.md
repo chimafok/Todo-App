@@ -2,11 +2,11 @@
 
 <p align="center">語言 / 语言 / Languages：<a href="../DATA-MODEL.md">繁體中文</a> · <strong>简体中文</strong> · <a href="../en/DATA-MODEL.md">English</a></p>
 
-目前为 **Room schema 10**，数据库 `todo.db`。实际栏位、主外键及索引以导出的 [10.json](../../app/schemas/com.chimafok.todo.data.TodoDatabase/10.json) 与 [TodoDatabase.kt](../../app/src/main/java/com/chimafok/todo/data/TodoDatabase.kt) 核对；下表栏位直接取自该 schema，不使用产品概念名称代替 SQL。
+目前为 **Room schema 10**，数据库 `todo.db`。实际字段、主外键及索引以导出的 [10.json](../../app/schemas/com.chimafok.todo.data.TodoDatabase/10.json) 与 [TodoDatabase.kt](../../app/src/main/java/com/chimafok/todo/data/TodoDatabase.kt) 核对；下表字段直接取自该 schema，不使用产品概念名称代替 SQL。
 
 ## 现行数据表
 
-| 表 | 栏位 |
+| 表 | 字段 |
 |---|---|
 | `tasks` | `id`、`title`、`notes`、`categoryId`、`dueDate`、`dueTime`、`zoneId`、`status`、`completedAt`、`deletedAt`、`createdAt`、`updatedAt`、`revision`、`startDate`、`startTime`、`startZoneId`、`imageIds` |
 | `categories` | `id`、`name`、`systemKind`、`sortOrder`、`createdAt`、`updatedAt`、`revision` |
@@ -25,7 +25,7 @@
 | `purge_cancellations` | `id`、`taskId`、`reminderId`、`alarmKey`、`createdAt` |
 | `note_images` | `id`、`data` |
 
-日期／时间为 ISO LocalDate／LocalTime 字串，操作时间为 UTC epoch 毫秒；日期-only 不转成 UTC 午夜。有时刻的开始／截止保存输入时区，提醒解析为 Instant。任务含一个分类及多个标签，系列与 occurrence 分表，以 seriesId＋sequence 保持唯一槽位。完整索引、外键及 SQL 定义见共用 schema JSON。
+日期／时间为 ISO LocalDate／LocalTime 字符串，操作时间为 UTC epoch 毫秒；日期-only 不转成 UTC 午夜。有时刻的开始／截止保存输入时区，提醒解析为 Instant。任务含一个分类及多个标签，系列与 occurrence 分表，以 seriesId＋sequence 保持唯一槽位。完整索引、外键及 SQL 定义见共用 schema JSON。
 
 ## 迁移
 
@@ -43,7 +43,7 @@ schema 1–10 保留供逐版升级测试；早期 migration 及原始设计详�
 - 一般任务 OPEN／COMPLETED；学习 OPEN／IN_PROGRESS／COMPLETED；作业 NOT_STARTED／IN_PROGRESS／DONE_UNSUBMITTED／COMPLETED。新学习／作业不可直接建立为 COMPLETED。
 - COMPLETED 才有 completedAt；完成未缴交仍未完成。重新开启清目前完成时间，保留 ID／原截止。
 - 学习开始时刻须有开始日期与时区；移分类保留已存开始数据，但只有学习使用其排序能力。
-- 内建名称仅在固定 ID 且仍为原始名称时翻译显示；不改写 DB 名称，不翻译自订内容。
+- 内建名称仅在固定 ID 且仍为原始名称时翻译显示；不改写 DB 名称，不翻译自定义内容。
 
 ## 交易、排程与保留
 
@@ -55,7 +55,7 @@ retention_policy 保存一般完成保留期限及语言；retention_anchors 提
 
 ## 图片、草稿与查询
 
-note_images 以 SHA-256 识别不可变 Base64 JPEG；imageIds 为按顺序的引用，图片不放 Bundle 或搜寻索引，缩图／大图按需载入。表单关闭时按任务、系列、历史快照及已存草稿引用清理孤立图片。
+note_images 以 SHA-256 识别不可变 Base64 JPEG；imageIds 为按顺序的引用，图片不放 Bundle 或搜索索引，缩图／大图按需载入。表单关闭时按任务、系列、历史快照及已存草稿引用清理孤立图片。
 
 新增草稿是 App 私有 AtomicFile JSON，不是 Room 任务，不排提醒，也不在备份内。保存成功才清稿；重载检查相同 ID 是否已建立，避免重复。表单与大量确认状态留在 ViewModel，程序重建不自动提交旧确认。
 

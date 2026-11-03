@@ -4,7 +4,7 @@
 
 <p align="center">語言 / 语言 / Languages：<a href="../RELEASE-1.0.5.md">繁體中文</a> · <strong>简体中文</strong> · <a href="../en/RELEASE-1.0.5.md">English</a></p>
 
-源代码与文件采 MIT。主要功能沿用 1.0.4：日程、作业进度、重复任务、多个提醒、分类标签、搜寻／长按多选、垃圾桶及 JSON 备份。
+源代码与文件采 MIT。主要功能沿用 1.0.4：日程、作业进度、重复任务、多个提醒、分类标签、搜索／长按多选、垃圾桶及 JSON 备份。
 
 本版加入独立正式签章、公开使用与开发文件、虚构数据展示、固定版本的 GitHub CI，以及第三方授权声明。Android 8.0／API26 以上；识别码 com.chimafok.todo，versionCode27。
 
@@ -18,7 +18,7 @@
 
 ## 验证与限制
 
-86 项纯规则、7 项备份还原 UI、1 项展示 UI 通过（分开执行）；Debug／Release Lint 各 0 errors／10 warnings。API26／37 专用空白模拟器完成签章界线、新安装、启动及同版本重装检查；没有操作使用者手机。原功能 Kotlin／资源与 Room schemas 保持一致。
+86 项纯规则、7 项备份还原 UI、1 项展示 UI 通过（分开执行）；Debug／Release Lint 各 0 errors／10 warnings。API26／37 专用空白模拟器完成签章界线、新安装、启动及同版本重装检查；没有操作用户手机。原功能 Kotlin／资源与 Room schemas 保持一致。
 
 仍在持续开发中，尚未完成全部真机、背景／隔夜提醒、TalkBack 或大量数据效能验收；请阅读 [已知限制](KNOWN-ISSUES.md)，先备份重要内容并在自己的手机确认提醒。
 

@@ -37,7 +37,7 @@ $env:ANDROID_SERIAL = 'emulator-5554'
 .	oolsuild.ps1 -GradleTask @('connectedQaAndroidTest')
 ```
 
-SDK／JDK 不在默认位置时可使用 build.ps1 的 -SdkPath／-JavaPath。不要用使用者的日用安装作自动测试。
+SDK／JDK 不在默认位置时可使用 build.ps1 的 -SdkPath／-JavaPath。不要用用户的日用安装作自动测试。
 
 ## 安装变体
 
