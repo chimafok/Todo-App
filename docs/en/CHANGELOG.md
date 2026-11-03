@@ -1,0 +1,49 @@
+# Changelog
+
+<p align="center">語言 / 语言 / Languages：<a href="../../CHANGELOG.md">繁體中文</a> · <a href="../zh-CN/CHANGELOG.md">简体中文</a> · <strong>English</strong></p>
+
+This page lists official versions. [Original development/test-version records](../history/CHANGELOG-HISTORY.zh-Hant.md) preserve delivery-time states, not the current version. [Releases](https://github.com/chimafok/Todo-App/releases/latest) is authoritative for official APK downloads.
+
+## 1.4.0 — 2026-11-03
+
+- Traditional Chinese, Simplified Chinese, English and System default, with English fallback.
+- Immediate/persistent language choice for UI, validation, dates/weekdays, pickers and future notifications. User content, custom names and time semantics stay unchanged.
+- Room schema 10 / backup format 6 saves language and reads formats 1–5. Legacy files preserve local language; language-only restore does not reset completion retention.
+- Published with the existing official key after approval of 1.4.0-dev01. com.chimafok.todo / code35 updates official 1.3.1.
+
+## 1.3.1 — 2026-10-29
+
+- Study can be renamed but not deleted. Individual deletion, bulk deletion and Select all share fixed-identity protection.
+- Preserves progress, start dates/times, order, tasks and series. schema9 / format5 / code34.
+- The maintainer specified this patch number for this round only; normal iteration resumes unless otherwise specified.
+
+## 1.3.0 — 2026-10-28
+
+- Category/tag long-press drag, edge auto-scroll and separate bulk deletion. Move tasks before deleting categories; tag deletion keeps tasks.
+- Local images below text notes, thumbnails/full view and top-right X removal, without a per-note count limit. Compress/remove original EXIF without changing originals.
+- Images follow drafts, recurrence, snapshots and Trash. Non-destructive schema9 migration; format5 embeds images and reads formats1–4; code33.
+
+## 1.2.0 — 2026-10-27
+
+- Recurrence field renamed First deadline date (blank means today).
+- Study's three states and category → status → start date → start time ordering. New tasks cannot start completed; cards, editing, reopening and series agree.
+- schema8 / format3 retains Study In progress, reads formats1–2; code30.
+
+## 1.1.0 — 2026-10-26
+
+- Study start date/time below category; time requires date. Start breaks deadline ties; no-deadline tasks stay Unscheduled.
+- New Assignments cannot start completed. schema8 / format2 adds Trash, order and general settings and reads format1; code29.
+
+## 1.0.5 — 2026-10-25
+
+First public source/APK release. Keeps 1.0.4 behavior and adds MIT, official signing, public guides, CI and third-party notices. code27 / schema7 / format1.
+
+## 1.0.4
+
+Compact empty hints, full group counts, long-press selection in Agenda/Unscheduled/Completed/Trash/recurring history, batch restore/permanent deletion and series stop/delete actions.
+
+## 1.0.1–1.0.3
+
+Draft confirmation, 1-day/10:00 reminder defaults, stable search/re-entry, aligned date labels/filter controls and the fixed everyday application ID.
+
+Earlier private development was not imported into public Git history. [Known limitations](KNOWN-ISSUES.md) retain incomplete quality gates.

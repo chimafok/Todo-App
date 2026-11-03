@@ -1,5 +1,7 @@
 # 安裝與更新
 
+<p align="center">語言 / 语言 / Languages：<strong>繁體中文</strong> · <a href="zh-CN/INSTALL.md">简体中文</a> · <a href="en/INSTALL.md">English</a></p>
+
 ## 1.4.0 更新
 
 正式識別碼與憑證保持一致，可直接覆蓋更新1.3.1，無須卸載。首次升級的語言偏好為跟隨系統，可在「設定 → 介面語言」修改；不支援的系統語言使用英文。備份輸出為格式6，可匯入格式1–5；舊版不能讀取格式6，請保留更新前的備份。
@@ -7,12 +9,12 @@
 
 ## 首次安裝
 
-1. 到本專案 GitHub Releases 下載 APK。請確認下載來自 `chimafok/Todo-App`。
+1. 到本專案 [GitHub Releases](https://github.com/chimafok/Todo-App/releases/latest) 下載最新正式版 APK。請確認下載來自 `chimafok/Todo-App`。
 2. 依需要比對同版本 `SHA256SUMS.txt`。Windows 可用 `Get-FileHash -Algorithm SHA256`，macOS／Linux 可用 `shasum -a 256`。
 3. 開啟 APK，依 Android 指示允許你使用的瀏覽器或檔案管理器安裝，完成後可關閉該來源的額外安裝能力。
 4. 開啟 Todo，按需要授予通知與精確提醒能力；先用虛構任務確認提醒。
 
-最低 Android 8.0／API 26。App 識別碼為 `com.chimafok.todo`。
+最低 Android 8.0／API 26。App 識別碼為 `com.chimafok.todo`。`Source code.zip`／`tar.gz` 是原始碼壓縮檔，不是 APK 安裝檔。
 
 ## 後續正式版更新
 
@@ -20,7 +22,7 @@
 
 ## 備份格式相容性
 
-1.4.0匯出格式6／schema10，可匯入格式1–5，包含語言偏好、備註圖片、學習進度、垃圾桶、分類／標籤排序與一般設定。1.3.1及以前的版本不能讀格式6，請保留更新前的重要備份。詳見[備份格式](BACKUP-FORMAT.md)。
+1.4.0 匯出格式 6／schema 10，可匯入格式1–5，包含語言偏好、備註圖片、學習進度、垃圾桶、分類／標籤排序與一般設定。1.3.1及以前的版本不能讀格式6，請保留更新前的重要備份。詳見[備份格式](BACKUP-FORMAT.md)。
 
 ## 自行建置與官方 APK
 
