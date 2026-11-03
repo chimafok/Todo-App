@@ -1,5 +1,7 @@
 # 開發與建置
 
+<p align="center">語言 / 语言 / Languages：<strong>繁體中文</strong> · <a href="zh-CN/DEVELOPMENT.md">简体中文</a> · <a href="en/DEVELOPMENT.md">English</a></p>
+
 ## 環境
 
 - Android Studio，或具備 JDK 17 以上的命令列環境；本機亦以 Android Studio 的 JBR 25 建置驗證。
@@ -11,7 +13,7 @@
 
 ## 分支與檢查
 
-一般功能從最新 `dev` 開工作分支，PR 合併到 `dev` 整合；交付開發簽章的測試 APK 並獲 chimafok 明確同意後，才正式簽署、PR 合併對應原始碼到 `main` 及發布；純文件小修的例外與合併權限見[貢獻指南](../CONTRIBUTING.md#分支與合併)。CI 目前會建置、執行單元測試與 Lint，並編譯裝置測試 APK；不會執行裝置測試、完成真機驗收、正式簽署或發布 APK。
+一般功能從最新 `dev` 開工作分支，PR 合併到 `dev` 整合；交付開發簽章的測試 APK 並獲 chimafok 明確同意後，才正式簽署、PR 合併對應原始碼到 `main` 及發布；純文件小修的例外與合併權限見[貢獻指南](../CONTRIBUTING.md#branches-and-merges)。CI 目前會建置、執行單元測試與 Lint，並編譯裝置測試 APK；不會執行裝置測試、完成真機驗收、正式簽署或發布 APK。
 
 ## 命令
 
@@ -51,7 +53,7 @@ CI 建置與測試不使用正式私鑰。自行簽署的 release 不會取得�
 
 App 有改動時，先完成必要檢查並從待驗證的 `dev` 來源建置 `assembleDebug`，提供 `com.chimafok.todo.debug` 測試 APK；使用開發簽章並與正式 App 的資料隔離，`.qa` 僅用於自動化。記錄來源 commit、版本與檔案 SHA-256，並提供改動摘要、測試範圍與限制。測試版可在本地交付或放入明確標示的測試 Pre-release，不提交至 Git。
 
-目前 CI 不會自動上傳可下載的測試 APK，交付仍由開發流程另行完成。等待維護者明確同意測試版本期間，可繼續已授權的開發、檢查與同步，但不得正式簽署、合併相關 App 改動到 `main` 或發布正式版；具體流程見[發布確認](../CONTRIBUTING.md#測試-apk-與發布確認)。
+目前 CI 不會自動上傳可下載的測試 APK，交付仍由開發流程另行完成。等待維護者明確同意測試版本期間，可繼續已授權的開發、檢查與同步，但不得正式簽署、合併相關 App 改動到 `main` 或發布正式版；具體流程見[發布確認](../CONTRIBUTING.md#test-apks-and-release-approval)。
 
 ## 正式 APK
 
@@ -67,4 +69,6 @@ App 有改動時，先完成必要檢查並從待驗證的 `dev` 來源建置 `a
 - app/src/qa：僅 QA 包含的測試 provider，不進入正式 APK。
 - app/schemas：歷史 Room schemas，供非破壞式升級測試。
 
-資料模型見 DATA-MODEL.md，產品規則與驗收條件見 PRD.md。
+資料模型見 [DATA-MODEL](DATA-MODEL.md)，產品規則與驗收條件見 [PRD](PRD.md)。
+
+提交前亦執行 `python tools/check-public-content.py` 與 `python tools/check-translations.py`。公開內容檢查讀取 Git 暫存內容，新增文件須先暫存；不要暫存本機設定或私人資料。文件目錄與翻譯規則見 [TRANSLATING](TRANSLATING.md)。

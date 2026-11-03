@@ -1,5 +1,7 @@
 # 第三方聲明
 
+<p align="center">語言 / 语言 / Languages：<strong>繁體中文</strong> · <a href="docs/zh-CN/THIRD-PARTY-NOTICES.md">简体中文</a> · <a href="docs/en/THIRD-PARTY-NOTICES.md">English</a></p>
+
 本專案自有程式碼與文件採 MIT；以下第三方元件保留其原有授權。MIT 不取代依賴、工具或 Android 平台的授權。
 
 | 元件 | 來源與授權 |
