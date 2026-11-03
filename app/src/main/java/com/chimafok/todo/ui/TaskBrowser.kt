@@ -1,5 +1,6 @@
 package com.chimafok.todo.ui
 
+import com.chimafok.todo.i18n.tr
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.foundation.layout.*
@@ -49,9 +50,9 @@ fun TaskBrowser(
     if (showPurge) {
         val frozen = viewModel.purgePreview.takeIf { purgeTicket == viewModel.purgeTicket }
         if (frozen != null) PurgeDialog(frozen, viewModel) { showPurge = false; viewModel.purgePreview = null }
-        else AlertDialog(onDismissRequest = { showPurge = false }, title = { Text("請重新預覽") },
-            text = { Text("程式已重新啟動，舊刪除預覽已失效。請關閉後重新選取範圍。") },
-            confirmButton = { TextButton(onClick = { showPurge = false }) { Text("關閉") } })
+        else AlertDialog(onDismissRequest = { showPurge = false }, title = { Text(tr(R.string.text_please_preview_again_0faae0)) },
+            text = { Text(tr(R.string.text_the_app_restarted_and_the_deletion_0c1672)) },
+            confirmButton = { TextButton(onClick = { showPurge = false }) { Text(tr(R.string.text_close_c7fddd)) } })
     }
     var query by rememberSaveable(destination, homeEpoch) { mutableStateOf("") }
     var categoryIds by rememberSaveable(destination, homeEpoch) { mutableStateOf(emptyList<String>()) }
@@ -89,7 +90,7 @@ fun TaskBrowser(
     val latestFinishing by rememberUpdatedState(finishingTasks)
     LaunchedEffect(destination,homeEpoch) { viewModel.resetSelectionIfChanged(destination,homeEpoch) }
     DisposableEffect(destination,homeEpoch) { onDispose { viewModel.clearPage() } }
-    LaunchedEffect(paged,destination,filter,clock,jumpDate,datedLimit,undatedLimit,state.dataEpoch,retry) {
+    LaunchedEffect(paged,destination,filter,clock,jumpDate,datedLimit,undatedLimit,state.dataEpoch,retry,com.chimafok.todo.i18n.I18n.locale) {
         if (!paged) return@LaunchedEffect
         pageError=null
         val expectedEpoch=state.dataEpoch
@@ -112,13 +113,13 @@ fun TaskBrowser(
             }
         } catch(e:Exception) {
             if(e is kotlinx.coroutines.CancellationException) throw e
-            pageError="無法讀取任務，請重試。"
+            pageError=tr(R.string.text_cannot_read_tasks_please_try_again_f6cd84)
             completedRequest=pageRequest
         }
     }
     val finishingIds=finishingTasks.keys.toSet()
     val sourceLinks=if(paged) window.rows.links else state.taskTags
-    val searchIndex=remember(state.categories,state.tags,sourceLinks) { TaskSearchIndex(state.categories,state.tags,sourceLinks) }
+    val searchIndex=remember(state.categories,state.tags,sourceLinks,com.chimafok.todo.i18n.I18n.locale) { TaskSearchIndex(state.categories,state.tags,sourceLinks) }
     val matching=if(paged) {
         window.rows.tasks+searchIndex.filter(finishingTasks.values.filter { saved->window.rows.tasks.none { it.id==saved.id } },filter)
     } else remember(state.tasks,searchIndex,filter) { searchIndex.filter(state.tasks,filter) }
@@ -155,7 +156,7 @@ fun TaskBrowser(
         if(!ready)return
         val revisions=matching.filter {it.id in selectedSet}.associate {it.id to it.revision}
         val series=state.series.filter {it.id in selectedTrashSeries && it.deletedAt!=null}.associate {it.id to it.revision}
-        if(revisions.size!=selected.size || series.size!=selectedTrashSeries.size){selectionError="選取範圍已更新，請重新選取。";return}
+        if(revisions.size!=selected.size || series.size!=selectedTrashSeries.size){selectionError=tr(R.string.text_the_selection_changed_please_select_again_e48c12);return}
         val request=pageRequest;val generation=selectionGeneration
         selectionBusy=true;selectionError=null
         selectionScope.launch {try {
@@ -163,7 +164,7 @@ fun TaskBrowser(
             if(latestPageRequest==request && generation==selectionGeneration && selecting) {
                 trashSelectionTicket=java.util.UUID.randomUUID().toString();viewModel.trashSelectionTicket=trashSelectionTicket
                 trashSelectionAction=if(restore)"RESTORE" else "PURGE"
-            } else {viewModel.trashSelectionPreview=null;if(selecting)selectionError="查詢已變更，請重新選取。"}
+            } else {viewModel.trashSelectionPreview=null;if(selecting)selectionError=tr(R.string.text_the_query_changed_please_select_again_b1accc)}
         } catch(e:Exception){if(e is kotlinx.coroutines.CancellationException)throw e;selectionError=e.message}
           finally {selectionBusy=false}}
     }
@@ -178,38 +179,38 @@ fun TaskBrowser(
             onLongSeries={longSelect(it,true)},onSelectAllSeries={if(ready)selectedTrashSeries=state.series.filter {it.deletedAt!=null}.map {it.id}})
         OutlinedTextField(query, {
             if (query != it) { query = it; selected = emptyList();selectedTrashSeries=emptyList();selectionGeneration++ }
-        }, placeholder = { Text("搜尋任務") }, singleLine = true,
+        }, placeholder = { Text(tr(R.string.text_search_tasks_457e4f)) }, singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
             leadingIcon = { Icon(painterResource(R.drawable.ic_search), null) },
             trailingIcon = { if (query.isNotEmpty()) IconButton(onClick = { query = ""; selected = emptyList();selectedTrashSeries=emptyList();selectionGeneration++ }, modifier = Modifier.testTag("clear_search")) {
-                Icon(painterResource(R.drawable.ic_close), "清除搜尋")
+                Icon(painterResource(R.drawable.ic_close), tr(R.string.text_clear_search_0c2d1a))
             } }, shape = MaterialTheme.shapes.medium,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp).testTag("task_search"))
         Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically) {
             TextButton(onClick = { showFilters = true }, modifier = Modifier.testTag("open_filters")) {
                 Icon(painterResource(R.drawable.ic_filter), null, Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp)); Text(if (categoryIds.isEmpty() && tagIds.isEmpty()) "篩選" else "篩選 ${categoryIds.size + tagIds.size}")
+                Spacer(Modifier.width(6.dp)); Text(if (categoryIds.isEmpty() && tagIds.isEmpty()) tr(R.string.text_filter_9bd5d8) else tr(R.string.text_filter_s_6613a2, categoryIds.size + tagIds.size))
             }
-            Text("${resultIds.size} 項", Modifier.weight(1f).testTag("result_count"), style = MaterialTheme.typography.labelLarge,
+            Text(tr(R.string.text_s_items_cfad0b, resultIds.size), Modifier.weight(1f).testTag("result_count"), style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
             TextButton(enabled = ready, onClick = { selecting = !selecting; selected = emptyList();selectedTrashSeries=emptyList();selectionGeneration++ },
-                colors = stableSelectionColors, modifier = Modifier.testTag("toggle_selection")) { Text(if (selecting) "結束選取" else "多選") }
+                colors = stableSelectionColors, modifier = Modifier.testTag("toggle_selection")) { Text(if (selecting) tr(R.string.text_done_selecting_d8c47c) else tr(R.string.text_select_1dc26d)) }
         }
         if (selecting) {
             FlowRow(Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("已選 ${selected.size} 項" + if(scope==TaskScope.TRASH) "任務 · ${selectedTrashSeries.size} 個系列" else "", Modifier.padding(vertical = 12.dp), style = MaterialTheme.typography.labelLarge)
+                Text(tr(R.string.text_s_selected_a5726a, selected.size) + if(scope==TaskScope.TRASH) tr(R.string.text_tasks_s_series_05751e, selectedTrashSeries.size) else "", Modifier.padding(vertical = 12.dp), style = MaterialTheme.typography.labelLarge)
                 TextButton(enabled = ready && resultIds.isNotEmpty(), onClick = { selected = resultIds.toList() },
-                    modifier = Modifier.testTag("select_results")) { Text(if(scope==TaskScope.TRASH)"全選任務結果" else "全選結果") }
+                    modifier = Modifier.testTag("select_results")) { Text(if(scope==TaskScope.TRASH)tr(R.string.text_select_all_task_results_e065f9) else tr(R.string.text_select_all_results_9951b1)) }
                 if(scope==TaskScope.TRASH) {
-                    TextButton(enabled=ready && (selected.isNotEmpty() || selectedTrashSeries.isNotEmpty()),onClick={previewTrash(true)},modifier=Modifier.testTag("batch_restore")) {Text("復原所選")}
-                    TextButton(enabled=ready && (selected.isNotEmpty() || selectedTrashSeries.isNotEmpty()),onClick={previewTrash(false)},modifier=Modifier.testTag("batch_purge"),colors=ButtonDefaults.textButtonColors(contentColor=MaterialTheme.colorScheme.error)) {Text("永久刪除所選…")}
+                    TextButton(enabled=ready && (selected.isNotEmpty() || selectedTrashSeries.isNotEmpty()),onClick={previewTrash(true)},modifier=Modifier.testTag("batch_restore")) {Text(tr(R.string.text_restore_selected_4f3a94))}
+                    TextButton(enabled=ready && (selected.isNotEmpty() || selectedTrashSeries.isNotEmpty()),onClick={previewTrash(false)},modifier=Modifier.testTag("batch_purge"),colors=ButtonDefaults.textButtonColors(contentColor=MaterialTheme.colorScheme.error)) {Text(tr(R.string.text_delete_selected_permanently_458965))}
                 } else {
-                TextButton(enabled = ready && selected.isNotEmpty(), onClick = { beginBatch("MOVE") }, modifier = Modifier.testTag("batch_move")) { Text("移分類") }
-                TextButton(enabled = ready && selected.isNotEmpty(), onClick = { beginBatch("TAGS") }, modifier = Modifier.testTag("batch_tags")) { Text("加標籤") }
+                TextButton(enabled = ready && selected.isNotEmpty(), onClick = { beginBatch("MOVE") }, modifier = Modifier.testTag("batch_move")) { Text(tr(R.string.text_move_category_64bc58)) }
+                TextButton(enabled = ready && selected.isNotEmpty(), onClick = { beginBatch("TAGS") }, modifier = Modifier.testTag("batch_tags")) { Text(tr(R.string.text_add_tags_cd22f2)) }
                 TextButton(enabled = ready && selected.isNotEmpty(), onClick = { beginBatch("TRASH") }, modifier = Modifier.testTag("batch_trash"),
-                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text("移至垃圾桶") }
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text(tr(R.string.text_move_to_trash_f86355)) }
                 }
             }
         }
@@ -217,7 +218,7 @@ fun TaskBrowser(
         DelayedLoadingIndicator(pageLoading, Modifier.testTag("task_loading"), pageRequest)
         pageError?.let { message->Row(Modifier.padding(horizontal=20.dp)) {
             Text(message,Modifier.weight(1f),color=MaterialTheme.colorScheme.error)
-            TextButton(onClick={retry++}) { Text("重試") }
+            TextButton(onClick={retry++}) { Text(tr(R.string.text_retry_7e59d0)) }
         } }
         val displayState=if(paged) state.copy(tasks=matching,taskTags=window.rows.links,occurrences=window.rows.occurrences,
             reminders=window.rows.reminders,reminderOverrides=window.rows.overrides) else state.copy(tasks=matching)
@@ -226,7 +227,7 @@ fun TaskBrowser(
         // search must not briefly become the ordinary agenda on every keystroke.
         val displayFilter = if(paged) committedFilter else filter
         if (displayFilter?.active == true && resultIds.isEmpty() && pageError==null && jumpDate == null && !hasCompletionFeedback) {
-            EmptyMessage("找不到符合的任務", "調整搜尋文字或篩選條件再試一次。")
+            EmptyMessage(tr(R.string.text_no_matching_tasks_dd8ced), tr(R.string.text_try_changing_the_search_text_or_2497b9))
         } else if(paged && committedFilter == null && filter.active) {
             Spacer(Modifier.weight(1f))
         } else TaskList(displayState, destination, clock, jumpDate, onClearJump, onAdd, onEdit,
@@ -256,9 +257,9 @@ fun TaskBrowser(
         val available=state.tasks.map { it.id }.toSet()
         if(state.batchToken==viewModel.batchToken || available.containsAll(pendingRevisions.keys)) TaskBatchDialog(state,action,pendingRevisions,viewModel,
             onDismiss={batch=null;viewModel.clearBatch()},onSaved={batch=null;viewModel.clearBatch();selected=emptyList();selecting=false})
-        else AlertDialog(onDismissRequest={batch=null;viewModel.clearBatch()},title={Text("讀取所選任務")},
-            text={Column { LinearProgressIndicator(Modifier.fillMaxWidth());Text("正在準備完整操作範圍…") }},
-            confirmButton={},dismissButton={TextButton(onClick={batch=null;viewModel.clearBatch()}) {Text("取消")}})
+        else AlertDialog(onDismissRequest={batch=null;viewModel.clearBatch()},title={Text(tr(R.string.text_reading_selected_tasks_ccb23c))},
+            text={Column { LinearProgressIndicator(Modifier.fillMaxWidth());Text(tr(R.string.text_preparing_the_complete_scope_99d932)) }},
+            confirmButton={},dismissButton={TextButton(onClick={batch=null;viewModel.clearBatch()}) {Text(tr(R.string.text_cancel_2cd0f3))}})
     }
 }
 
@@ -268,26 +269,26 @@ private fun TaskFilterDialog(state: TodoState, initialCategories: List<String>, 
     var categories by rememberSaveable { mutableStateOf(initialCategories) }
     var tags by rememberSaveable { mutableStateOf(initialTags) }
     var all by rememberSaveable { mutableStateOf(initialAll) }
-    AlertDialog(onDismissRequest = onDismiss, title = { Text("篩選任務") },
+    AlertDialog(onDismissRequest = onDismiss, title = { Text(tr(R.string.text_filter_tasks_f430c0)) },
         text = { Column(Modifier.heightIn(max = 440.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("分類（符合任一）", style = MaterialTheme.typography.labelLarge)
+            Text(tr(R.string.text_categories_match_any_07d656), style = MaterialTheme.typography.labelLarge)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) { state.categories.forEach { category ->
                 FilterChip(category.id in categories, onClick = { categories = if (category.id in categories) categories - category.id else categories + category.id },
-                    label = { Text(category.name) }, modifier = Modifier.testTag("filter_category_${category.id}"))
+                    label = { Text(com.chimafok.todo.i18n.categoryName(category)) }, modifier = Modifier.testTag("filter_category_${category.id}"))
             } }
             HorizontalDivider()
-            Text("標籤", style = MaterialTheme.typography.labelLarge)
+            Text(tr(R.string.text_tags_9b423a), style = MaterialTheme.typography.labelLarge)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(all, onClick = { all = true }, label = { Text("符合全部") }, modifier = Modifier.testTag("filter_all_tags"))
-                FilterChip(!all, onClick = { all = false }, label = { Text("符合任一") }, modifier = Modifier.testTag("filter_any_tags"))
+                FilterChip(all, onClick = { all = true }, label = { Text(tr(R.string.text_match_all_2aacfe)) }, modifier = Modifier.testTag("filter_all_tags"))
+                FilterChip(!all, onClick = { all = false }, label = { Text(tr(R.string.text_match_any_b81946)) }, modifier = Modifier.testTag("filter_any_tags"))
             }
-            if (state.tags.isEmpty()) Text("還沒有標籤", style = MaterialTheme.typography.bodySmall)
+            if (state.tags.isEmpty()) Text(tr(R.string.text_no_tags_yet_4bf18d), style = MaterialTheme.typography.bodySmall)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) { state.tags.forEach { tag ->
                 FilterChip(tag.id in tags, onClick = { tags = if (tag.id in tags) tags - tag.id else tags + tag.id },
                     label = { Text(tag.name) }, modifier = Modifier.testTag("filter_tag_${tag.id}"))
             } }
-            TextButton(onClick = { onApply(emptyList(), emptyList(), true) }) { Text("清除篩選") }
+            TextButton(onClick = { onApply(emptyList(), emptyList(), true) }) { Text(tr(R.string.text_clear_filters_050605)) }
         } },
-        confirmButton = { TextButton(onClick = { onApply(categories, tags, all) }, modifier = Modifier.testTag("apply_filters")) { Text("套用") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } })
+        confirmButton = { TextButton(onClick = { onApply(categories, tags, all) }, modifier = Modifier.testTag("apply_filters")) { Text(tr(R.string.text_apply_77af80)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr(R.string.text_cancel_2cd0f3)) } })
 }

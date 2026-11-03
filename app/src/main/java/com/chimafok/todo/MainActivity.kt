@@ -17,14 +17,6 @@ import com.chimafok.todo.ui.theme.TodoTheme
 class MainActivity : ComponentActivity() {
     private val todoViewModel: TodoViewModel by viewModels()
 
-    override fun attachBaseContext(newBase: Context) {
-        // Todo's interface is always Traditional Chinese, including component labels.
-        // This changes only the app context, never the phone's language preference.
-        val configuration = Configuration(newBase.resources.configuration).apply {
-            setLocale(Locale.TAIWAN)
-        }
-        super.attachBaseContext(newBase.createConfigurationContext(configuration))
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState?.getBoolean("externalDocumentFlow") == true) {
@@ -38,14 +30,15 @@ class MainActivity : ComponentActivity() {
         )
         if (savedInstanceState == null) todoViewModel.openReminder(intent.getStringExtra("reminderTaskId"), intent.getLongExtra("reminderTaskRevision", -1))
         setContent {
-            TodoTheme {
-                TodoApp(todoViewModel)
+            com.chimafok.todo.i18n.LocalizedContent {
+                TodoTheme { TodoApp(todoViewModel) }
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
+        com.chimafok.todo.i18n.I18n.refreshSystem()
         todoViewModel.onForeground()
     }
 

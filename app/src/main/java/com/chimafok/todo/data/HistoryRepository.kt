@@ -1,5 +1,7 @@
 package com.chimafok.todo.data
 
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import androidx.room.withTransaction
 import com.chimafok.todo.domain.*
 import java.time.Clock
@@ -12,7 +14,7 @@ class HistoryRepository(private val db: TodoDatabase, private val clock: Clock =
     suspend fun policy() = db.history().policy() ?: RetentionPolicyEntity()
     private suspend fun completedCandidates(days: Int?): List<TaskEntity> {
         if (days == null) return emptyList()
-        require(days > 0) { "天數必須大於 0" }
+        require(days > 0) { tr(R.string.text_days_must_be_greater_than_029793) }
         val anchors = db.history().anchors().associateBy { it.taskId }
         val now = clock.millis()
         return db.browser().retentionTasks().filter { task ->
@@ -24,14 +26,14 @@ class HistoryRepository(private val db: TodoDatabase, private val clock: Clock =
         }
     }
     suspend fun preview(days: Int?): RetentionPreview = db.withTransaction {
-        require(days == null || days > 0) { "天數必須大於 0" }
+        require(days == null || days > 0) { tr(R.string.text_days_must_be_greater_than_029793) }
         RetentionPreview(days, policy().revision, completedCandidates(days).associate { it.id to it.revision })
     }
     suspend fun apply(preview: RetentionPreview) = db.withTransaction {
         val policy = policy()
-        require(policy.revision == preview.policyRevision) { "保留設定已更新，請重新預覽" }
+        require(policy.revision == preview.policyRevision) { tr(R.string.text_retention_settings_changed_please_preview_again_793d73) }
         val tasks = completedCandidates(preview.days)
-        require(tasks.associate { it.id to it.revision } == preview.tasks) { "完成紀錄已更新，請重新預覽" }
+        require(tasks.associate { it.id to it.revision } == preview.tasks) { tr(R.string.text_completed_records_changed_please_preview_again_a36198) }
         if (policy.days != preview.days) db.history().policy(policy.copy(days = preview.days, revision = policy.revision + 1, updatedAt = clock.millis()))
         archive(tasks)
     }
@@ -49,24 +51,24 @@ class HistoryRepository(private val db: TodoDatabase, private val clock: Clock =
         }
     }
     suspend fun purge(preview: PurgePreview): Unit = db.withTransaction {
-        require(preview.tasks.isNotEmpty() || preview.series.isNotEmpty()) { "垃圾桶已是空的" }
+        require(preview.tasks.isNotEmpty() || preview.series.isNotEmpty()) { tr(R.string.text_trash_is_already_empty_4fd1cf) }
         val allTasks = db.dao().allTasks()
         val allSeries = db.dao().allSeries()
         if (preview.allTrash) {
             require(allTasks.filter { it.deletedAt != null }.associate { it.id to it.revision } == preview.tasks &&
-                allSeries.filter { it.deletedAt != null }.associate { it.id to it.revision } == preview.series) { "垃圾桶已更新，請重新確認範圍" }
+                allSeries.filter { it.deletedAt != null }.associate { it.id to it.revision } == preview.series) { tr(R.string.text_trash_changed_please_confirm_the_scope_bda725) }
         }
-        val tasks = preview.tasks.map { (id, revision) -> requireNotNull(db.dao().task(id)) { "項目已不存在，請重新確認" }.also {
-            require(it.deletedAt != null && it.revision == revision) { "項目已復原或更新，請重新確認" }
+        val tasks = preview.tasks.map { (id, revision) -> requireNotNull(db.dao().task(id)) { tr(R.string.text_the_item_no_longer_exists_please_fdb0bf) }.also {
+            require(it.deletedAt != null && it.revision == revision) { tr(R.string.text_the_item_was_restored_or_updated_d08624) }
         } }
         preview.series.forEach { (id, revision) ->
-            val series = requireNotNull(db.dao().series(id)) { "系列已不存在" }
+            val series = requireNotNull(db.dao().series(id)) { tr(R.string.text_the_series_no_longer_exists_ae5a78) }
             require(series.deletedAt != null && series.revision == revision &&
-                db.dao().seriesOccurrences(id).all { it.taskId in preview.tasks }) { "系列已更新，請重新確認範圍" }
+                db.dao().seriesOccurrences(id).all { it.taskId in preview.tasks }) { tr(R.string.text_the_series_changed_please_confirm_the_eef3be) }
         }
         purgeTasks(tasks)
         preview.series.keys.forEach { id ->
-            require(db.dao().seriesOccurrences(id).isEmpty()) { "系列仍有保留中的紀錄" }
+            require(db.dao().seriesOccurrences(id).isEmpty()) { tr(R.string.text_the_series_still_contains_retained_records_45d533) }
             db.history().purgeSeries(id)
         }
     }

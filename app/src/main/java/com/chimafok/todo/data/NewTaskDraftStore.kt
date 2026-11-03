@@ -1,5 +1,7 @@
 package com.chimafok.todo.data
 
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import android.util.AtomicFile
 import com.chimafok.todo.domain.UNCATEGORIZED_ID
 import org.json.JSONArray
@@ -31,11 +33,11 @@ class NewTaskDraftStore(directory: File) {
         }
         val bytes = input.use {
             val data = it.readBytesBounded()
-            require(data.size <= MAX_BYTES) { "草稿資料超出上限" }
+            require(data.size <= MAX_BYTES) { tr(R.string.text_draft_data_exceeds_the_limit_fb7a99) }
             data
         }
         val j = JSONObject(bytes.toString(Charsets.UTF_8))
-        require(j.getInt("version") == 1) { "草稿版本不支援" }
+        require(j.getInt("version") == 1) { tr(R.string.text_unsupported_draft_version_8310a6) }
         fun strings(key: String) = j.getJSONArray(key).let { a -> (0 until a.length()).map(a::getString) }
         val days = j.getJSONArray("weekdays").let { a -> (0 until a.length()).map(a::getInt) }
         require(days.all { it in 1..7 } && days.distinct().size == days.size)
@@ -61,7 +63,7 @@ class NewTaskDraftStore(directory: File) {
             .put("inheritedReminderStamp",d.inheritedReminderStamp ?: JSONObject.NULL).put("inheritedTemplateIds",JSONArray(d.inheritedTemplateIds))
         j.put("startDate",d.startDate).put("startTime",d.startTime).put("startZoneId",d.startZoneId ?: JSONObject.NULL).put("startReference",d.startReference)
         val bytes = j.toString().toByteArray(Charsets.UTF_8)
-        require(bytes.size <= MAX_BYTES) { "草稿太大，請縮短輸入後重試。" }
+        require(bytes.size <= MAX_BYTES) { tr(R.string.text_the_draft_is_too_large_shorten_6d72a1) }
         val output = atomic.startWrite()
         try { output.write(bytes);atomic.finishWrite(output) }
         catch(e: Exception) { atomic.failWrite(output);throw e }
@@ -69,7 +71,7 @@ class NewTaskDraftStore(directory: File) {
 
     @Synchronized fun clear() {
         atomic.delete()
-        check(!atomic.baseFile.exists() && !File(atomic.baseFile.path + ".bak").exists()) { "草稿未能移除，請重試。" }
+        check(!atomic.baseFile.exists() && !File(atomic.baseFile.path + ".bak").exists()) { tr(R.string.text_cannot_remove_the_draft_please_try_75b998) }
     }
 
     private fun java.io.InputStream.readBytesBounded(): ByteArray {
@@ -78,7 +80,7 @@ class NewTaskDraftStore(directory: File) {
         while(true) {
             val n=read(chunk)
             if(n<0) break
-            require(buffer.size()+n<=MAX_BYTES) { "草稿資料超出上限" }
+            require(buffer.size()+n<=MAX_BYTES) { tr(R.string.text_draft_data_exceeds_the_limit_fb7a99) }
             buffer.write(chunk,0,n)
         }
         return buffer.toByteArray()

@@ -1,5 +1,7 @@
 package com.chimafok.todo.domain
 
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import java.time.*
 
 fun parseDateInput(input: String, referenceDate: LocalDate): LocalDate? {
@@ -18,9 +20,9 @@ fun parseDateInput(input: String, referenceDate: LocalDate): LocalDate? {
             else -> throw DateTimeException("format")
         }.also { require(it.year in 1..9999) }
     } catch (_: IllegalArgumentException) {
-        throw IllegalArgumentException("日期無效，請用 YYYY-MM-DD、YYYYMMDD、YYMMDD 或 MMDD")
+        throw IllegalArgumentException(tr(R.string.text_invalid_date_use_yyyy_mm_dd_a5ba4d))
     } catch (_: DateTimeException) {
-        throw IllegalArgumentException("日期無效，請用 YYYY-MM-DD、YYYYMMDD、YYMMDD 或 MMDD")
+        throw IllegalArgumentException(tr(R.string.text_invalid_date_use_yyyy_mm_dd_a5ba4d))
     }
 }
 
@@ -28,7 +30,7 @@ fun parseTimeInput(input: String): LocalTime? {
     val value = input.trim()
     if (value.isEmpty()) return null
     require(value.matches(Regex("(?:[01][0-9]|2[0-3])[:-]?[0-5][0-9]"))) {
-        "時間無效，請用 HH:mm 或 HHmm（24 小時制）"
+        tr(R.string.text_invalid_time_use_hh_mm_or_407181)
     }
     return LocalTime.of(value.take(2).toInt(), value.takeLast(2).toInt())
 }
@@ -43,9 +45,9 @@ fun resolveDeadlineDate(input: String, time: LocalTime?, zoneId: String?, refere
         return try {
             LocalDate.of(date.year + 1, date.month, date.dayOfMonth).also { require(it.year <= 9999) }
         } catch (_: DateTimeException) {
-            throw IllegalArgumentException("下一年沒有這個日期，請輸入完整日期")
+            throw IllegalArgumentException(tr(R.string.text_this_date_does_not_exist_next_1b3fc4))
         } catch (_: IllegalArgumentException) {
-            throw IllegalArgumentException("下一年沒有這個日期，請輸入完整日期")
+            throw IllegalArgumentException(tr(R.string.text_this_date_does_not_exist_next_1b3fc4))
         }
     }
     return date
@@ -55,7 +57,7 @@ fun resolveDeadlineDate(input: String, time: LocalTime?, zoneId: String?, refere
 fun deadlineInstant(date: LocalDate, time: LocalTime, zoneId: String): Instant {
     val local = date.atTime(time)
     val offsets = ZoneId.of(zoneId).rules.getValidOffsets(local)
-    require(offsets.isNotEmpty()) { "此時區的這個時間因夏令時間不存在，請改選其他時間" }
+    require(offsets.isNotEmpty()) { tr(R.string.text_this_local_time_does_not_exist_21a08f) }
     return local.toInstant(offsets.first())
 }
 

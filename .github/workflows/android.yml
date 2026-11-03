@@ -26,6 +26,8 @@ jobs:
           cache: gradle
       - name: Check public content
         run: python3 tools/check-public-content.py
+      - name: Check translations
+        run: python3 tools/check-translations.py
       - name: Install Android SDK packages
         run: |
           SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"

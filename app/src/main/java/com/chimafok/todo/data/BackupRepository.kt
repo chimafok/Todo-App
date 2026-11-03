@@ -1,5 +1,7 @@
 package com.chimafok.todo.data
 
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
@@ -16,9 +18,9 @@ private data class BackupStore(val graph:BackupGraph,val anchors:List<RetentionA
 
 class BackupRepository(private val db:TodoDatabase,private val clock:Clock=DeviceClock) {
     private fun rows(table:String):List<BackupRow> {
-        if(table=="settings") return db.openHelper.readableDatabase.query("SELECT days,updatedAt FROM retention_policy WHERE id=1").use { c ->
-            listOf(if(c.moveToFirst()) mapOf("id" to "general", "completedRetentionDays" to if(c.isNull(0)) null else c.getLong(0), "updatedAt" to c.getLong(1))
-                else mapOf("id" to "general", "completedRetentionDays" to null, "updatedAt" to 0L))
+        if(table=="settings") return db.openHelper.readableDatabase.query("SELECT days,updatedAt,language FROM retention_policy WHERE id=1").use { c ->
+            listOf(if(c.moveToFirst()) mapOf("id" to "general", "completedRetentionDays" to if(c.isNull(0)) null else c.getLong(0), "updatedAt" to c.getLong(1), "language" to c.getString(2))
+                else mapOf("id" to "general", "completedRetentionDays" to null, "updatedAt" to 0L, "language" to "SYSTEM"))
         }
         require(table in backupTables || table=="retention_policy" || table=="retention_anchors")
         return db.openHelper.readableDatabase.query("SELECT * FROM $table").use { c -> buildList {
@@ -31,8 +33,8 @@ class BackupRepository(private val db:TodoDatabase,private val clock:Clock=Devic
         val base = BackupGraph(backupTables.keys.filter { it != "note_images" }.associateWith(::rows))
         val imageIds = referencedImageIds(base)
         var total = 0L
-        imageIds.forEach { total += requireNotNull(db.noteImages().size(it)) { "本機圖片附件不存在" }; require(total <= BACKUP_MAX_BYTES) { "含圖片備份超過 64 MiB，請減少附件後再匯出" } }
-        val images = imageIds.map { id -> val row = requireNotNull(db.noteImages().image(id)) { "本機圖片附件不存在" }; mapOf("id" to row.id, "data" to row.data) }
+        imageIds.forEach { total += requireNotNull(db.noteImages().size(it)) { tr(R.string.text_the_local_image_attachment_does_not_667b85) }; require(total <= BACKUP_MAX_BYTES) { tr(R.string.text_the_backup_with_images_exceeds_mib_9dc4f9) } }
+        val images = imageIds.map { id -> val row = requireNotNull(db.noteImages().image(id)) { tr(R.string.text_the_local_image_attachment_does_not_667b85) }; mapOf("id" to row.id, "data" to row.data) }
         val graph = BackupGraph(base.tables + ("note_images" to images))
         val stable=graph.tables.mapValues { (t,items) -> items.map { r -> if(t=="reminders") r.filterKeys { it !in setOf("state","resolvedAt","alarmKey","alarmMode") } else r }.sortedBy { rowKey(t,it) } }
         return BackupStore(graph,db.history().anchors(),backupHash(mapOf("data" to stable,"policy" to rows("retention_policy"),"anchors" to rows("retention_anchors").sortedBy { it.text("taskId") })))
@@ -47,17 +49,19 @@ class BackupRepository(private val db:TodoDatabase,private val clock:Clock=Devic
     }
     suspend fun apply(document:BackupDocument,preview:BackupPreview,choices:Map<String,BackupChoice>):Unit=db.withTransaction {
         validateBackup(document.data,false);val local=capture()
-        require(local.fingerprint==preview.localFingerprint && document.fingerprint==preview.fileFingerprint){"資料或備份檔已更新，請重新預覽"}
+        require(local.fingerprint==preview.localFingerprint && document.fingerprint==preview.fileFingerprint){tr(R.string.text_data_or_backup_file_changed_please_2b84f5)}
         val plan=planBackup(local.graph,document.data,preview.mode,choices)
-        require(plan.conflicts.all { it.id in choices }){"請先為每個衝突選擇保留的版本"}
-        require(choices.keys.all { k -> plan.conflicts.any { it.id==k } }){"衝突範圍已更新，請重新預覽"}
+        require(plan.conflicts.all { it.id in choices }){tr(R.string.text_choose_which_version_to_keep_for_15efe0)}
+        require(choices.keys.all { k -> plan.conflicts.any { it.id==k } }){tr(R.string.text_the_conflict_scope_changed_please_preview_836f8a)}
         validateBackup(plan.graph,true)
         if(preview.mode==RestoreMode.MERGE && plan.graph.content()==local.graph.content())return@withTransaction
         val now=clock.millis();val before=local.graph;val target=plan.graph
         val oldPolicy=db.history().policy() ?: RetentionPolicyEntity()
         val restoredPolicy=target.rows("settings").singleOrNull()
         val restoredDays=restoredPolicy?.optionalLong("completedRetentionDays")?.let(Math::toIntExact)
-        val policyChanged=restoredPolicy!=null && restoredDays!=oldPolicy.days
+        val restoredLanguage=restoredPolicy?.optionalText("language") ?: oldPolicy.language
+        val retentionChanged=restoredPolicy!=null && restoredDays!=oldPolicy.days
+        val policyChanged=restoredPolicy!=null && (retentionChanged || restoredLanguage!=oldPolicy.language)
         fun byId(graph:BackupGraph,t:String)=graph.rows(t).associateBy { it.text("id") }
         val oldTasks=byId(before,"tasks");val desiredTasks=byId(target,"tasks")
         val oldSemantic=before.content();val desiredSemantic=target.content()
@@ -82,7 +86,7 @@ class BackupRepository(private val db:TodoDatabase,private val clock:Clock=Devic
                     else changed(t,id)
                 val revision=if(previous==null)1L else if(differs || preview.mode==RestoreMode.REPLACE)Math.incrementExact(previous.long("revision")) else previous.long("revision")
                 val extra=mutableMapOf<String,Any?>("revision" to revision)
-                if(t in listOf("categories","tags")){extra["sortOrder"]=r["sortOrder"] ?: previous?.get("sortOrder") ?: nextOrder.also { require(it<=Int.MAX_VALUE){"排序數量超出範圍"};nextOrder++ }}
+                if(t in listOf("categories","tags")){extra["sortOrder"]=r["sortOrder"] ?: previous?.get("sortOrder") ?: nextOrder.also { require(it<=Int.MAX_VALUE){tr(R.string.text_sort_order_count_out_of_range_c49550)};nextOrder++ }}
                 if(t=="tags")extra["nameKey"]=r.text("name").trim().lowercase(Locale.ROOT)
                 if(t=="tasks")extra["deletedAt"]=r["deletedAt"]
                 if(t=="recurring_series"){extra["deletedAt"]=r["deletedAt"];extra["previousLifecycle"]=r["previousLifecycle"]}
@@ -125,12 +129,12 @@ class BackupRepository(private val db:TodoDatabase,private val clock:Clock=Devic
         val refs=target.rows("occurrences").map { it.text("taskId") }.toSet();val anchors=local.anchors.associateBy { it.taskId }
         finalTasks.values.forEach { task ->
             val id=task.text("id");val completed=task.optionalLong("completedAt")
-            if(!policyChanged && !taskChanges.getValue(id) && preview.mode==RestoreMode.MERGE)anchors[id]?.let { db.history().anchor(it) }
+            if(!retentionChanged && !taskChanges.getValue(id) && preview.mode==RestoreMode.MERGE)anchors[id]?.let { db.history().anchor(it) }
             else if(id !in refs && task["deletedAt"]==null && task["status"]==TaskStatus.COMPLETED.name && completed!=null)
                 db.history().anchor(RetentionAnchorEntity(id,completed,now))
         }
         if (restoredPolicy != null && (policyChanged || preview.mode == RestoreMode.REPLACE)) {
-            db.history().policy(RetentionPolicyEntity(days=restoredDays, revision=Math.incrementExact(oldPolicy.revision), updatedAt=restoredPolicy.long("updatedAt")))
+            db.history().policy(RetentionPolicyEntity(days=restoredDays, revision=Math.incrementExact(oldPolicy.revision), updatedAt=restoredPolicy.long("updatedAt"),language=restoredLanguage))
         }
         // A missed reminder is never made PENDING merely because a file was imported.
         // Existing cancellation work survives; file preferences are applied in this same transaction.

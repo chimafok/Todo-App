@@ -1,5 +1,7 @@
 package com.chimafok.todo.ui
 
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -73,8 +75,16 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
             }
         } catch(e: Exception) {
             if(e is kotlinx.coroutines.CancellationException) throw e
-            draftLoadError = "草稿無法讀取；原草稿仍保留，可捨棄後重新新增。"
+            draftLoadError = tr(R.string.text_cannot_read_the_draft_it_is_35fa6d)
         }
+    }
+    suspend fun setLanguage(choice: com.chimafok.todo.i18n.LanguageChoice) {
+        database.withTransaction {
+            val current = database.history().policy() ?: RetentionPolicyEntity()
+            if (current.language != choice.name) database.history().policy(current.copy(language = choice.name,
+                revision = Math.incrementExact(current.revision), updatedAt = System.currentTimeMillis()))
+        }
+        com.chimafok.todo.i18n.I18n.setChoice(choice.name)
     }
     suspend fun awaitNewTaskDraft(): NewTaskDraft? { draftLoading.join();return newTaskDraft }
     suspend fun keepNewTaskDraft(draft: NewTaskDraft) = viewModelScope.async {
@@ -250,7 +260,7 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
                 }.collect { _state.value = it }
             } catch (exception: Exception) {
                 if (exception is kotlinx.coroutines.CancellationException) throw exception
-                _state.value = _state.value.copy(loading = false, error = "無法讀取資料，請重試。")
+                _state.value = _state.value.copy(loading = false, error = tr(R.string.text_cannot_read_data_please_try_again_5f1574))
             }
         }
     }
@@ -269,7 +279,7 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
             reconciling = _state.value.series.isNotEmpty(); recurrenceError = null
             try { history.maintain(); recurring.reconcileAll() } catch (exception: Exception) {
                 if (exception is kotlinx.coroutines.CancellationException) throw exception
-                recurrenceError = "紀錄維護未能完成，請重試。"
+                recurrenceError = tr(R.string.text_record_maintenance_did_not_complete_please_a7f75e)
             } finally { reconciling = false }
         }
     }

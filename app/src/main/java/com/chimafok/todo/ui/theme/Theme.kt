@@ -49,9 +49,31 @@ private val TodoTypography = Typography(
 
 @Composable
 fun TodoTheme(content: @Composable () -> Unit) {
+    val locale = com.chimafok.todo.i18n.I18n.locale
+    // Explicit text locales also invalidate paragraph/font caches when the app language changes.
+    val typography = androidx.compose.runtime.remember(locale) {
+        val locales = androidx.compose.ui.text.intl.LocaleList(com.chimafok.todo.i18n.resourceLocale(locale).toLanguageTag())
+        TodoTypography.copy(
+            displayLarge = TodoTypography.displayLarge.copy(localeList = locales),
+            displayMedium = TodoTypography.displayMedium.copy(localeList = locales),
+            displaySmall = TodoTypography.displaySmall.copy(localeList = locales),
+            headlineLarge = TodoTypography.headlineLarge.copy(localeList = locales),
+            headlineMedium = TodoTypography.headlineMedium.copy(localeList = locales),
+            headlineSmall = TodoTypography.headlineSmall.copy(localeList = locales),
+            titleLarge = TodoTypography.titleLarge.copy(localeList = locales),
+            titleMedium = TodoTypography.titleMedium.copy(localeList = locales),
+            titleSmall = TodoTypography.titleSmall.copy(localeList = locales),
+            bodyLarge = TodoTypography.bodyLarge.copy(localeList = locales),
+            bodyMedium = TodoTypography.bodyMedium.copy(localeList = locales),
+            bodySmall = TodoTypography.bodySmall.copy(localeList = locales),
+            labelLarge = TodoTypography.labelLarge.copy(localeList = locales),
+            labelMedium = TodoTypography.labelMedium.copy(localeList = locales),
+            labelSmall = TodoTypography.labelSmall.copy(localeList = locales),
+        )
+    }
     MaterialTheme(
         colorScheme = TodoColors,
-        typography = TodoTypography,
+        typography = typography,
         shapes = Shapes(
             small = RoundedCornerShape(10.dp),
             medium = RoundedCornerShape(16.dp),

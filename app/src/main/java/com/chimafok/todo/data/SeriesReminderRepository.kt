@@ -1,16 +1,18 @@
 package com.chimafok.todo.data
 
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import com.chimafok.todo.domain.*
 
 /** All callers hold the enclosing series/task transaction. */
 suspend fun saveSeriesReminders(db: TodoDatabase, seriesId: String, specs: List<SeriesReminderSpec>?, now: Long): List<SeriesReminderSpec> {
     val old = db.reminders().templatesFor(seriesId)
     val selected = specs ?: old.filter { it.enabled }.map { it.spec() }
-    require(selected.size <= 32 && selected.map { it.id }.distinct().size == selected.size) { "每個系列最多 32 個不同提醒" }
+    require(selected.size <= 32 && selected.map { it.id }.distinct().size == selected.size) { tr(R.string.text_each_series_supports_at_most_distinct_fc275b) }
     selected.forEach { spec ->
         validateSeriesReminder(spec)
         val previous = db.reminders().template(spec.id)
-        require(previous == null || previous.seriesId == seriesId) { "提醒識別碼已被其他系列使用" }
+        require(previous == null || previous.seriesId == seriesId) { tr(R.string.text_this_reminder_id_is_used_by_df4317) }
         if (previous == null) db.reminders().insertTemplate(SeriesReminderEntity(spec.id, seriesId, spec.kind.name,
             spec.offsetMinutes, spec.dayOffset, spec.time, spec.baseTime, createdAt = now, updatedAt = now))
         else if (previous.spec() != spec || !previous.enabled) db.reminders().updateTemplate(previous.copy(kind = spec.kind.name,

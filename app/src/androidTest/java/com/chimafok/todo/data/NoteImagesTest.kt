@@ -53,7 +53,7 @@ class NoteImagesTest {
         val day = LocalDate.now(clock); r.save(TaskDraft("series", "重複圖片", dueDate = day, zoneId = "UTC", recurrence = RecurrenceRule(day, RecurrenceFrequency.DAILY, "UTC", maxCount = 2), imageIds = encoded))
         val first = a.dao().task(occurrenceId("series", 1))!!; r.setStatus(first.id, first.revision, TaskStatus.COMPLETED)
         assertEquals(encoded, OccurrenceSnapshot.read(a.dao().occurrence(first.id)!!.snapshot)!!.imageIds)
-        val text = BackupRepository(a, clock).export("1.3.0-dev01"); val envelope = JSONObject(text); assertEquals(5, envelope.getInt("formatVersion")); assertEquals(9, envelope.getInt("schemaVersion"))
+        val text = BackupRepository(a, clock).export("1.3.0-dev01"); val envelope = JSONObject(text); assertEquals(6, envelope.getInt("formatVersion")); assertEquals(10, envelope.getInt("schemaVersion"))
         val document = BackupFormat.decode(text); assertEquals(1, document.data.rows("note_images").size)
         val restore = BackupRepository(b, clock); restore.apply(document, restore.preview(document, RestoreMode.REPLACE), emptyMap())
         assertEquals(document.data.content(), BackupFormat.decode(BackupRepository(b, clock).export("1.3.0-dev01")).data.content())
@@ -94,7 +94,8 @@ class NoteImagesTest {
     @Test fun formatFourImageBackupStillImports() = databases { a, b ->
         source(); val id = NoteImages(a).import(context, listOf(uri), emptyList()).single()
         TaskRepository(a, clock).save(TaskDraft("old-image", "舊圖片備份", imageIds = id))
-        val root = JSONObject(BackupRepository(a, clock).export("test")).put("formatVersion", 4)
+        val root = JSONObject(BackupRepository(a, clock).export("test")).put("formatVersion", 4).put("schemaVersion", 9)
+        root.getJSONObject("data").getJSONArray("settings").optJSONObject(0)?.remove("language")
         val doc = BackupFormat.decode(root.toString()); val restore = BackupRepository(b, clock)
         restore.apply(doc, restore.preview(doc, RestoreMode.REPLACE), emptyMap())
         assertEquals(id, b.dao().task("old-image")!!.imageIds); assertNotNull(b.noteImages().image(id))
@@ -122,7 +123,7 @@ class NoteImagesTest {
         val text = BackupRepository(a, clock).export("test")
         for (version in listOf(1, 2, 3, 4)) {
             val root = JSONObject(text).put("formatVersion", version).put("schemaVersion", if (version == 1) 7 else if (version == 4) 9 else 8)
-            val data = root.getJSONObject("data"); val tables = if (version == 1) legacyBackupTables else if (version == 4) backupTables else previousBackupTables
+            val data = root.getJSONObject("data"); val tables = if (version == 1) legacyBackupTables else if (version == 4) imageBackupTables else previousBackupTables
             data.keys().asSequence().toList().filter { it !in tables }.forEach(data::remove)
             tables.forEach { (table, spec) -> val rows = data.getJSONArray(table); for (n in 0 until rows.length()) {
                 val row = rows.getJSONObject(n); row.keys().asSequence().toList().filter { key -> spec.fields.none { it.name == key } }.forEach(row::remove)
@@ -144,7 +145,7 @@ class NoteImagesTest {
             sql.execSQL("INSERT INTO recurring_series(id,title,notes,categoryId,lifecycle,cursor,createdAt,updatedAt,revision) VALUES('series','系列','內容',?,'ACTIVE',0,1,2,4)", arrayOf(UNCATEGORIZED_ID)); sql.version = 8
         }
         val db = TodoDatabase.create(context, name)
-        try { assertEquals(9, db.openHelper.readableDatabase.version); val task = db.dao().task("legacy")!!
+        try { assertEquals(10, db.openHelper.readableDatabase.version); val task = db.dao().task("legacy")!!
             assertEquals("原內容", task.notes); assertEquals(3L, task.revision); assertEquals("", task.imageIds)
             assertEquals(4L, db.dao().series("series")!!.revision); assertEquals("", db.dao().series("series")!!.imageIds)
         } finally { db.close(); context.deleteDatabase(name) }
