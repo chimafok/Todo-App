@@ -1,9 +1,12 @@
 # 貢獻指南
 
+<p align="center">語言 / 语言 / Languages：<strong>繁體中文</strong> · <a href="docs/zh-CN/CONTRIBUTING.md">简体中文</a> · <a href="docs/en/CONTRIBUTING.md">English</a></p>
+
 歡迎回報問題或提出修改。本專案由 chimafok 維護，尚未承諾固定回覆或發布時程。
 
 先查看既有 Issues；較大的行為變更請先開 Issue 說明目的。提交貢獻表示你有權提交並願意按本專案 MIT 授權提供自有改動，第三方內容須保留原授權。
 
+<a id="branches-and-merges"></a>
 ## 分支與合併
 
 公開倉庫允許外部貢獻者提交 Pull Request，但不授予寫入或合併權限。沒有本倉庫寫入權限時，先 fork 到自己的帳號，再在 fork 建立工作分支並向本倉庫提出 PR。`codex/*` 只是分支命名慣例，其他貢獻者可使用清楚的分支名稱。
@@ -19,12 +22,13 @@
 
 `main` 必須經 Pull Request 與所需檢查，不直接推送或繞過保護。提交 PR 不保證會被接受，CI 通過也不會自動合併或發布 APK。正式 APK 在確認發布時另以 Release 提供；合併文件或原始碼不會更新已安裝的 App。
 
-截至 2026-10-25，`main` 要求 PR 與 `Android build & unit tests` 檢查，但未要求指定人或至少一人的 approving review。這是 GitHub 的技術保護狀態，不會自動強制下方的測試 APK 確認流程。具有合併權限的協作者技術上可能在檢查通過後合併，但專案規則要求：App 改動須先取得 chimafok 對測試版本的明確同意，才可合併 `main`；純文件小修沿用上方例外。實際操作以 GitHub 當時的權限與保護設定為準，本文件不會變更設定；設定調整時須同步此說明。相關機制見 [GitHub 分支保護說明](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)。
+GitHub 的實際權限與分支保護設定決定技術上的操作能力，本文件不授予任何權限。即使 GitHub 未要求指定審查者，App 改動仍須取得 chimafok 對測試版本的明確同意，才能正式簽署、合併 main 及發布。請以倉庫當時的設定為準，不將過去設定當作現況。
 
 - `main`：經檢查的發布基準，禁止強制推送或直接刪除。
 - `dev`：日常整合；全部內容同樣公開。
 - `codex/*`：獨立工作分支，也可使用其他清楚命名的短期分支。
 
+<a id="test-apks-and-release-approval"></a>
 ## 測試 APK 與發布確認
 
 App 改動先完成必要檢查並在 `dev` 整合，再交付使用開發簽章的 `.debug` 測試 APK，讓 chimafok 自行安裝與測試；`.qa` 保留給隔離自動測試。交付須列出版本、來源 commit、APK SHA-256、變更重點、已驗證範圍與已知限制，讓測試結果能對應實際檔案。測試版與正式版分開安裝、分開儲存資料。
@@ -37,7 +41,7 @@ App 改動先完成必要檢查並在 `dev` 整合，再交付使用開發簽章
 
 ## 修改與驗證
 
-請維持繁體中文介面、原資料庫升級與備份契約。不要清除使用者資料來修復 migration；不要把正常 App 當自動測試目標。
+請維持繁中、簡中與英文介面一致，保留資料庫升級與備份契約。不要清除使用者資料來修復 migration；不要把正常 App 當自動測試目標。
 
 純文件小修檢查文字、連結與公開內容，無須在本機重跑全部 App 測試；PR 仍須通過倉庫要求的 CI。程式修改執行適合範圍的單元測試、建置與 Lint；涉及 UI／交易／排程的修改須補必要 QA 驗證。裝置測試明確使用 `.qa`，只操作自己的模擬器或已獲授權的測試裝置。新增測試需驗證實際行為，避免只複製實作。
 

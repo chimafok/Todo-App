@@ -1,5 +1,7 @@
 # 安全問題
 
+<p align="center">語言 / 语言 / Languages：<strong>繁體中文</strong> · <a href="docs/zh-CN/SECURITY.md">简体中文</a> · <a href="docs/en/SECURITY.md">English</a></p>
+
 目前維護最新發布版本；一般問題可使用 GitHub Issues。
 
 涉及私密資料或可被利用的漏洞，請使用本倉庫 Security → Advisories → Report a vulnerability（私人漏洞回報）。如果此入口不可用，請勿把攻擊細節、密碼、金鑰或私人資料公開到 Issue；可先開不含敏感內容的 Issue，請維護者提供私人回報方式。
