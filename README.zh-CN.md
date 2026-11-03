@@ -2,7 +2,7 @@
 
 <p align="center">語言 / 语言 / Languages：<a href="README.md">繁體中文</a> · <strong>简体中文</strong> · <a href="README.en.md">English</a></p>
 
-支持繁体中文、简体中文与英文的固定深色 Android 待办 App。任务储存在本机，支持重复任务、多个提醒、分类标签与 JSON 备份，不需要帐号。
+支持繁体中文、简体中文与英文的固定深色 Android 待办 App。任务存储在本机，支持重复任务、多个提醒、分类标签与 JSON 备份，不需要账号。
 
 [下载 APK](https://github.com/chimafok/Todo-App/releases/latest) · [使用说明](docs/zh-CN/USER-GUIDE.md) · [安装与更新](docs/zh-CN/INSTALL.md) · [反馈问题](https://github.com/chimafok/Todo-App/issues/new/choose)
 
@@ -12,16 +12,16 @@
 
 ## 界面语言
 
-1.4.0 起提供繁体中文、简体中文、English 及「跟随系统」，入口为「设置 → 界面语言」；不支持的系统语言使用英文。自订内容与截止／提醒时区保持原样。语言偏好随格式 6 备份保存，并可读取旧格式 1–5。翻译协作见 [TRANSLATING](docs/zh-CN/TRANSLATING.md)。
+1.4.0 起提供繁体中文、简体中文、English 及「跟随系统」，入口为「设定 → 介面语言」；不支持的系统语言使用英文。自定义内容与截止／提醒时区保持原样。语言偏好随格式 6 备份保存，并可读取旧格式 1–5。翻译协作见 [TRANSLATING](docs/zh-CN/TRANSLATING.md)。
 
 ## 功能
 
 - **日程与未安排**：按日期整理待办，显示完整项数；空白区块使用简短提示。
 - **任务与草稿**：名称、备注与图片附件、日期时间、分类与多个标签；学习分类提供未开始／进行中／完成三态，并可另填开始日期／时间，离开新增表单时可选择保留草稿。
 - **作业进度**：未开始、进行中、完成未缴交及完成；完成未缴交仍保留为待办。
-- **重复任务**：每日、每周、指定星期、每月与每隔 N 天，支持停止未来生成与独立历史纪录。
+- **重复任务**：每日、每周、指定星期、每月与每隔 N 天，支持停止未来生成与独立历史记录。
 - **提醒**：固定日期时间或截止前的分钟／小时／天，可为同一任务设置多个提醒，记录输入时区。
-- **搜寻与多选**：搜寻名称、备注、分类与标签，支持筛选及长按多选；垃圾桶可批次恢复或永久删除。
+- **搜索与多选**：搜索名称、备注、分类与标签，支持筛选及长按多选；垃圾桶可批次恢复或永久删除。
 - **分类与标签管理**：长按拖拽排序，另设批量删除模式；删除分类先搬移任务，删标签保留任务。
 - **本机备份**：透过系统文件选择器导出 JSON，包含备注图片、垃圾桶、分类／标签排序与一般设置；还原时先预览并处理冲突。
 
@@ -51,7 +51,7 @@
 
 ## 文件与反馈
 
-[文件索引](docs/zh-CN/README.md) · [隐私说明](docs/zh-CN/PRIVACY.md) · [安全问题](docs/zh-CN/SECURITY.md) · [贡献指南](docs/zh-CN/CONTRIBUTING.md) · [版本纪录](docs/zh-CN/CHANGELOG.md) · [验证说明](docs/zh-CN/TESTING.md)
+[文件索引](docs/zh-CN/README.md) · [隐私说明](docs/zh-CN/PRIVACY.md) · [安全问题](docs/zh-CN/SECURITY.md) · [贡献指南](docs/zh-CN/CONTRIBUTING.md) · [版本记录](docs/zh-CN/CHANGELOG.md) · [验证说明](docs/zh-CN/TESTING.md)
 
 问题反馈请附 App／Android 版本、重现步骤和遮蔽个人内容后的画面，不要附真实任务备份、密码或金钥。
 
