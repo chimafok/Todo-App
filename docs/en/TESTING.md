@@ -4,13 +4,21 @@
 
 This page separates official-release checks, development checks and historical results. Separate rounds are not presented as one full regression. Original failures/retests remain in shared verification JSON and the [history archive](../history/TESTING-HISTORY.zh-Hant.md). Translating documentation does not mean these app tests were rerun.
 
-## 1.4.1-dev02 (2026-11-06)
+## Official 1.4.1 release (2026-11-06)
+
+After approval of 1.4.1-dev02, the official APK was rebuilt from the same App/build sources. All 104 fresh unit tests passed; Release Lint reported 0 errors / 13 warnings. Fresh XML verified count, classes, timestamps and zero failure/error/skipped. The existing RSA4096 certificate is retained; signed/unsigned payloads match. The APK is non-debuggable, contains no QA provider, Internet or broad-photo permission, and bundles license notices.
+
+Dedicated API37/26 emulators completed official 1.4.0→1.4.1 updates and launch with UID/first-install time retained; schema10 is unchanged. API37 also checked retained synthetic tasks, Study progress/start date, renamed category and English preference. Official-form smoke checks covered default 10:00, two-digit hour advance, minute input, commit, reopening an existing value and cancellation; the synthetic form was discarded. The 22 development device cases are earlier separate runs, not a full suite rerun this round. These are update/form smoke checks, not complete historical regression or phone acceptance.
+
+See [approval](../verification/approval-1.4.1.json), [release metadata](../verification/release-1.4.1.json) and [test records](../verification/tests-1.4.1.json). APK SHA-256: `a647bd92a6ab58cbc395a230950b43c9a853bea8118a74b4f35a5243211e0258`. Fresh official installs, full phone/keyboard/accessibility/language matrices and long-background behavior were not tested. Owned headless emulators were closed afterward; the user's phone was not operated.
+
+## 1.4.1-dev02 development (approved, 2026-11-06)
 
 104 fresh unit tests passed; Debug build/Lint reported 0 errors / 13 warnings. Each of API37 and API26 ran 7 focus/form cases and 4 layout cases separately (11 per API, 22 total). Fresh XML verified class, count and timestamps with zero failure/error/skipped. Coverage includes untouched 10:00, existing times, leading zeroes, selection/end-cursor placement and actual system font scales of 100%/140%/200%; owned QA screenshots were inspected. This is not a complete historical regression, phone acceptance or full accessibility/language matrix.
 
-An initial test-only type error was corrected before successful compilation. The first multi-class selection ran only the focus class, so layout cases were run separately. Initial outer-density injection did not establish the dialog's real font scale; final tests set/restore the owned emulator's system setting and assert the dialog text-layout density. See [development-1.4.1-dev02.json](../verification/development-1.4.1-dev02.json). The .debug development-signed test APK has code37 and still awaits approval; no official signing/main merge.
+An initial test-only type error was corrected before successful compilation. The first multi-class selection ran only the focus class, so layout cases were run separately. Initial outer-density injection did not establish the dialog's real font scale; final tests set/restore the owned emulator's system setting and assert the dialog text-layout density. See [development-1.4.1-dev02.json](../verification/development-1.4.1-dev02.json). The .debug development-signed test APK has code37 and has been approved and published as official 1.4.1 from the same App/build sources; this section retains the development results.
 
-## 1.4.1-dev01 (2026-11-06)
+## 1.4.1-dev01 historical — (2026-11-06)
 
 104 fresh unit tests passed; Debug build/Lint reported 0 errors / 13 warnings. API37 and API26 each ran 7 focused time-input cases with zero failure/error/skipped, verified from fresh XML. Coverage includes two-digit advance, leading zero/midnight/initial-hour re-entry, invalid input/deletion, clock sharing, cancellation and deadline-form integration. This is not a full historical regression. The initial API37 run had 2 failures; deferred focus and a stable form-reopen test were followed by retests. Settled screenshots also verified digit bounds and the separator. See [development-1.4.1.json](../verification/development-1.4.1.json). The .debug development-signed test APK targets official 1.4.1 and still awaits maintainer approval; official signing/update, phone and full accessibility matrices were not validated.
 
