@@ -1,0 +1,97 @@
+{
+  "version": "1.4.1-dev01",
+  "targetOfficialVersion": "1.4.1",
+  "versionCode": 36,
+  "applicationId": "com.chimafok.todo.debug",
+  "roomSchema": 10,
+  "backupFormat": 6,
+  "date": "2026-11-06",
+  "unitTests": {
+    "cases": 104,
+    "classes": [
+      "com.chimafok.todo.domain.BackupMergeTest",
+      "com.chimafok.todo.domain.DeadlineInputTest",
+      "com.chimafok.todo.domain.DeviceClockTest",
+      "com.chimafok.todo.domain.LanguageChoiceTest",
+      "com.chimafok.todo.domain.ListScalingTest",
+      "com.chimafok.todo.domain.NoteImageMergeTest",
+      "com.chimafok.todo.domain.NoteImageRefsTest",
+      "com.chimafok.todo.domain.RecurrenceRulesTest",
+      "com.chimafok.todo.domain.ReminderConversionRulesTest",
+      "com.chimafok.todo.domain.ReminderDefaultsTest",
+      "com.chimafok.todo.domain.ReminderRulesTest",
+      "com.chimafok.todo.domain.RetentionRulesTest",
+      "com.chimafok.todo.domain.SeriesEditPlanTest",
+      "com.chimafok.todo.domain.SeriesReminderRulesTest",
+      "com.chimafok.todo.domain.StudyScheduleTest",
+      "com.chimafok.todo.domain.StudyStatusRulesTest",
+      "com.chimafok.todo.domain.TaskQueryTest",
+      "com.chimafok.todo.domain.TaskRulesTest"
+    ],
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "freshXmlVerified": true
+  },
+  "debugLint": {
+    "errors": 0,
+    "warnings": 13
+  },
+  "deviceTests": {
+    "API37": {
+      "cases": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "testNames": [
+        "clockAndInputShareValuesAndCancelDoesNotCommit",
+        "deadlineFormReceivesSelectedTimeAndCancelPreservesIt",
+        "enteringInitialTenStillAdvances",
+        "invalidHourAndMinuteCannotBeAcceptedAndBlankCannotSave",
+        "leadingZeroAdvancesAfterSecondDigitAndKeepsTypingMinutes",
+        "midnightAndUnchangedInitialHourAdvance",
+        "returningToHourAndDeletingDoesNotJumpBackToMinute"
+      ],
+      "freshXmlVerified": true
+    },
+    "API26": {
+      "cases": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "testNames": [
+        "clockAndInputShareValuesAndCancelDoesNotCommit",
+        "deadlineFormReceivesSelectedTimeAndCancelPreservesIt",
+        "enteringInitialTenStillAdvances",
+        "invalidHourAndMinuteCannotBeAcceptedAndBlankCannotSave",
+        "leadingZeroAdvancesAfterSecondDigitAndKeepsTypingMinutes",
+        "midnightAndUnchangedInitialHourAdvance",
+        "returningToHourAndDeletingDoesNotJumpBackToMinute"
+      ],
+      "freshXmlVerified": true
+    }
+  },
+  "initialRun": {
+    "API37": {
+      "cases": 7,
+      "failures": 2,
+      "failedTests": [
+        "clockAndInputShareValuesAndCancelDoesNotCommit",
+        "deadlineFormReceivesSelectedTimeAndCancelPreservesIt"
+      ]
+    },
+    "corrections": [
+      "Defer focus until new text is applied to avoid stale IME state.",
+      "Stabilize the form reopen test against moving keyboard insets using its click semantics.",
+      "Increase time-field height and give the separator explicit bounds; inspect settled screenshots."
+    ]
+  },
+  "scope": "Focused time-input regression on two owned background QA emulators; separate runs, not a complete historical regression.",
+  "notValidated": [
+    "User phone and physical keyboard/IME matrix",
+    "Full accessibility, large-font and all three-language layout matrices",
+    "Official signing or official-installation update"
+  ],
+  "apkSha256": "2f83334ba971687dbc91269831a0458e2135c3dda2403f474a4ecd62da5e59d4",
+  "apkBytes": 14490016
+}

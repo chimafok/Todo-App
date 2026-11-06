@@ -2,7 +2,11 @@
 
 <p align="center">語言 / 语言 / Languages：<a href="../PRD.md">繁體中文</a> · <a href="../zh-CN/PRD.md">简体中文</a> · <strong>English</strong></p>
 
-This page consolidates **current 1.4.0 rules** without adding or removing requirements. The [complete original baseline and AC01–AC136](../history/PRODUCT-BASELINE.zh-Hant.md) preserve detailed contracts and historical increments for auditing. Where an older version/format statement conflicts with a later revision, apply the current rules below and subsequent explicit maintainer requirements. Translation does not change that precedence. Acceptance criteria are contracts, not claims that tests ran this round; see [verification](TESTING.md).
+This page consolidates **current 1.4.1 rules** without adding or removing requirements. The [complete original baseline and AC01–AC136](../history/PRODUCT-BASELINE.zh-Hant.md) preserve detailed contracts and historical increments for auditing. Where an older version/format statement conflicts with a later revision, apply the current rules below and subsequent explicit maintainer requirements. Translation does not change that precedence. Acceptance criteria are contracts, not claims that tests ran this round; see [verification](TESTING.md).
+
+## 1.4.1 time input
+
+The shared 24-hour picker advances to minutes after two valid hour digits, including leading zeroes, midnight and re-entering the initial hour. Single digits, deletion and invalid input do not advance; blank fields cannot confirm. Preserve manual selection, shared clock/input values and cancellation without committing. The maintainer approved 1.4.1-dev02 and official 1.4.1 on 2026-11-06; see the [source and checksum approval](../verification/approval-1.4.1.json). Keep numeric text, selection and carets centered without clipping, fitting the digits to the actual font and scale. An unset time initially displays 10:00; existing times retain their initial values rather than appearing blank.
 
 ## Product scope
 

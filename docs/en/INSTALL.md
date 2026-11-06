@@ -2,6 +2,10 @@
 
 <p align="center">語言 / 语言 / Languages：<a href="../INSTALL.md">繁體中文</a> · <a href="../zh-CN/INSTALL.md">简体中文</a> · <strong>English</strong></p>
 
+## Updating to 1.4.1
+
+Install over official 1.4.0 to retain data and language preferences; no uninstall is required. This release fixes time-field alignment/clipping, advances to minutes after two hour digits, and preserves the default 10:00. Official package com.chimafok.todo / code37; Room schema10 / backup format6 are unchanged.
+
 ## Updating to 1.4.0
 
 The official package and certificate are unchanged, so 1.4.0 can update official 1.3.1 without uninstalling. The new language preference defaults to System default; change it in **Settings → App language**. Unsupported system languages fall back to English. The app exports backup format 6 and imports formats 1–5. Older apps cannot read format 6; keep pre-update backups.

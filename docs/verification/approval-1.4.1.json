@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-06",
+  "maintainer": "chimafok",
+  "approvedVersion": "1.4.1-dev02",
+  "approvedSourceCommit": "4c4095a9bab7acba0dccd9a45ea22f16cf12e0bc",
+  "approvedFeatureSource": "1cb3fd9bcb5233ba8d3536f50b6c0ed525e6532e",
+  "approvedApkSha256": "a0e7e5b71b11e1cf33feb396fad2b89ab4e84f61c9ca0d780ba606f83db87238",
+  "runtimeFingerprint": "733625e4c512f8ddc8a51b116d5d75768f6f8e902d4b32718f23d53f2cce3d82",
+  "approvedActions": [
+    "formal signing with existing key",
+    "PR merge to main after required checks",
+    "publish official 1.4.1 APK",
+    "sync release records into dev"
+  ],
+  "appSourceChangesAfterApproval": false
+}
