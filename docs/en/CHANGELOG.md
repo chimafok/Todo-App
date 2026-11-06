@@ -2,7 +2,7 @@
 
 <p align="center">語言 / 语言 / Languages：<a href="../../CHANGELOG.md">繁體中文</a> · <a href="../zh-CN/CHANGELOG.md">简体中文</a> · <strong>English</strong></p>
 
-This page lists official versions. [Original development/test-version records](../history/CHANGELOG-HISTORY.zh-Hant.md) preserve delivery-time states, not the current version. [Releases](https://github.com/chimafok/Todo-App/releases/latest) is authoritative for official APK downloads.
+This page lists official versions and the current development test build. [Original development/test-version records](../history/CHANGELOG-HISTORY.zh-Hant.md) preserve delivery-time states, not the current version. [Releases](https://github.com/chimafok/Todo-App/releases/latest) is authoritative for official APK downloads.
 
 ## 1.4.1-dev01 — 2026-11-06
 

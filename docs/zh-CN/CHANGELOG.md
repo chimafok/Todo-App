@@ -2,7 +2,7 @@
 
 <p align="center">語言 / 语言 / Languages：<a href="../../CHANGELOG.md">繁體中文</a> · <strong>简体中文</strong> · <a href="../en/CHANGELOG.md">English</a></p>
 
-本页列出正式版本；[原始开发／测试版记录](../history/CHANGELOG-HISTORY.zh-Hant.md)保留交付当时的状态，不能当作目前版本。最新正式 APK 以 [Releases](https://github.com/chimafok/Todo-App/releases/latest) 为准。
+本页列出正式版本及当前开发测试版；[原始开发／测试版记录](../history/CHANGELOG-HISTORY.zh-Hant.md)保留交付当时的状态，不能当作目前版本。最新正式 APK 以 [Releases](https://github.com/chimafok/Todo-App/releases/latest) 为准。
 
 ## 1.4.1-dev01 — 2026-11-06
 
