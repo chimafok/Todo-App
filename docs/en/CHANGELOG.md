@@ -4,6 +4,10 @@
 
 This page lists official versions. [Original development/test-version records](../history/CHANGELOG-HISTORY.zh-Hant.md) preserve delivery-time states, not the current version. [Releases](https://github.com/chimafok/Todo-App/releases/latest) is authoritative for official APK downloads.
 
+## 1.4.1-dev01 — 2026-11-06
+
+Advance from hours to minutes after two valid digits, including leading zeroes and an hour matching the initial value. The shared picker covers deadlines, Study starts and reminders, retaining clock mode, manual field selection and cancellation. This round targets official 1.4.1; deliver a development-signed test APK before approval for formal signing/main merge. Room schema10 / backup format6 are unchanged.
+
 ## 1.4.0 — 2026-11-03
 
 - Traditional Chinese, Simplified Chinese, English and System default, with English fallback.

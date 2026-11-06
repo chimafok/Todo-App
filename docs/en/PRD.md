@@ -4,6 +4,10 @@
 
 This page consolidates **current 1.4.0 rules** without adding or removing requirements. The [complete original baseline and AC01–AC136](../history/PRODUCT-BASELINE.zh-Hant.md) preserve detailed contracts and historical increments for auditing. Where an older version/format statement conflicts with a later revision, apply the current rules below and subsequent explicit maintainer requirements. Translation does not change that precedence. Acceptance criteria are contracts, not claims that tests ran this round; see [verification](TESTING.md).
 
+## 1.4.1 development increment
+
+The shared 24-hour picker advances to minutes after two valid hour digits, including leading zeroes, midnight and re-entering the initial hour. Single digits, deletion and invalid input do not advance; blank fields cannot confirm. Preserve manual selection, shared clock/input values and cancellation without committing. This round targets official 1.4.1 and still requires test-APK approval.
+
 ## Product scope
 
 A native personal Android task manager, minimum API 26, with a fixed dark theme. Traditional Chinese, Simplified Chinese, English and System default are supported; unsupported system preferences fall back to English. Offline/local storage, no accounts, ads, tracking or app-managed cloud sync. GitHub distributes source and APKs. Subtasks, batch completion, general attachments, widgets, priority, collaboration, AI parsing, calendar sync and Play Store distribution are outside confirmed scope.
