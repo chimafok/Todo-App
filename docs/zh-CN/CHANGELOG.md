@@ -2,7 +2,11 @@
 
 <p align="center">語言 / 语言 / Languages：<a href="../../CHANGELOG.md">繁體中文</a> · <strong>简体中文</strong> · <a href="../en/CHANGELOG.md">English</a></p>
 
-本页列出正式版本；[原始开发／测试版记录](../history/CHANGELOG-HISTORY.zh-Hant.md)保留交付当时的状态，不能当作目前版本。最新正式 APK 以 [Releases](https://github.com/chimafok/Todo-App/releases/latest) 为准。
+本页列出正式版本及当前开发测试版；[原始开发／测试版记录](../history/CHANGELOG-HISTORY.zh-Hant.md)保留交付当时的状态，不能当作目前版本。最新正式 APK 以 [Releases](https://github.com/chimafok/Todo-App/releases/latest) 为准。
+
+## 1.4.1-dev01 — 2026-11-06
+
+小时输入满两位有效数字后自动跳到分钟，支持前导零及与默认相同的小时；共用时间选择器涵盖截止、学习开始与提醒。保留时钟模式、手动换栏及取消。本轮目标正式版本为 1.4.1；先提供开发签名测试版，确认后才正式签名／合并 main。Room schema10／备份格式6不变。
 
 ## 1.4.0 — 2026-11-03
 

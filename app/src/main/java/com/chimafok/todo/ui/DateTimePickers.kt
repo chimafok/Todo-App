@@ -3,11 +3,26 @@ package com.chimafok.todo.ui
 import com.chimafok.todo.i18n.tr
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -73,6 +88,14 @@ private fun TodoDatePicker(initial: LocalDate, onDismiss: () -> Unit, onDate: (L
 fun TodoTimePicker(initial: LocalTime, onDismiss: () -> Unit, onTime: (LocalTime) -> Unit) {
     val state = rememberTimePickerState(initialHour = initial.hour, initialMinute = initial.minute, is24Hour = true)
     var dial by rememberSaveable { mutableStateOf(false) }
+    var hourValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(initial.hour.toString().padStart(2, '0')))
+    }
+    var minuteValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(initial.minute.toString().padStart(2, '0')))
+    }
+    val inputValid = hourValue.text.toIntOrNull() in 0..23 && minuteValue.text.toIntOrNull() in 0..59
+
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -84,14 +107,96 @@ fun TodoTimePicker(initial: LocalTime, onDismiss: () -> Unit, onTime: (LocalTime
             Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).testTag("time_picker"),
                 horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = !dial, onClick = { dial = false }, label = { Text(tr(R.string.text_enter_time_341b45)) })
-                    FilterChip(selected = dial, onClick = { dial = true }, label = { Text(tr(R.string.text_clock_119cdf)) })
+                    FilterChip(selected = !dial, onClick = {
+                        hourValue = TextFieldValue(state.hour.toString().padStart(2, '0'))
+                        minuteValue = TextFieldValue(state.minute.toString().padStart(2, '0'))
+                        dial = false
+                    }, modifier = Modifier.testTag("time_input_mode"), label = { Text(tr(R.string.text_enter_time_341b45)) })
+                    FilterChip(selected = dial, onClick = { dial = true }, modifier = Modifier.testTag("time_dial_mode"), label = { Text(tr(R.string.text_clock_119cdf)) })
                 }
-                if (dial) TimePicker(state = state, layoutType = TimePickerLayoutType.Vertical) else TimeInput(state = state)
+                if (dial) TimePicker(state = state, layoutType = TimePickerLayoutType.Vertical) else TodoTimeInput(
+                    hourValue, minuteValue,
+                    onHourChange = { state.selection = TimePickerSelectionMode.Hour; hourValue = it; it.text.toIntOrNull()?.let { hour -> state.hour = hour } },
+                    onMinuteChange = { state.selection = TimePickerSelectionMode.Minute; minuteValue = it; it.text.toIntOrNull()?.let { minute -> state.minute = minute } },
+                )
             }
         },
-        confirmButton = { TextButton(onClick = { onTime(LocalTime.of(state.hour, state.minute)) },
+        confirmButton = { TextButton(enabled = dial || inputValid, onClick = { onTime(LocalTime.of(state.hour, state.minute)) },
             modifier = Modifier.testTag("confirm_time")) { Text(tr(R.string.text_ok_20db9f)) } },
         dismissButton = { TextButton(onClick = onDismiss, modifier = Modifier.testTag("cancel_time")) { Text(tr(R.string.text_cancel_2cd0f3)) } },
     )
+}
+
+/** Keep raw digits so leading zeroes and an unchanged initial hour also advance correctly. */
+@Composable
+private fun TodoTimeInput(
+    hour: TextFieldValue,
+    minute: TextFieldValue,
+    onHourChange: (TextFieldValue) -> Unit,
+    onMinuteChange: (TextFieldValue) -> Unit,
+) {
+    val hourFocus = remember { FocusRequester() }
+    val minuteFocus = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
+    var advanceToMinute by remember { mutableStateOf(false) }
+    fun accepts(value: TextFieldValue, max: Int) = value.text.length <= 2 &&
+        value.text.all { it in '0'..'9' } && (value.text.isEmpty() || value.text.toIntOrNull() in 0..max)
+    val colors = OutlinedTextFieldDefaults.colors(
+        focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        focusedTextColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        unfocusedBorderColor = Color.Transparent,
+    )
+    val style = MaterialTheme.typography.displayLarge.copy(textAlign = TextAlign.Center)
+    val hourLabel = tr(R.string.text_hours_507ac2)
+    val minuteLabel = tr(R.string.text_minutes_c26fdd)
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+        Row(verticalAlignment = Alignment.Top) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = hour,
+                    onValueChange = { next ->
+                        if (accepts(next, 23)) {
+                            onHourChange(next)
+                            // Selection-only changes, deleting and a single digit keep Hour focused.
+                            if (next.text != hour.text && next.text.length == 2) advanceToMinute = true
+                        }
+                    },
+                    modifier = Modifier.width(96.dp).height(96.dp).testTag("time_hour_input").semantics { contentDescription = hourLabel }
+                        .focusRequester(hourFocus).onFocusChanged {
+                            if (it.isFocused) onHourChange(hour.copy(selection = TextRange(0, hour.text.length)))
+                        },
+                    singleLine = true, textStyle = style, colors = colors,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = { minuteFocus.requestFocus() }),
+                )
+                Text(hourLabel, style = MaterialTheme.typography.bodySmall)
+            }
+            Box(Modifier.width(32.dp).height(96.dp), contentAlignment = Alignment.Center) {
+                Text(":", style = style, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = minute,
+                    onValueChange = { if (accepts(it, 59)) onMinuteChange(it) },
+                    modifier = Modifier.width(96.dp).height(96.dp).testTag("time_minute_input").semantics { contentDescription = minuteLabel }
+                        .focusRequester(minuteFocus).onFocusChanged {
+                            if (it.isFocused) onMinuteChange(minute.copy(selection = TextRange(0, minute.text.length)))
+                        },
+                    singleLine = true, textStyle = style, colors = colors,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { keyboard?.hide() }),
+                )
+                Text(minuteLabel, style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+    LaunchedEffect(Unit) { hourFocus.requestFocus() }
+    LaunchedEffect(advanceToMinute) {
+        if (advanceToMinute) {
+            // Apply the new text before changing focus so the IME cannot restore stale text.
+            minuteFocus.requestFocus()
+            advanceToMinute = false
+        }
+    }
 }

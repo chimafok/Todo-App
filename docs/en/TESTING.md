@@ -4,6 +4,10 @@
 
 This page separates official-release checks, development checks and historical results. Separate rounds are not presented as one full regression. Original failures/retests remain in shared verification JSON and the [history archive](../history/TESTING-HISTORY.zh-Hant.md). Translating documentation does not mean these app tests were rerun.
 
+## 1.4.1-dev01 (2026-11-06)
+
+104 fresh unit tests passed; Debug build/Lint reported 0 errors / 13 warnings. API37 and API26 each ran 7 focused time-input cases with zero failure/error/skipped, verified from fresh XML. Coverage includes two-digit advance, leading zero/midnight/initial-hour re-entry, invalid input/deletion, clock sharing, cancellation and deadline-form integration. This is not a full historical regression. The initial API37 run had 2 failures; deferred focus and a stable form-reopen test were followed by retests. Settled screenshots also verified digit bounds and the separator. See [development-1.4.1.json](../verification/development-1.4.1.json). The .debug development-signed test APK targets official 1.4.1 and still awaits maintainer approval; official signing/update, phone and full accessibility matrices were not validated.
+
 ## Official 1.4.0 release (2026-11-03)
 
 | Check | Actual result |
