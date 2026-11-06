@@ -4,6 +4,13 @@
 
 This page lists official versions and the current development test build. [Original development/test-version records](../history/CHANGELOG-HISTORY.zh-Hant.md) preserve delivery-time states, not the current version. [Releases](https://github.com/chimafok/Todo-App/releases/latest) is authoritative for official APK downloads.
 
+## 1.4.1 — 2026-11-06
+
+- Two valid hour digits automatically focus minutes; manual selection, clock mode and cancellation remain available.
+- Fix shifted digits/carets and clipped leading zeroes with inner spacing and font-aware sizing.
+- Unset times initially display 10:00; existing times retain their values.
+- Official release after approval of 1.4.1-dev02. Package com.chimafok.todo / code37 retains the official certificate and can update 1.4.0. Room schema10 / backup format6 are unchanged.
+
 ## 1.4.1-dev02 — 2026-11-06
 
 Fix shifted time digits/carets and clipped leading zeroes with explicit inner spacing and font-aware numeric sizing. Keep the initial 10:00 for an unset time and the existing value when present. Two-digit hour advance and clock mode remain available. The official target is still 1.4.1; deliver a development-signed test APK for approval before official signing/main merge. Room schema10 / backup format6 are unchanged.

@@ -1,0 +1,14 @@
+{
+  "api": 26,
+  "dedicatedOwnedAvd": true,
+  "previousVersion": "1.4.0",
+  "previousCode": 35,
+  "newVersion": "1.4.1",
+  "newCode": 37,
+  "sameOfficialCertificateUpdateSucceeded": true,
+  "uidAndFirstInstallTimePreserved": true,
+  "schemaVersion": 10,
+  "nonDebuggable": true,
+  "launchSucceeded": true,
+  "phoneOperated": false
+}

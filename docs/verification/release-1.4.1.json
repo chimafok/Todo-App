@@ -1,0 +1,29 @@
+{
+  "applicationId": "com.chimafok.todo",
+  "versionName": "1.4.1",
+  "versionCode": 37,
+  "minSdk": 26,
+  "targetSdk": 37,
+  "debuggable": false,
+  "bytes": 9727514,
+  "sha256": "a647bd92a6ab58cbc395a230950b43c9a853bea8118a74b4f35a5243211e0258",
+  "certificateSha256": "a4b166d522cf41ce213923ef054da8e9b4644abf1888580f502002e2aadfd197",
+  "signing": "formal-release",
+  "keyAlgorithm": "RSA-4096",
+  "containsQaProviders": false,
+  "containsInternetPermission": false,
+  "containsBroadPhotoPermission": false,
+  "licensesBundled": true,
+  "schemaVersion": 10,
+  "backupFormatVersion": 6,
+  "approvedTestVersion": "1.4.1-dev02",
+  "approvedTestSource": "4c4095a9bab7acba0dccd9a45ea22f16cf12e0bc",
+  "approvedTestApkSha256": "a0e7e5b71b11e1cf33feb396fad2b89ab4e84f61c9ca0d780ba606f83db87238",
+  "runtimeFingerprint": "733625e4c512f8ddc8a51b116d5d75768f6f8e902d4b32718f23d53f2cce3d82",
+  "signedPayloadMatchesUnsigned": true,
+  "unitCount": 104,
+  "releaseLint": {
+    "errors": 0,
+    "warnings": 13
+  }
+}
