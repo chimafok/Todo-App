@@ -18,7 +18,7 @@ Use **Add task**, or Add beside a date to prefill that date. Only the title is r
 
 ## Dates, times and time zones
 
-Use pickers or type `YYYY-MM-DD`, `YYYYMMDD`, `YYMMDD` (20YY), or `MMDD`. Time accepts `HH:mm` or `HHmm` in 24-hour notation; legacy `HH-mm` is also accepted. Previews show a full date and `HH:mm`.
+Use pickers or type `YYYY-MM-DD`, `YYYYMMDD`, `YYMMDD` (20YY), or `MMDD`. Time accepts `HH:mm` or `HHmm` in 24-hour notation; legacy `HH-mm` is also accepted. Previews show a full date and `HH:mm`. From 1.4.1, entering two valid hour digits in the time picker automatically focuses minutes. You may also select minutes manually or use the keyboard Next action. The time fields correct numeric alignment/clipping and fits the digits to the font and font scale. An unset time still opens as `10:00`; an existing time opens with that value. Cancelling does not change the form.
 
 For `MMDD`, an earlier month/day—or today's date with an already-past specified time—resolves to next year. An explicit past year/date instead warns and can be saved after confirmation. Invalid dates, times and manually entered nonexistent daylight-saving times require correction. A date-only task for today does not roll forward a year.
 

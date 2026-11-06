@@ -2,7 +2,7 @@
 
 <p align="center">語言 / 语言 / Languages：<a href="../KNOWN-ISSUES.md">繁體中文</a> · <a href="../zh-CN/KNOWN-ISSUES.md">简体中文</a> · <strong>English</strong></p>
 
-This page describes 1.4.0. Official signing/publication does not mean the gaps below are resolved. See [verification](TESTING.md) for actual evidence.
+This page describes 1.4.1. Official signing/publication does not mean the gaps below are resolved. See [verification](TESTING.md) for actual evidence.
 
 - **Reminders:** the full phone, extended-background, overnight, lock-screen and vendor battery-policy matrix remains incomplete. Force-stop, Do Not Disturb, notification/exact-alarm access and background restrictions may delay or prevent reminders. Emulator success is not a guarantee for every phone.
 - **Language and accessibility:** Traditional Chinese, Simplified Chinese and English are supported with a fixed dark theme. Language selection is in the app, not Android's system per-app-language page. Independent native-speaker review, full TalkBack, 200% text size, all long-string layouts and RTL validation are incomplete. Delivered notifications and historical snapshots are not rewritten. User content and original licenses are not translated.

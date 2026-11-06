@@ -1,0 +1,9 @@
+{
+  "approvedDevSource": "4c4095a9bab7acba0dccd9a45ea22f16cf12e0bc",
+  "approvedTestApkSha256": "a0e7e5b71b11e1cf33feb396fad2b89ab4e84f61c9ca0d780ba606f83db87238",
+  "runtimeFingerprint": "733625e4c512f8ddc8a51b116d5d75768f6f8e902d4b32718f23d53f2cce3d82",
+  "appTree": "96d786e0686ef162ca2628852c6cd45d567f1d92",
+  "releaseBaseMain": "a84bac8ef5c456ba729d098fafe86b48e5ba0577",
+  "appAndBuildSourcesUnchanged": true,
+  "method": "The main-based release branch first copied the approved dev tree exactly. Only release documentation and verification records were added afterward; public history was not rewritten."
+}

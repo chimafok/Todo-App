@@ -1,0 +1,133 @@
+{
+  "version": "1.4.1-dev02",
+  "targetOfficialVersion": "1.4.1",
+  "versionCode": 37,
+  "applicationId": "com.chimafok.todo.debug",
+  "date": "2026-11-06",
+  "roomSchema": 10,
+  "backupFormat": 6,
+  "unitTests": {
+    "cases": 104,
+    "classes": [
+      "com.chimafok.todo.domain.BackupMergeTest",
+      "com.chimafok.todo.domain.DeadlineInputTest",
+      "com.chimafok.todo.domain.DeviceClockTest",
+      "com.chimafok.todo.domain.LanguageChoiceTest",
+      "com.chimafok.todo.domain.ListScalingTest",
+      "com.chimafok.todo.domain.NoteImageMergeTest",
+      "com.chimafok.todo.domain.NoteImageRefsTest",
+      "com.chimafok.todo.domain.RecurrenceRulesTest",
+      "com.chimafok.todo.domain.ReminderConversionRulesTest",
+      "com.chimafok.todo.domain.ReminderDefaultsTest",
+      "com.chimafok.todo.domain.ReminderRulesTest",
+      "com.chimafok.todo.domain.RetentionRulesTest",
+      "com.chimafok.todo.domain.SeriesEditPlanTest",
+      "com.chimafok.todo.domain.SeriesReminderRulesTest",
+      "com.chimafok.todo.domain.StudyScheduleTest",
+      "com.chimafok.todo.domain.StudyStatusRulesTest",
+      "com.chimafok.todo.domain.TaskQueryTest",
+      "com.chimafok.todo.domain.TaskRulesTest"
+    ],
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "freshXmlVerified": true
+  },
+  "debugLint": {
+    "errors": 0,
+    "warnings": 13
+  },
+  "deviceTests": {
+    "API37": {
+      "focus": {
+        "cases": 7,
+        "class": "com.chimafok.todo.ui.TimeInputFocusTest",
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testNames": [
+          "clockAndInputShareValuesAndCancelDoesNotCommit",
+          "deadlineFormReceivesSelectedTimeAndCancelPreservesIt",
+          "enteringInitialTenStillAdvances",
+          "invalidHourAndMinuteCannotBeAcceptedAndBlankCannotSave",
+          "leadingZeroAdvancesAfterSecondDigitAndKeepsTypingMinutes",
+          "midnightAndUnchangedInitialHourAdvance",
+          "returningToHourAndDeletingDoesNotJumpBackToMinute"
+        ],
+        "freshXmlVerified": true
+      },
+      "layout": {
+        "cases": 4,
+        "class": "com.chimafok.todo.ui.TimeInputLayoutTest",
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testNames": [
+          "doubleFontStillFitsBothNumericFields",
+          "enlargedFontAndEndCursorKeepLeadingZeroVisible",
+          "existingTimeAndSelectionRemainCentered",
+          "untouchedDefaultRemainsTenAndCanConfirm"
+        ],
+        "freshXmlVerified": true
+      }
+    },
+    "API26": {
+      "focus": {
+        "cases": 7,
+        "class": "com.chimafok.todo.ui.TimeInputFocusTest",
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testNames": [
+          "clockAndInputShareValuesAndCancelDoesNotCommit",
+          "deadlineFormReceivesSelectedTimeAndCancelPreservesIt",
+          "enteringInitialTenStillAdvances",
+          "invalidHourAndMinuteCannotBeAcceptedAndBlankCannotSave",
+          "leadingZeroAdvancesAfterSecondDigitAndKeepsTypingMinutes",
+          "midnightAndUnchangedInitialHourAdvance",
+          "returningToHourAndDeletingDoesNotJumpBackToMinute"
+        ],
+        "freshXmlVerified": true
+      },
+      "layout": {
+        "cases": 4,
+        "class": "com.chimafok.todo.ui.TimeInputLayoutTest",
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testNames": [
+          "doubleFontStillFitsBothNumericFields",
+          "enlargedFontAndEndCursorKeepLeadingZeroVisible",
+          "existingTimeAndSelectionRemainCentered",
+          "untouchedDefaultRemainsTenAndCanConfirm"
+        ],
+        "freshXmlVerified": true
+      }
+    }
+  },
+  "systemFontScalesInLayoutTests": [
+    1.0,
+    1.4,
+    2.0
+  ],
+  "screenshots": {
+    "inspected": [
+      "API37 default 10:00 / selected 15:50 / 04:44 at 140% / 23:59 at 200%",
+      "API26 default 10:00 / selected 15:50 / 04:44 at 140% / 23:59 at 200%"
+    ],
+    "data": "Owned isolated QA emulators and synthetic content only."
+  },
+  "initialChecks": {
+    "build": "Initial instrumentation compilation failed on DpRect.height in the new test; corrected to bottom minus top and rebuilt successfully. No test result was claimed from the failed build.",
+    "selection": "The first comma-separated runner selection produced only the 7 focus cases. Layout tests were run separately and verified by class and count.",
+    "fontScale": "An initial API37 layout run used an outer LocalDensity, which a dialog can replace. It is not counted as large-font coverage; final layout runs set and restore the actual owned-device system font scale and assert the dialog text-layout density."
+  },
+  "scope": "Separate focus and layout runs on each of two owned headless QA emulators; 11 cases per API, 22 total. Not a complete historical regression.",
+  "notValidated": [
+    "User phone and OEM-font/keyboard matrix",
+    "Full accessibility, TalkBack, RTL and three-language layout matrix",
+    "Official signing or official-installation update"
+  ],
+  "apkSha256": "a0e7e5b71b11e1cf33feb396fad2b89ab4e84f61c9ca0d780ba606f83db87238",
+  "apkBytes": 13679063
+}
