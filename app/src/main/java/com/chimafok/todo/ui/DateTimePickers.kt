@@ -3,6 +3,9 @@ package com.chimafok.todo.ui
 import com.chimafok.todo.i18n.tr
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.rememberScrollState
@@ -14,6 +17,12 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -141,20 +150,26 @@ private fun TodoTimeInput(
     var advanceToMinute by remember { mutableStateOf(false) }
     fun accepts(value: TextFieldValue, max: Int) = value.text.length <= 2 &&
         value.text.all { it in '0'..'9' } && (value.text.isEmpty() || value.text.toIntOrNull() in 0..max)
-    val colors = OutlinedTextFieldDefaults.colors(
-        focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-        focusedTextColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        unfocusedBorderColor = Color.Transparent,
+    val density = LocalDensity.current
+    val measurer = rememberTextMeasurer()
+    val baseStyle = MaterialTheme.typography.displayLarge.copy(
+        fontSize = 48.sp, lineHeight = 56.sp, textAlign = TextAlign.Center,
+        fontFeatureSettings = "tnum", platformStyle = PlatformTextStyle(includeFontPadding = false),
     )
-    val style = MaterialTheme.typography.displayLarge.copy(textAlign = TextAlign.Center)
+    // Reserve space for padding and the caret, including OEM fonts and larger font scales.
+    val fit = remember(measurer, baseStyle, density.density, density.fontScale) {
+        val samples = (0..9).map { measurer.measure(it.toString().repeat(2), baseStyle) }
+        minOf(1f, with(density) { 72.dp.toPx() } / samples.maxOf { it.size.width },
+            with(density) { 80.dp.toPx() } / samples.maxOf { it.size.height })
+    }
+    val style = baseStyle.copy(fontSize = baseStyle.fontSize * fit, lineHeight = baseStyle.lineHeight * fit)
     val hourLabel = tr(R.string.text_hours_507ac2)
     val minuteLabel = tr(R.string.text_minutes_c26fdd)
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Row(verticalAlignment = Alignment.Top) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = hour,
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                TimeNumberField(
+                    value = hour, label = hourLabel, style = style,
                     onValueChange = { next ->
                         if (accepts(next, 23)) {
                             onHourChange(next)
@@ -162,11 +177,10 @@ private fun TodoTimeInput(
                             if (next.text != hour.text && next.text.length == 2) advanceToMinute = true
                         }
                     },
-                    modifier = Modifier.width(96.dp).height(96.dp).testTag("time_hour_input").semantics { contentDescription = hourLabel }
+                    modifier = Modifier.width(96.dp).height(96.dp).testTag("time_hour_input")
                         .focusRequester(hourFocus).onFocusChanged {
                             if (it.isFocused) onHourChange(hour.copy(selection = TextRange(0, hour.text.length)))
                         },
-                    singleLine = true, textStyle = style, colors = colors,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
                     keyboardActions = KeyboardActions(onNext = { minuteFocus.requestFocus() }),
                 )
@@ -175,15 +189,14 @@ private fun TodoTimeInput(
             Box(Modifier.width(32.dp).height(96.dp), contentAlignment = Alignment.Center) {
                 Text(":", style = style, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = minute,
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                TimeNumberField(
+                    value = minute, label = minuteLabel, style = style,
                     onValueChange = { if (accepts(it, 59)) onMinuteChange(it) },
-                    modifier = Modifier.width(96.dp).height(96.dp).testTag("time_minute_input").semantics { contentDescription = minuteLabel }
+                    modifier = Modifier.width(96.dp).height(96.dp).testTag("time_minute_input")
                         .focusRequester(minuteFocus).onFocusChanged {
                             if (it.isFocused) onMinuteChange(minute.copy(selection = TextRange(0, minute.text.length)))
                         },
-                    singleLine = true, textStyle = style, colors = colors,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { keyboard?.hide() }),
                 )
@@ -199,4 +212,34 @@ private fun TodoTimeInput(
             advanceToMinute = false
         }
     }
+}
+
+@Composable
+private fun TimeNumberField(
+    value: TextFieldValue,
+    label: String,
+    style: TextStyle,
+    onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier,
+    keyboardOptions: KeyboardOptions,
+    keyboardActions: KeyboardActions,
+) {
+    var focused by remember { mutableStateOf(false) }
+    val shape = MaterialTheme.shapes.medium
+    val container = if (focused) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh
+    val foreground = if (focused) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
+    BasicTextField(
+        value = value, onValueChange = onValueChange,
+        modifier = modifier.semantics { contentDescription = label }.onFocusChanged { focused = it.isFocused },
+        singleLine = true, textStyle = style.copy(color = foreground),
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        keyboardOptions = keyboardOptions, keyboardActions = keyboardActions,
+        decorationBox = { editor ->
+            Box(Modifier.fillMaxSize().background(container, shape)
+                .border(2.dp, if (focused) MaterialTheme.colorScheme.primary else Color.Transparent, shape)
+                .padding(8.dp), contentAlignment = Alignment.Center) {
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center, propagateMinConstraints = true) { editor() }
+            }
+        },
+    )
 }

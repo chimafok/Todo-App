@@ -6,7 +6,7 @@ This page consolidates **current 1.4.0 rules** without adding or removing requir
 
 ## 1.4.1 development increment
 
-The shared 24-hour picker advances to minutes after two valid hour digits, including leading zeroes, midnight and re-entering the initial hour. Single digits, deletion and invalid input do not advance; blank fields cannot confirm. Preserve manual selection, shared clock/input values and cancellation without committing. This round targets official 1.4.1 and still requires test-APK approval.
+The shared 24-hour picker advances to minutes after two valid hour digits, including leading zeroes, midnight and re-entering the initial hour. Single digits, deletion and invalid input do not advance; blank fields cannot confirm. Preserve manual selection, shared clock/input values and cancellation without committing. This round targets official 1.4.1 and still requires test-APK approval. Keep numeric text, selection and carets centered without clipping, fitting the digits to the actual font and scale. An unset time initially displays 10:00; existing times retain their initial values rather than appearing blank.
 
 ## Product scope
 
