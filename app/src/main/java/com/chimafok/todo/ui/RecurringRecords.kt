@@ -152,15 +152,16 @@ fun RecurringRecords(state: TodoState, viewModel: TodoViewModel, clock: Clock, e
             Text(if(selectedSeries==null) tr(R.string.text_s_series_84f50c, visibleSeries.size) else tr(R.string.text_s_records_e3339e, window.total),style=MaterialTheme.typography.labelLarge,modifier=Modifier.padding(vertical=12.dp))
             val normal=ButtonDefaults.textButtonColors()
             ActionIconButton(if(selectingHistory) R.drawable.ic_check else R.drawable.ic_multi_select,
-                if(selectingHistory)tr(R.string.text_done_selecting_d8c47c) else tr(R.string.text_select_1dc26d), selected=selectingHistory,
+                if(selectingHistory)tr(R.string.text_done_selecting_d8c47c) else tr(R.string.text_select_1dc26d), selected=selectingHistory, highlightSelected=false,
                 enabled=canAct, contentColor=normal.contentColor,
                 disabledContentColor=if(enabled && !busy && windowLoading && windowError==null && completedWindowRequest!=null)normal.contentColor else normal.disabledContentColor,
                 onClick={if(selectingHistory)clearSelection() else {clearSelection();selectingHistory=true}},modifier=Modifier.testTag("history_toggle_selection"))
         }
         if(selectingHistory)FlowRow(Modifier.fillMaxWidth().padding(horizontal=20.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
             Text(if(selectedSeries==null)tr(R.string.text_s_series_selected_70f058, seriesSelected.size) else tr(R.string.text_s_records_selected_86fe42, recordsSelected.size),Modifier.padding(vertical=12.dp),style=MaterialTheme.typography.labelLarge)
-            ActionIconButton(R.drawable.ic_select_all, if(selectedSeries==null)tr(R.string.text_select_all_results_9951b1) else tr(R.string.text_select_all_actionable_records_52b2d0),
-                enabled=canAct,onClick={if(selectedSeries==null)seriesSelected=visibleSeries.associate {it.id to it.revision} else selectAllRecords()},modifier=Modifier.testTag("history_select_results"))
+            TextButton(enabled=canAct,onClick={if(selectedSeries==null)seriesSelected=visibleSeries.associate {it.id to it.revision} else selectAllRecords()},modifier=Modifier.testTag("history_select_results")) {
+                Text(if(selectedSeries==null)tr(R.string.text_select_all_results_9951b1) else tr(R.string.text_select_all_actionable_records_52b2d0))
+            }
             if(selectedSeries==null) {
                 val allActive=seriesSelected.isNotEmpty() && seriesSelected.all {(id,rev)->series.any {it.id==id && it.revision==rev && it.lifecycle==SeriesLifecycle.ACTIVE}}
                 TextButton(enabled=canAct && allActive,onClick={previewSeriesBatch(true)},modifier=Modifier.testTag("history_batch_stop")){Text(tr(R.string.text_stop_repeating_5efad6))}

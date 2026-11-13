@@ -4,6 +4,13 @@
 
 This page lists official versions and the current development test build. [Original development/test-version records](../history/CHANGELOG-HISTORY.zh-Hant.md) preserve delivery-time states, not the current version. [Releases](https://github.com/chimafok/Todo-App/releases/latest) is authoritative for official APK downloads.
 
+## 1.5.0-dev03 — 2026-11-13
+
+- Restore text buttons for reminder Remove, card edit/trash/restore and every Select all action; keep other icons.
+- Shorten arrow navigation and accept consecutive/reversed presses, retaining swipes, zoomed pan, bounded endpoints and blank-space dismissal.
+- Animate task-detail collapse while retaining children until completion, including reopening mid-transition. Size home filter/selection glyphs to adjacent text, keep 48 dp tap targets, and remove the selection check background.
+- Development-signed com.chimafok.todo.debug / code40 updates dev02. Official target remains 1.5.0 pending testing and approval; no official signing or main merge. Room schema10 / backup format6 are unchanged.
+
 ## 1.5.0-dev02 — 2026-11-13
 
 - Swipe through enlarged images without wrapping at the ends. Dragging while zoomed pans the image; changing pages resets zoom, and rotation preserves the settled image. Blank-space dismissal remains available.

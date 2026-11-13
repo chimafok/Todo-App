@@ -14,12 +14,23 @@ import androidx.compose.ui.window.DialogProperties
 import com.chimafok.todo.R
 import com.chimafok.todo.i18n.tr
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import androidx.compose.animation.core.tween
 
 @Composable
 internal fun NoteImageViewer(ids: List<String>, initialId: String, onViewingChanged: (String) -> Unit, onDismiss: () -> Unit) {
     val pager = rememberPagerState(initialPage = ids.indexOf(initialId).coerceAtLeast(0), pageCount = { ids.size })
     var zoomed by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    var navigationJob by remember { mutableStateOf<Job?>(null) }
+    var requestedPage by remember { mutableIntStateOf(pager.currentPage) }
+    val navigationPage = if (navigationJob?.isActive == true) requestedPage else pager.currentPage
+    fun moveBy(delta: Int) {
+        val target = ((if (navigationJob?.isActive == true) requestedPage else pager.currentPage) + delta).coerceIn(0, ids.lastIndex)
+        requestedPage = target
+        navigationJob?.cancel()
+        navigationJob = scope.launch { pager.animateScrollToPage(target, animationSpec = tween(120)) }
+    }
     val changed by rememberUpdatedState(onViewingChanged)
     LaunchedEffect(pager, ids) {
         snapshotFlow { pager.settledPage }.collect { page -> ids.getOrNull(page)?.let(changed) }
@@ -42,11 +53,11 @@ internal fun NoteImageViewer(ids: List<String>, initialId: String, onViewingChan
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                     ActionIconButton(R.drawable.ic_chevron_left, tr(R.string.text_previous_image_a3b6d8),
-                        Modifier.testTag("note_image_previous"), enabled = pager.currentPage > 0 && !pager.isScrollInProgress,
-                        onClick = { scope.launch { pager.animateScrollToPage(pager.currentPage - 1) } })
+                        Modifier.testTag("note_image_previous"), enabled = navigationPage > 0,
+                        onClick = { moveBy(-1) })
                     ActionIconButton(R.drawable.ic_chevron_right, tr(R.string.text_next_image_c3b16d),
-                        Modifier.testTag("note_image_next"), enabled = pager.currentPage < ids.lastIndex && !pager.isScrollInProgress,
-                        onClick = { scope.launch { pager.animateScrollToPage(pager.currentPage + 1) } })
+                        Modifier.testTag("note_image_next"), enabled = navigationPage < ids.lastIndex,
+                        onClick = { moveBy(1) })
                 }
             }
         }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -53,7 +54,7 @@ class ActionIconsUiTest {
         }
         compose.onNodeWithTag("action").performClick(); assertEquals(1, clicks)
     }
-    @Test fun toolbarAndCardIconsStillEditTrashAndRestoreOnlyTheChosenTask() {
+    @Test fun toolbarIconsAndTextActionsEditTrashAndRestoreOnlyTheChosenTask() {
         val id = "QA150-icons-${UUID.randomUUID()}"
         val db = ReminderRuntime.database
         fun await(tag: String) { compose.waitUntil(20_000) { compose.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty() } }
@@ -70,22 +71,36 @@ class ActionIconsUiTest {
             ready(); compose.onNodeWithTag("task_search").performTextReplacement(id); ready()
             compose.onNodeWithTag("open_filters").assertContentDescriptionEquals(tr(R.string.text_filter_9bd5d8)).performClick()
             compose.onNodeWithTag("apply_filters").performClick(); ready()
+            val filterGlyph = compose.onNode(hasContentDescription(tr(R.string.text_filter_9bd5d8)) and hasAnyAncestor(hasTestTag("open_filters")), useUnmergedTree = true).getUnclippedBoundsInRoot()
+            val count = compose.onNodeWithTag("result_count").getUnclippedBoundsInRoot()
+            assertTrue((filterGlyph.bottom - filterGlyph.top) <= (count.bottom - count.top))
+            val target = compose.onNodeWithTag("open_filters").getUnclippedBoundsInRoot()
+            assertTrue((target.right - target.left).value >= 48f && (target.bottom - target.top).value >= 48f)
+            val normalImage = compose.onNodeWithTag("toggle_selection").captureToImage()
+            val normal = normalImage.toPixelMap()
             compose.onNodeWithTag("toggle_selection").performClick().assertIsSelected()
-            compose.onNodeWithTag("select_results").performClick(); ready()
+            // Android's native ripple uses real render-thread time, not Compose's virtual clock.
+            compose.waitUntil(5_000) {
+                val pixels = compose.onNodeWithTag("toggle_selection").captureToImage().toPixelMap()
+                val actual = pixels[pixels.width / 2, pixels.height / 6]
+                val expected = normal[normal.width / 2, normal.height / 6]
+                maxOf(kotlin.math.abs(actual.red - expected.red), kotlin.math.abs(actual.green - expected.green), kotlin.math.abs(actual.blue - expected.blue)) < .02f
+            }
+            compose.onNodeWithTag("select_results").assertTextContains(tr(R.string.text_select_all_results_9951b1)).performClick(); ready()
             compose.onNodeWithTag("select_$id").assertIsOn()
             compose.onNodeWithTag("toggle_selection").performClick().assertIsNotSelected()
-            reveal("edit_$id"); compose.onNodeWithTag("edit_$id").assertContentDescriptionEquals(tr(R.string.text_edit_e0d448)).performClick(); await("task_title")
+            reveal("edit_$id"); compose.onNodeWithTag("edit_$id").assertTextContains(tr(R.string.text_edit_e0d448)).performClick(); await("task_title")
             compose.onNodeWithTag("task_title").assertTextContains(id)
             compose.onNodeWithText(tr(R.string.text_cancel_2cd0f3), substring = false).performClick(); ready()
-            reveal("trash_$id"); compose.onNodeWithTag("trash_$id").assertContentDescriptionEquals(tr(R.string.text_delete_3c8f5b)).performClick()
+            reveal("trash_$id"); compose.onNodeWithTag("trash_$id").assertTextContains(tr(R.string.text_delete_3c8f5b)).performClick()
             compose.onNodeWithText(tr(R.string.text_move_to_trash_f86355), substring = false).performClick()
             compose.waitUntil(15_000) { runBlocking { db.dao().task(id)?.deletedAt != null } }
             compose.onNodeWithTag("open_menu").performClick(); compose.onNodeWithTag("nav_TRASH").performClick(); ready()
-            reveal("restore_$id"); compose.onNodeWithTag("restore_$id").assertContentDescriptionEquals(tr(R.string.text_restore_2abdcb)).performClick()
+            reveal("restore_$id"); compose.onNodeWithTag("restore_$id").assertTextContains(tr(R.string.text_restore_2abdcb)).performClick()
             compose.waitUntil(15_000) { runBlocking { db.dao().task(id)?.deletedAt == null } }
         } finally { runBlocking { db.history().purgeTask(id) } }
     }
-    @Test fun singleReminderClockAndTrashIconsKeepTheirOriginalActions() {
+    @Test fun singleReminderClockAndRemoveTextKeepTheirOriginalActions() {
         val encoded = mutableStateOf(encodeReminderInputs(listOf(ReminderInput(kind = "FIXED", date = "2030-01-01", time = "10:00"))))
         compose.runOnUiThread { compose.activity.setContent { TodoTheme {
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
@@ -96,10 +111,10 @@ class ActionIconsUiTest {
         compose.onNodeWithTag("time_input_mode").assertContentDescriptionEquals(tr(R.string.text_enter_time_341b45)).assertIsSelected()
         compose.onNodeWithTag("time_dial_mode").assertContentDescriptionEquals(tr(R.string.text_clock_119cdf)).performClick().assertIsSelected()
         compose.onNodeWithTag("time_input_mode").performClick(); compose.onNodeWithTag("confirm_time").performClick()
-        compose.onNodeWithTag("remove_reminder_0").performScrollTo().performClick()
+        compose.onNodeWithTag("remove_reminder_0").performScrollTo().assertTextContains(tr(R.string.text_remove_6135d4)).performClick()
         compose.runOnIdle { assertTrue(decodeReminderInputs(encoded.value).isEmpty()) }
     }
-    @Test fun seriesReminderClockAndTrashIconsKeepTheirOriginalActions() {
+    @Test fun seriesReminderClockAndRemoveTextKeepTheirOriginalActions() {
         val encoded = mutableStateOf(encodeSeriesReminderInputs(listOf(SeriesReminderInput(kind = "OCCURRENCE_TIME", time = "10:00"))))
         compose.runOnUiThread { compose.activity.setContent { TodoTheme {
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
@@ -108,7 +123,7 @@ class ActionIconsUiTest {
         } } }
         compose.onNodeWithTag("open_series_reminder_time_0").performScrollTo().assertContentDescriptionEquals(tr(R.string.text_choose_time_9f8b0c)).performClick()
         compose.onNodeWithTag("confirm_time").performClick()
-        compose.onNodeWithTag("remove_series_reminder_0").performScrollTo().performClick()
+        compose.onNodeWithTag("remove_series_reminder_0").performScrollTo().assertTextContains(tr(R.string.text_remove_6135d4)).performClick()
         compose.runOnIdle { assertTrue(decodeSeriesReminderInputs(encoded.value).isEmpty()) }
     }
 }

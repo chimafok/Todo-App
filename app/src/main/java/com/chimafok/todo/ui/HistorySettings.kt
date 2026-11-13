@@ -120,7 +120,7 @@ fun TrashToolbar(state: TodoState, viewModel: TodoViewModel, clock: Clock, enabl
         TextButton(enabled = enabled && !selectionMode && (tasks > 0 || groups.isNotEmpty()), onClick = onEmpty, modifier = Modifier.testTag("empty_trash")) { Text(tr(R.string.text_empty_all_ee87e0)) }
     }
     if (groups.isNotEmpty()) Column(Modifier.fillMaxWidth().heightIn(max = 180.dp).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp)) {
-        if(selectionMode)ActionIconButton(R.drawable.ic_select_all, tr(R.string.text_select_all_deleted_series_7aa243), enabled=enabled,onClick=onSelectAllSeries,modifier=Modifier.testTag("select_all_trash_series"))
+        if(selectionMode)TextButton(enabled=enabled,onClick=onSelectAllSeries,modifier=Modifier.testTag("select_all_trash_series")) { Text(tr(R.string.text_select_all_deleted_series_7aa243)) }
         groups.forEach { series -> Row(Modifier.fillMaxWidth().testTag("trash_series_${series.id}").combinedClickable(
             enabled=enabled && onLongSeries!=null,onClick={if(selectionMode)onToggleSeries(series.id) else onLongSeries?.invoke(series.id)},
             onLongClick={onLongSeries?.invoke(series.id)},onLongClickLabel=tr(R.string.text_select_series_af0ee8)),horizontalArrangement=Arrangement.spacedBy(8.dp)) {

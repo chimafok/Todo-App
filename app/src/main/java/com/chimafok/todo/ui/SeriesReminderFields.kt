@@ -64,9 +64,8 @@ internal fun SeriesReminderFields(encoded: String, onChange: (String) -> Unit, d
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(tr(R.string.text_reminder_s_d115cc, index + 1), style = MaterialTheme.typography.titleSmall)
-                    ActionIconButton(R.drawable.ic_trash, tr(R.string.text_remove_6135d4) + " " + tr(R.string.text_reminder_s_d115cc, index + 1),
-                        enabled = enabled, onClick = { onChange(encodeSeriesReminderInputs(rows.filterNot { it.id == row.id })) },
-                        modifier = Modifier.testTag("remove_series_reminder_$index"))
+                    TextButton(enabled = enabled, onClick = { onChange(encodeSeriesReminderInputs(rows.filterNot { it.id == row.id })) },
+                        modifier = Modifier.testTag("remove_series_reminder_$index")) { Text(tr(R.string.text_remove_6135d4)) }
                 }
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(row.kind == "RELATIVE_DUE", enabled = enabled, onClick = { replace(index,row.copy(kind="RELATIVE_DUE")) },
