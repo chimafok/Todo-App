@@ -4,6 +4,12 @@
 
 This page lists official versions and the current development test build. [Original development/test-version records](../history/CHANGELOG-HISTORY.zh-Hant.md) preserve delivery-time states, not the current version. [Releases](https://github.com/chimafok/Todo-App/releases/latest) is authoritative for official APK downloads.
 
+## 1.5.0-dev01 — 2026-11-13
+
+- Add a calendar button to recurring end dates for new tasks and this-and-future edits, retaining typed date shortcuts and inclusive end-date rules.
+- Tap blank space around an enlarged image to close the viewer. Tapping image content keeps it open; pinch, pan and image navigation remain available.
+- Development-signed com.chimafok.todo.debug / code38 targets the next regular release, 1.5.0, pending test approval. Room schema10 / backup format6 are unchanged.
+
 ## 1.4.1 — 2026-11-06
 
 - Two valid hour digits automatically focus minutes; manual selection, clock mode and cancellation remain available.

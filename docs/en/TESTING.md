@@ -4,6 +4,14 @@
 
 This page separates official-release checks, development checks and historical results. Separate rounds are not presented as one full regression. Original failures/retests remain in shared verification JSON and the [history archive](../history/TESTING-HISTORY.zh-Hant.md). Translating documentation does not mean these app tests were rerun.
 
+## 1.5.0-dev01 (2026-11-13)
+
+The Debug build and Lint passed (0 errors / 13 warnings), with 104 fresh unit cases and the expected 18-class set verified from new XML. Each dedicated API37/26 headless emulator passed separate groups of 5 calendar cases, 3 image-gesture cases and 1 real gallery/draft flow (18 total), checking fresh XML, counts, classes and timestamps with zero failure/error/skipped. Coverage includes new/this-and-future persistence, typed shortcuts, confirmation/cancellation, disabled controls, top/bottom/side blank dismissal, image-content retention, zoom/pan hit testing, retained draft/text, rotation, closing and removal.
+
+Initial class selection ran only calendars; all groups were then run separately. Calendar day selection and asynchronous editor/text synchronization needed test corrections. The gallery flow caught an empty draft-reference parse in the new calendar initialization; it was corrected before rebuilding and rerunning the scoped matrix. An existing hard-coded Traditional Chinese removal assertion now uses the selected language. Initial attempts and separate-run evidence are in [development-1.5.0.json](../verification/development-1.5.0.json). This is not full historical regression, phone acceptance or a complete language/accessibility matrix. Only dedicated QA installations and synthetic data were used; emulators were closed afterward and the user's phone was not operated.
+
+Development-signed com.chimafok.todo.debug / code38 retains the development certificate and targets official 1.5.0, pending maintainer test approval. This round has not been officially signed or merged into main. Room schema10 / backup format6 are unchanged.
+
 ## Official 1.4.1 release (2026-11-06)
 
 After approval of 1.4.1-dev02, the official APK was rebuilt from the same App/build sources. All 104 fresh unit tests passed; Release Lint reported 0 errors / 13 warnings. Fresh XML verified count, classes, timestamps and zero failure/error/skipped. The existing RSA4096 certificate is retained; signed/unsigned payloads match. The APK is non-debuggable, contains no QA provider, Internet or broad-photo permission, and bundles license notices.

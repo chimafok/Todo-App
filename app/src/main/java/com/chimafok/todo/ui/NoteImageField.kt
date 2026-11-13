@@ -6,8 +6,6 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.rememberTransformableState
-import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -20,7 +18,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -97,14 +94,9 @@ internal fun NoteImageGallery(encoded: String, onRemove: ((String) -> Unit)? = n
                         TextButton(onClick = { viewing = null }, modifier = Modifier.testTag("note_image_close")) { Text(tr(R.string.text_close_c7fddd)) }
                     }
                     key(id) {
-                        var scale by remember { mutableFloatStateOf(1f) }
-                        var x by remember { mutableFloatStateOf(0f) }; var y by remember { mutableFloatStateOf(0f) }
-                        val transform = rememberTransformableState { _, zoom, pan, _ ->
-                            scale = (scale * zoom).coerceIn(1f, 5f)
-                            if (scale == 1f) { x = 0f; y = 0f } else { x = (x + pan.x).coerceIn(-2000f, 2000f); y = (y + pan.y).coerceIn(-2000f, 2000f) }
-                        }
-                        Box(Modifier.weight(1f).fillMaxWidth().transformable(transform), contentAlignment = Alignment.Center) {
-                            NoteImage(id, false, tr(R.string.text_image_s_911ad3, ids.indexOf(id) + 1), Modifier.fillMaxSize().graphicsLayer { scaleX = scale; scaleY = scale; translationX = x; translationY = y })
+                        Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            NoteImage(id, false, tr(R.string.text_image_s_911ad3, ids.indexOf(id) + 1),
+                                Modifier.fillMaxSize(), onBackgroundTap = { viewing = null })
                         }
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -118,7 +110,7 @@ internal fun NoteImageGallery(encoded: String, onRemove: ((String) -> Unit)? = n
 }
 
 @Composable
-private fun NoteImage(id: String, thumbnail: Boolean, description: String, modifier: Modifier) {
+private fun NoteImage(id: String, thumbnail: Boolean, description: String, modifier: Modifier, onBackgroundTap: (() -> Unit)? = null) {
     val images = remember { NoteImages(ReminderRuntime.database) }
     var failed by remember(id, thumbnail) { mutableStateOf(false) }
     val bitmap by produceState<android.graphics.Bitmap?>(null, id, thumbnail) {
@@ -126,6 +118,7 @@ private fun NoteImage(id: String, thumbnail: Boolean, description: String, modif
         catch (e: Exception) { if (e is kotlinx.coroutines.CancellationException) throw e; failed = true }
     }
     val loaded = bitmap
-    if (loaded != null) Image(loaded.asImageBitmap(), description, modifier, contentScale = if (thumbnail) ContentScale.Crop else ContentScale.Fit)
+    if (loaded != null && onBackgroundTap != null) NoteImagePreview(loaded.asImageBitmap(), description, modifier, onBackgroundTap)
+    else if (loaded != null) Image(loaded.asImageBitmap(), description, modifier, contentScale = if (thumbnail) ContentScale.Crop else ContentScale.Fit)
     else Box(modifier, contentAlignment = Alignment.Center) { Text(if (failed) tr(R.string.text_cannot_load_image_845573) else tr(R.string.text_loading_image_c763a6), style = MaterialTheme.typography.bodySmall) }
 }

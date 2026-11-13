@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.room.withTransaction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.chimafok.todo.MainActivity
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import com.chimafok.todo.data.*
 import com.chimafok.todo.domain.*
 import com.chimafok.todo.reminders.ReminderRuntime
@@ -131,14 +133,21 @@ class OrganizationImagesUiTest {
     }
     @Test fun imageDraftThumbnailViewerRotationRemoveAndTextRemain() {
         val image = draftImage(); await("resume_draft"); compose.onNodeWithTag("resume_draft").performClick(); await("task_title"); keyboard()
-        compose.onNodeWithTag("note_add_images").performScrollTo(); capture("image-before"); compose.onNodeWithTag("note_image_0").performClick(); capture("image-after"); await("note_image_close"); compose.onNodeWithTag("note_image_close").performClick()
+        compose.onNodeWithTag("note_add_images").performScrollTo(); capture("image-before"); compose.onNodeWithTag("note_image_0").performClick(); capture("image-after"); await("note_image_preview")
+        compose.onNodeWithTag("note_image_preview").performTouchInput { click(center) }
+        compose.onNodeWithTag("note_image_close").assertExists()
+        compose.onNodeWithTag("note_image_preview").performTouchInput { click(Offset(centerX, 5f)) }
+        compose.onNodeWithTag("note_image_close").assertDoesNotExist()
+        compose.onNodeWithTag("task_notes").assertTextContains("原有文字")
+        compose.onNodeWithTag("note_image_0").performClick(); await("note_image_close")
+        compose.onNodeWithTag("note_image_close").performClick()
         compose.activityRule.scenario.recreate(); await("task_title"); keyboard(); compose.onNodeWithTag("note_add_images").performScrollTo(); compose.onNodeWithTag("note_image_0").assertIsDisplayed()
         compose.onNodeWithTag("task_notes").assertTextContains("原有文字")
         val thumb = compose.onNodeWithTag("note_image_0").getUnclippedBoundsInRoot()
         val remove = compose.onNodeWithTag("note_image_remove_0").getUnclippedBoundsInRoot()
         assertEquals(thumb.top.value, remove.top.value, 1f)
         assertEquals(thumb.right.value, remove.right.value, 1f)
-        compose.onNodeWithContentDescription("移除圖片 1").assertExists()
+        compose.onNodeWithContentDescription(tr(R.string.text_remove_image_s_905d90, 1)).assertExists()
         compose.onNodeWithTag("note_image_remove_0").performClick(); compose.onNodeWithTag("note_image_0").assertDoesNotExist()
         compose.onNodeWithTag("note_image_close").assertDoesNotExist()
         compose.onNodeWithTag("save_task").performClick()
