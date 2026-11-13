@@ -2,6 +2,8 @@ package com.chimafok.todo.ui
 
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.unit.dp
+import android.util.Log
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -60,4 +62,46 @@ class TaskCardMotionUiTest {
             assertEquals(expanded, height(), 1f)
         } finally { compose.mainClock.autoAdvance = true }
     }
+    @Test fun collapseSpacingDoesNotJumpOnItsFinalFrame() {
+        show(); compose.onNodeWithTag("task_motion").performClick()
+        compose.mainClock.autoAdvance = false
+        try {
+            compose.onNodeWithTag("task_motion").performClick()
+            var previous = height()
+            var largestLateStep = 0f
+            repeat(24) { frame ->
+                compose.mainClock.advanceTimeByFrame(); compose.waitForIdle()
+                val current = height()
+                if (frame >= 14) largestLateStep = maxOf(largestLateStep, kotlin.math.abs(previous - current))
+                previous = current
+            }
+            Log.i("TodoMotionProbe", "collapseLargestLateHeightStepDp=$largestLateStep")
+            assertTrue("Final spacing should shrink with the details, not jump: $largestLateStep dp", largestLateStep < 4f)
+        } finally { compose.mainClock.autoAdvance = true }
+    }
+    @Test fun followingCardTracksTheAnimatedCardWithoutATrailingPlacementAnimation() {
+        val first = TaskEntity("motion-first", "First synthetic task", "A short detail", UNCATEGORIZED_ID, createdAt = 1, updatedAt = 1)
+        val second = first.copy(id = "motion-second", title = "Second synthetic task", notes = "")
+        compose.runOnUiThread { compose.activity.setContent { TodoTheme {
+            TaskList(TodoState(tasks = listOf(first, second)), Destination.UNSCHEDULED, Clock.systemUTC(), null,
+                {}, {}, {}, {}, {}, {}, {}, {}, {}, true)
+        } } }
+        compose.waitForIdle()
+        compose.mainClock.autoAdvance = false
+        var worstGap = 0f
+        try {
+            repeat(2) {
+                compose.onNodeWithTag("task_motion-first").performClick()
+                repeat(26) {
+                    compose.mainClock.advanceTimeByFrame(); compose.waitForIdle()
+                    val a = compose.onNodeWithTag("task_motion-first").getUnclippedBoundsInRoot()
+                    val b = compose.onNodeWithTag("task_motion-second").getUnclippedBoundsInRoot()
+                    worstGap = maxOf(worstGap, kotlin.math.abs((b.top - a.bottom).value - 12f))
+                }
+            }
+            Log.i("TodoMotionProbe", "largestNeighborGapErrorDp=$worstGap")
+            assertTrue("Following card should keep the 12 dp gap during resize: $worstGap dp", worstGap <= 1f)
+        } finally { compose.mainClock.autoAdvance = true }
+    }
+
 }

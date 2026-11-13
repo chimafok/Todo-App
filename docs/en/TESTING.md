@@ -4,6 +4,14 @@
 
 This page separates official-release checks, development checks and historical results. Separate rounds are not presented as one full regression. Original failures/retests remain in shared verification JSON and the [history archive](../history/TESTING-HISTORY.zh-Hant.md). Translating documentation does not mean these app tests were rerun.
 
+## 1.5.0-dev05 — 2026-11-13
+
+Debug build passed, Lint has 0 errors / 13 warnings, and 104 fresh unit cases passed. The owned API26 headless emulator ran nine separate groups: detail motion 4, toolbar alignment 1 (18 language/width/font scenarios), icon/text actions 4, gallery gestures 5, reorder/edge scroll 1 each, successful/failed completion 1 each, and long-selection/Trash/history 7: 25 cases total. Fresh XML class/count/time and zero failures/errors/skips were verified.
+
+The largest adjacent-card gap error was 63.81 dp before the fix and under 0.20 dp afterward. This measures deterministic frame-by-frame position coordination, not FPS or phone performance. Initial alignment-coordinate/font-metric assertion attempts are preserved; final comparisons use painted root text coordinates plus actual font baselines. Owned API37 emulator transports stayed unauthorized after restart and a fresh isolated AVD, so no API37 runtime cases ran this round. No host private keys or phones were accessed. All owned emulators were closed with userdata retained.
+
+Package com.chimafok.todo.debug / code42 updates dev04. No official signing or main merge; Room schema10 / backup format6 unchanged. See [development-1.5.0-dev05.json](../verification/development-1.5.0-dev05.json). This is not a full historical, phone, every-screen translation/system-font/accessibility, large-data or overnight matrix.
+
 ## 1.5.0-dev04（2026-11-13）
 
 Restore home filter, multiselect and finish-selection glyphs to the official filter icon size of 18 dp. Keep count text, icon actions, at least 48 dp tap targets and the transparent check background. Debug build passed, Lint has 0 errors / 13 warnings, and 104 fresh unit cases passed. API37/26 each ran four icon/text-action cases, eight overall, covering all three actual glyph sizes, tap bounds, transparent background, long-press help in three languages, card Edit/Delete/Restore and reminder actions. Fresh XML class/count/time and zero failures/errors/skips were verified. Dedicated headless emulators were closed with userdata retained.

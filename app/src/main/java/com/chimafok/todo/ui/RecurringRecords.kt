@@ -157,16 +157,16 @@ fun RecurringRecords(state: TodoState, viewModel: TodoViewModel, clock: Clock, e
                 disabledContentColor=if(enabled && !busy && windowLoading && windowError==null && completedWindowRequest!=null)normal.contentColor else normal.disabledContentColor,
                 onClick={if(selectingHistory)clearSelection() else {clearSelection();selectingHistory=true}},modifier=Modifier.testTag("history_toggle_selection"))
         }
-        if(selectingHistory)FlowRow(Modifier.fillMaxWidth().padding(horizontal=20.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-            Text(if(selectedSeries==null)tr(R.string.text_s_series_selected_70f058, seriesSelected.size) else tr(R.string.text_s_records_selected_86fe42, recordsSelected.size),Modifier.padding(vertical=12.dp),style=MaterialTheme.typography.labelLarge)
-            TextButton(enabled=canAct,onClick={if(selectedSeries==null)seriesSelected=visibleSeries.associate {it.id to it.revision} else selectAllRecords()},modifier=Modifier.testTag("history_select_results")) {
+        if(selectingHistory)SelectionToolbar(if(selectedSeries==null)tr(R.string.text_s_series_selected_70f058, seriesSelected.size) else tr(R.string.text_s_records_selected_86fe42, recordsSelected.size),
+            Modifier.padding(horizontal=20.dp), summaryTag="history_selection_count") {
+            SelectionTextButton(enabled=canAct,onClick={if(selectedSeries==null)seriesSelected=visibleSeries.associate {it.id to it.revision} else selectAllRecords()},modifier=Modifier.testTag("history_select_results")) {
                 Text(if(selectedSeries==null)tr(R.string.text_select_all_results_9951b1) else tr(R.string.text_select_all_actionable_records_52b2d0))
             }
             if(selectedSeries==null) {
                 val allActive=seriesSelected.isNotEmpty() && seriesSelected.all {(id,rev)->series.any {it.id==id && it.revision==rev && it.lifecycle==SeriesLifecycle.ACTIVE}}
-                TextButton(enabled=canAct && allActive,onClick={previewSeriesBatch(true)},modifier=Modifier.testTag("history_batch_stop")){Text(tr(R.string.text_stop_repeating_5efad6))}
-                TextButton(enabled=canAct && seriesSelected.isNotEmpty(),onClick={previewSeriesBatch(false)},modifier=Modifier.testTag("history_batch_delete")){Text(tr(R.string.text_delete_selected_series_881f8d))}
-            } else TextButton(enabled=canAct && recordsSelected.isNotEmpty(),onClick={viewModel.prepareBatch(recordsSelected.toMap());recordBatch=true},modifier=Modifier.testTag("history_batch_trash")){Text(tr(R.string.text_move_to_trash_f86355))}
+                SelectionTextButton(enabled=canAct && allActive,onClick={previewSeriesBatch(true)},modifier=Modifier.testTag("history_batch_stop")){Text(tr(R.string.text_stop_repeating_5efad6))}
+                SelectionTextButton(enabled=canAct && seriesSelected.isNotEmpty(),onClick={previewSeriesBatch(false)},modifier=Modifier.testTag("history_batch_delete")){Text(tr(R.string.text_delete_selected_series_881f8d))}
+            } else SelectionTextButton(enabled=canAct && recordsSelected.isNotEmpty(),onClick={viewModel.prepareBatch(recordsSelected.toMap());recordBatch=true},modifier=Modifier.testTag("history_batch_trash")){Text(tr(R.string.text_move_to_trash_f86355))}
         }
         DelayedLoadingIndicator(windowLoading, Modifier.testTag("history_loading"), listOf(selectedSeries, query, limit, state.dataEpoch, retry))
         windowError?.let { message -> Row(Modifier.padding(horizontal = 20.dp)) {

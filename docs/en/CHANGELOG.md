@@ -4,6 +4,11 @@
 
 This page lists official versions and the current development test build. [Original development/test-version records](../history/CHANGELOG-HISTORY.zh-Hant.md) preserve delivery-time states, not the current version. [Releases](https://github.com/chimafok/Todo-App/releases/latest) is authoritative for official APK downloads.
 
+## 1.5.0-dev05 — 2026-11-13
+
+- Coordinate task-detail expansion/collapse with adjacent cards and reduce repeated work in completion feedback, image zoom and category dragging.
+- Align selection summaries and action text in tasks, Trash, recurring history and category/tag management while retaining wrapping and larger type.
+
 ## 1.5.0-dev04 — 2026-11-13
 
 - Restore home filter, multiselect and finish-selection glyphs to the official filter icon size of 18 dp; retain icon actions, count text, 48 dp tap targets and the transparent check background.

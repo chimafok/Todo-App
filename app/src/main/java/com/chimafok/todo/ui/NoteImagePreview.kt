@@ -22,8 +22,6 @@ internal fun NoteImagePreview(bitmap: ImageBitmap, description: String, modifier
     active: Boolean = true, onZoomChanged: (Boolean) -> Unit = {}, onBackgroundTap: () -> Unit) {
     var scale by remember(active) { mutableFloatStateOf(1f) }
     var pan by remember(active) { mutableStateOf(Offset.Zero) }
-    val currentScale by rememberUpdatedState(scale)
-    val currentPan by rememberUpdatedState(pan)
     val dismiss by rememberUpdatedState(onBackgroundTap)
     val zoomChanged by rememberUpdatedState(onZoomChanged)
     LaunchedEffect(active) { if (active) zoomChanged(false) }
@@ -34,14 +32,14 @@ internal fun NoteImagePreview(bitmap: ImageBitmap, description: String, modifier
             (pan.x + change.x).coerceIn(-2000f, 2000f), (pan.y + change.y).coerceIn(-2000f, 2000f))
     }
     Box(modifier.testTag(if (active) "note_image_preview" else "note_image_preview_inactive").clipToBounds()
-        .transformable(transform, canPan = { currentScale > 1f }, enabled = active).pointerInput(bitmap, active) {
+        .transformable(transform, canPan = { scale > 1f }, enabled = active).pointerInput(bitmap, active) {
         detectTapGestures { position ->
             // Image fills the viewport, but ContentScale.Fit leaves letterboxing.
             // Hit-test the painted image, including its current zoom and pan.
             val fit = minOf(size.width.toFloat() / bitmap.width, size.height.toFloat() / bitmap.height)
-            val halfWidth = bitmap.width * fit * currentScale / 2f
-            val halfHeight = bitmap.height * fit * currentScale / 2f
-            val center = Offset(size.width / 2f, size.height / 2f) + currentPan
+            val halfWidth = bitmap.width * fit * scale / 2f
+            val halfHeight = bitmap.height * fit * scale / 2f
+            val center = Offset(size.width / 2f, size.height / 2f) + pan
             val image = Rect(center.x - halfWidth, center.y - halfHeight, center.x + halfWidth, center.y + halfHeight)
             if (active && !image.contains(position)) dismiss()
         }
