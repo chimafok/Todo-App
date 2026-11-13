@@ -107,7 +107,7 @@ fun TaskEditor(
         else -> "NONE"
     }) }
     var endDate by rememberSaveable { mutableStateOf(restoredDraft?.endDate ?: recurringContext?.rule?.endDate?.toString() ?: "") }
-    var endReference by rememberSaveable { mutableStateOf(restoredDraft?.endReference ?: LocalDate.now().toString()) }
+    var endReference by rememberSaveable { mutableStateOf(restoredDraft?.endReference?.takeIf { it.isNotBlank() } ?: LocalDate.now().toString()) }
     var count by rememberSaveable { mutableStateOf(restoredDraft?.count ?: recurringContext?.rule?.maxCount?.toString() ?: "10") }
     val scope = rememberCoroutineScope()
     val titleFocus = remember { FocusRequester() }
@@ -377,7 +377,8 @@ fun TaskEditor(
                                 if (!expectedExisting && it != "NONE" && !study) statusName = if (assignment) TaskStatus.NOT_STARTED.name else TaskStatus.OPEN.name
                             },
                             onInterval = { interval = it }, onWeekdays = { weekdays = it }, onEndMode = { endMode = it },
-                            onEndDate = { endDate = it; endReference = LocalDate.now().toString() }, onCount = { count = it })
+                            onEndDate = { endDate = it; endReference = LocalDate.now().toString() }, onCount = { count = it },
+                            endReference = runCatching { LocalDate.parse(endReference) }.getOrElse { LocalDate.now() })
                         if (applyRecurrence) {
                             runCatching { configuredRule()?.dateAt(1) }.getOrNull()?.let {
                                 Text(tr(R.string.text_occurrence_date_s_25bd41, it), style = MaterialTheme.typography.bodySmall, modifier = Modifier.testTag("repeat_first_date"))

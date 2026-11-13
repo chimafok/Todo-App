@@ -44,13 +44,13 @@ Use the separate **Bulk delete** button to select rows or Select all, then confi
 
 The Notes and images section shows text first, then images. Use **Add images** and Android's system picker. There is no per-note image count limit; add another batch if the picker limits one selection. Todo reads only selected images and saves private local copies without modifying originals. Each input image is limited to 25 MiB. Copies are resized to a longest edge of 1536 pixels and compressed to JPEG of at most 768 KiB, without original location/EXIF metadata. Transparency becomes white; animations become a static image.
 
-Tap a thumbnail to view it, pinch to zoom, pan, or switch images. In the form, the X at the thumbnail's top right removes that image while keeping text notes. Scroll the thumbnail strip for more images. Expand a saved task to view images. Cancelling the system picker returns to the form. Images can be retained with a draft, but drafts are not in manual backups.
+Tap a thumbnail to view it, pinch to zoom, pan, or switch images. From 1.5.0-dev01, tap blank space around the image to close the viewer, or use Close. Image-content taps, pinch and pan keep the viewer open. In the form, the X at the thumbnail's top right removes that image while keeping text notes. Scroll the thumbnail strip for more images. Expand a saved task to view images. Cancelling the system picker returns to the form. Images can be retained with a draft, but drafts are not in manual backups.
 
 Images follow recurring templates, edit scopes, historical snapshots and Trash. Unreferenced images are cleaned up when a form closes, checking tasks, series, snapshots and saved drafts. Cleanup never deletes the original phone-library image.
 
 ## Recurring tasks
 
-Choose daily, weekly, selected weekdays, monthly or every N days. Weekday options run Monday through Sunday. **First deadline date (blank means today)** anchors the recurrence; it is separate from Study's start date. You may set an end date or occurrence count.
+Choose daily, weekly, selected weekdays, monthly or every N days. Weekday options run Monday through Sunday. **First deadline date (blank means today)** anchors the recurrence; it is separate from Study's start date. You may set an end date or occurrence count. From 1.5.0-dev01, a calendar button beside the end date is available for new tasks and this-and-future rule edits. Typed input remains available; calendar confirmation writes YYYY-MM-DD, while cancellation keeps the original text.
 
 An initial In progress Study state applies only to the first occurrence; future occurrences start Not started. Series edits preserve existing progress.
 

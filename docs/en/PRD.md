@@ -4,6 +4,12 @@
 
 This page consolidates **current 1.4.1 rules** without adding or removing requirements. The [complete original baseline and AC01–AC136](../history/PRODUCT-BASELINE.zh-Hant.md) preserve detailed contracts and historical increments for auditing. Where an older version/format statement conflicts with a later revision, apply the current rules below and subsequent explicit maintainer requirements. Translation does not change that precedence. Acceptance criteria are contracts, not claims that tests ran this round; see [verification](TESTING.md).
 
+## 1.5.0 development increment
+
+Recurring end dates offer both typed input and the existing calendar picker when creating, converting or editing this and future occurrences. Resolve the initial selection using the field's saved reference date, falling back to that reference for empty or invalid text. Cancellation preserves text; confirmation writes YYYY-MM-DD. Inclusive end-date rules and validation remain unchanged.
+
+Tap blank space outside the painted image to close an enlarged preview, accounting for current zoom and translation. Image-content taps, pinch and pan keep it open; retain the Close button and previous/next controls. Target official 1.5.0 after maintainer approval of the 1.5.0-dev01 test build.
+
 ## 1.4.1 time input
 
 The shared 24-hour picker advances to minutes after two valid hour digits, including leading zeroes, midnight and re-entering the initial hour. Single digits, deletion and invalid input do not advance; blank fields cannot confirm. Preserve manual selection, shared clock/input values and cancellation without committing. The maintainer approved 1.4.1-dev02 and official 1.4.1 on 2026-11-06; see the [source and checksum approval](../verification/approval-1.4.1.json). Keep numeric text, selection and carets centered without clipping, fitting the digits to the actual font and scale. An unset time initially displays 10:00; existing times retain their initial values rather than appearing blank.
