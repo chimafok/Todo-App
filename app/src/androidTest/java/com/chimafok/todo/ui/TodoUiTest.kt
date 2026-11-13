@@ -78,7 +78,7 @@ class TodoUiTest {
         compose.waitUntil(10_000) { compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty() }
     }
     private fun reveal(title: String, action: String) {
-        if (compose.onAllNodesWithText(action).fetchSemanticsNodes().isEmpty()) compose.onNodeWithText(title).performClick()
+        if (compose.onAllNodes(hasActionLabel(action)).fetchSemanticsNodes().isEmpty()) compose.onNodeWithText(title).performClick()
     }
 
     @After fun cleanupOnlyTestTasks() {
@@ -149,7 +149,7 @@ class TodoUiTest {
         editorClosed()
         taskVisible(title)
         compose.onNodeWithText(title).performClick()
-        compose.onNodeWithText("編輯").performClick()
+        compose.onNode(hasActionLabel("編輯")).performClick()
         compose.onNodeWithTag("task_title").performTextReplacement(renamed)
         saveEditor()
         editorClosed()
@@ -167,12 +167,12 @@ class TodoUiTest {
             navigate("AGENDA")
             taskVisible(renamed)
             reveal(renamed, "刪除")
-            compose.onNodeWithText("刪除").performClick()
+            compose.onNode(hasActionLabel("刪除")).performClick()
             compose.onNodeWithText("移至垃圾桶").performClick()
             navigate("TRASH")
             taskVisible(renamed)
             reveal(renamed, "復原")
-            compose.onNodeWithText("復原").performClick()
+            compose.onNode(hasActionLabel("復原")).performClick()
             compose.waitUntil(10_000) { compose.onAllNodesWithText(renamed).fetchSemanticsNodes().isEmpty() }
             val restored = runBlocking { db.dao().task(task.id)!! }
             assertNull(restored.deletedAt)
@@ -373,7 +373,7 @@ class TodoUiTest {
                 compose.onNodeWithTag("task_list").performScrollToNode(hasText(title))
                 compose.onNodeWithText("原設定", substring = true).assertIsDisplayed()
                 reveal(title, "編輯")
-                compose.onNodeWithText("編輯").performClick()
+                compose.onNode(hasActionLabel("編輯")).performClick()
                 compose.onNodeWithTag("deadline_zone").assertTextContains("Asia/Hong_Kong", substring = true)
                 compose.onNodeWithTag("task_notes").performScrollTo().performTextInput("跨區只改備註")
                 saveEditor()
@@ -383,7 +383,7 @@ class TodoUiTest {
                 assertEquals("Asia/Hong_Kong", edited.zoneId)
                 compose.onNodeWithTag("task_list").performScrollToNode(hasText(title))
                 reveal(title, "編輯")
-                compose.onNodeWithText("編輯").performClick()
+                compose.onNode(hasActionLabel("編輯")).performClick()
                 compose.onNodeWithTag("task_time").performTextReplacement("1010")
                 compose.onNodeWithTag("deadline_zone").assertTextContains("America/Los_Angeles", substring = true)
                 saveEditor()
@@ -541,17 +541,17 @@ class TodoUiTest {
             navigate("ORGANIZE")
             compose.onNodeWithText("標籤", substring = false).performClick()
             compose.onNodeWithTag("org_menu_${first.id}").performClick()
-            compose.onNodeWithText("刪除", substring = false).performClick()
+            compose.onNode(hasActionLabel("刪除")).performClick()
             compose.onNodeWithTag("org_delete_confirm").performClick()
             compose.waitUntil(10_000) { runBlocking { db.dao().tag(first.id) == null } }
             assertEquals(listOf(second.id), runBlocking { db.dao().taskTagIds(task.id) })
             compose.onNodeWithText("分類", substring = false).performClick()
             compose.onNodeWithTag("org_menu_${category.id}").performScrollTo().performClick()
-            compose.onNodeWithText("刪除", substring = false).performClick()
+            compose.onNode(hasActionLabel("刪除")).performClick()
             compose.onNodeWithText("取消", substring = false).performClick()
             assertEquals(category.id, runBlocking { db.dao().task(task.id)!!.categoryId })
             compose.onNodeWithTag("org_menu_${category.id}").performClick()
-            compose.onNodeWithText("刪除", substring = false).performClick()
+            compose.onNode(hasActionLabel("刪除")).performClick()
             compose.onNodeWithTag("org_delete_confirm").performClick()
             compose.waitUntil(10_000) { runBlocking { db.dao().category(category.id) == null } }
             assertEquals(UNCATEGORIZED_ID, runBlocking { db.dao().task(task.id)!!.categoryId })

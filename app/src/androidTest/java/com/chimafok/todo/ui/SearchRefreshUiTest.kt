@@ -10,6 +10,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.room.withTransaction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.chimafok.todo.MainActivity
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import com.chimafok.todo.data.*
 import com.chimafok.todo.domain.*
 import com.chimafok.todo.reminders.ReminderRuntime
@@ -61,13 +63,13 @@ class SearchRefreshUiTest {
     @Test fun chineseLettersAndDigitsKeepTheEmptySearchViewWhileNextQueryIsPending() {
         compose.onNodeWithTag("task_search").performTextReplacement("絕無匹配-$id")
         compose.onNodeWithTag("task_search").performImeAction()
-        compose.waitUntil(10_000){compose.onAllNodesWithText("找不到符合的任務").fetchSemanticsNodes().isNotEmpty()}
+        compose.waitUntil(10_000){compose.onAllNodesWithText(tr(R.string.text_no_matching_tasks_dd8ced)).fetchSemanticsNodes().isNotEmpty()}
         ready()
         val selectionAppearance=compose.onNodeWithTag("toggle_selection").captureToImage()
         locked {
             for(character in listOf("中","A","1")) {
                 compose.onNodeWithTag("task_search").performTextInput(character)
-                compose.onNodeWithText("找不到符合的任務").assertIsDisplayed()
+                compose.onNodeWithText(tr(R.string.text_no_matching_tasks_dd8ced)).assertIsDisplayed()
                 compose.onNodeWithTag("task_list").assertDoesNotExist()
                 compose.onNodeWithTag("toggle_selection").assertIsNotEnabled()
                 assertSelectionAppearance(selectionAppearance)
@@ -83,7 +85,7 @@ class SearchRefreshUiTest {
         compose.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
         locked {
             compose.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
-            compose.onNodeWithTag("page_title").assertTextEquals("日程")
+            compose.onNodeWithTag("page_title").assertTextEquals(tr(R.string.agenda))
             compose.onNodeWithTag("task_$id").assertExists()
             compose.onNodeWithTag("complete_$id").assertIsNotEnabled()
         }
@@ -95,9 +97,9 @@ class SearchRefreshUiTest {
         val count=compose.onNodeWithTag("result_count").getUnclippedBoundsInRoot()
         assertTrue(abs((filter.top.value+filter.bottom.value)/2-(count.top.value+count.bottom.value)/2)<=1f)
         compose.onNodeWithTag("add_task").performClick()
-        compose.onNodeWithTag("task_date").assertContentDescriptionContains("截止日期（選填）")
-        compose.onNodeWithTag("task_time").assertContentDescriptionContains("截止時間（選填）")
+        compose.onNodeWithTag("task_date").assertContentDescriptionContains(tr(R.string.text_due_date_optional_3b1f39))
+        compose.onNodeWithTag("task_time").assertContentDescriptionContains(tr(R.string.text_due_time_optional_434ef0))
         compose.onNodeWithText("截止日期（可不填）").assertDoesNotExist()
-        compose.onNodeWithText("取消",substring=false).performClick()
+        compose.onNodeWithText(tr(R.string.text_cancel_2cd0f3),substring=false).performClick()
     }
 }

@@ -56,7 +56,7 @@ class SeriesEditUiTest {
     }
     private fun edit(id: String, list: String = "task_list") {
         compose.onNodeWithTag(list).performScrollToNode(hasTestTag("task_$id"))
-        val button = hasText("編輯") and hasAnyAncestor(hasTestTag("task_$id"))
+        val button = hasActionLabel("編輯") and hasAnyAncestor(hasTestTag("task_$id"))
         if (compose.onAllNodes(button).fetchSemanticsNodes().isEmpty()) compose.onNodeWithTag("task_$id").performClick()
         compose.onNode(button).performClick()
     }
@@ -154,7 +154,7 @@ class SeriesEditUiTest {
         compose.onNodeWithTag("confirm_series_edit").performClick(); closed()
         navigate("ORGANIZE")
         compose.onNodeWithTag("org_menu_$category").performScrollTo().performClick()
-        compose.onNodeWithText("刪除", substring = false).performClick()
+        compose.onNode(hasActionLabel("刪除")).performClick()
         compose.onNodeWithTag("move_target_$ASSIGNMENTS_ID").performScrollTo().performClick()
         compose.onNodeWithTag("org_assignment_$first").performScrollTo().performClick()
         compose.onNodeWithText("進行中", substring = false).performClick()

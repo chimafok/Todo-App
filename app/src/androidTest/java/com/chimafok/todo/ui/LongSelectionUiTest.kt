@@ -16,6 +16,8 @@ import androidx.room.withTransaction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.chimafok.todo.MainActivity
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import com.chimafok.todo.data.*
 import com.chimafok.todo.domain.*
 import com.chimafok.todo.reminders.ReminderRuntime
@@ -47,7 +49,7 @@ class LongSelectionUiTest {
     private fun reload(){compose.runOnUiThread {model.reload()};ready()}
     private fun search(text:String,history:Boolean=false){compose.onNodeWithTag(if(history)"recurring_search" else "task_search").performTextReplacement(text);compose.onNodeWithTag(if(history)"recurring_search" else "task_search").performImeAction();ready(history)}
     private fun nav(page:String){compose.onNodeWithTag("open_menu").performClick();compose.onNodeWithTag("nav_$page").performClick();ready()}
-    private fun history(){nav("COMPLETED");compose.onNodeWithText("重複紀錄",substring=false).performClick();ready(true)}
+    private fun history(){nav("COMPLETED");compose.onNodeWithText(tr(R.string.recurring_records),substring=false).performClick();ready(true)}
     private fun long(tag:String,list:String="task_list") {
         compose.onNodeWithTag(list).performScrollToNode(hasTestTag(tag))
         compose.onNodeWithTag(tag).performTouchInput {longClick(Offset(width-20f,height/2f))}
@@ -78,17 +80,17 @@ class LongSelectionUiTest {
                     Clock.fixed(day.atStartOfDay(ZoneOffset.UTC).toInstant(),ZoneOffset.UTC),null,{}, {}, {}, {}, {}, {}, {}, {}, {},true)}}
             }
         }}}
-        compose.onNodeWithTag("count_$day").assertTextEquals("0 項")
-        compose.onNodeWithTag("count_$future").assertTextEquals("1 項")
-        compose.onNodeWithText("今天沒有待辦").assertHasNoClickAction()
-        val hintBounds=compose.onNodeWithText("今天沒有待辦").getUnclippedBoundsInRoot()
+        compose.onNodeWithTag("count_$day").assertTextEquals(tr(R.string.text_s_items_cfad0b, 0))
+        compose.onNodeWithTag("count_$future").assertTextEquals(tr(R.string.text_s_items_cfad0b, 1))
+        compose.onNodeWithText(tr(R.string.text_no_tasks_today_6162f3)).assertHasNoClickAction()
+        val hintBounds=compose.onNodeWithText(tr(R.string.text_no_tasks_today_6162f3)).getUnclippedBoundsInRoot()
         assertTrue((hintBounds.bottom-hintBounds.top).value<52f)
         compose.onNodeWithText("使用「新增」安排這一天的任務。").assertDoesNotExist()
         compose.onNodeWithTag("task_${row.id}").assertIsDisplayed()
         capture("compact")
         compose.runOnUiThread {large.value=true}
         compose.onNodeWithTag("task_list").performScrollToNode(hasTestTag("count_undated"))
-        compose.onNodeWithTag("count_undated").assertTextEquals("0 項").assertIsDisplayed()
+        compose.onNodeWithTag("count_undated").assertTextEquals(tr(R.string.text_s_items_cfad0b, 0)).assertIsDisplayed()
         capture("large-font")
     }
     @Test fun longPressSelectsWithoutCompletingAndWorksInPendingAndCompletedPages() {
@@ -103,7 +105,7 @@ class LongSelectionUiTest {
         nav("COMPLETED");search(prefix);long("task_$done");compose.onNodeWithTag("select_$done").assertIsOn()
         assertEquals(TaskStatus.COMPLETED,data {db.dao().task(done)!!.status})
         compose.onNodeWithTag("toggle_selection").performClick();compose.onNodeWithTag("task_$done").performClick()
-        compose.onNodeWithText("重新開啟",substring=false).assertExists()
+        compose.onNodeWithText(tr(R.string.text_reopen_d82e4e),substring=false).assertExists()
     }
     @Test fun trashLongSelectCanCancelThenRestoreAndPurgeOnlyTheChosenTasks() {
         val a="$prefix-a";val b="$prefix-b";val keep="$prefix-keep"
@@ -152,7 +154,7 @@ class LongSelectionUiTest {
         compose.onNodeWithTag("history_select_results").performClick();ready(true)
         compose.waitUntil(20_000){model.historyRecordSelection.value.size==54}
         assertTrue("$id-2" in model.historyRecordSelection.value);assertFalse("$id-1" in model.historyRecordSelection.value)
-        compose.onNodeWithTag("history_batch_trash").performClick();await("confirm_batch");compose.onNodeWithText("取消",substring=false).performClick();ready(true)
+        compose.onNodeWithTag("history_batch_trash").performClick();await("confirm_batch");compose.onNodeWithText(tr(R.string.text_cancel_2cd0f3),substring=false).performClick();ready(true)
         assertNull(data {db.dao().task("$id-2")!!.deletedAt})
         compose.onNodeWithTag("history_batch_trash").performClick();await("confirm_batch");compose.onNodeWithTag("confirm_batch").performClick();closed("confirm_batch")
         assertNotNull(data {db.dao().task("$id-2")!!.deletedAt});assertNull(data {db.dao().task("$id-1")!!.deletedAt})
@@ -175,14 +177,14 @@ class LongSelectionUiTest {
             compose.onNodeWithTag("task_$id-3").performTouchInput {longClick(Offset(width-20f,height/2f))}
             assertTrue(model.historyRecordSelection.value.isEmpty())
         }
-        ready(true);compose.onNodeWithText("沒有符合的紀錄",substring=false).assertExists()
+        ready(true);compose.onNodeWithText(tr(R.string.text_no_matching_records_b5f943),substring=false).assertExists()
         search("",true);ready(true)
         locked {
             compose.onNodeWithTag("history_select_results").performClick()
             androidx.test.espresso.Espresso.pressBack()
         }
         ready(true)
-        compose.onNodeWithTag("history_toggle_selection").assertTextContains("多選")
+        compose.onNodeWithTag("history_toggle_selection").assert(hasActionLabel(tr(R.string.text_select_1dc26d)))
         assertTrue(model.historyRecordSelection.value.isEmpty())
     }
 }

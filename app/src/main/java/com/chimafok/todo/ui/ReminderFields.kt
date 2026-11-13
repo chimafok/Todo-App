@@ -130,8 +130,9 @@ internal fun ReminderFields(encoded: String, onChange: (String) -> Unit, dueDate
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(tr(R.string.text_reminder_s_d115cc, index + 1), style = MaterialTheme.typography.titleSmall)
-                    TextButton(enabled = enabled, onClick = { onChange(encodeReminderInputs(rows.filter { it.id != row.id })) },
-                        modifier = Modifier.testTag("remove_reminder_$index")) { Text(tr(R.string.text_remove_6135d4)) }
+                    ActionIconButton(R.drawable.ic_trash, tr(R.string.text_remove_6135d4) + " " + tr(R.string.text_reminder_s_d115cc, index + 1),
+                        enabled = enabled, onClick = { onChange(encodeReminderInputs(rows.filter { it.id != row.id })) },
+                        modifier = Modifier.testTag("remove_reminder_$index"))
                 }
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(row.kind == "FIXED", enabled = enabled, onClick = { replace(index, row.copy(kind = "FIXED")) },
@@ -148,7 +149,8 @@ internal fun ReminderFields(encoded: String, onChange: (String) -> Unit, dueDate
                     var picker by rememberSaveable { mutableStateOf(false) }
                     OutlinedTextField(row.time, { replace(index, row.copy(time = it, zone = ZoneId.systemDefault().id, reference = System.currentTimeMillis())) },
                         label = { Text(tr(R.string.text_reminder_time_optional_ae1363)) }, placeholder = { Text("HH:mm") }, enabled = enabled, singleLine = true,
-                        trailingIcon = { TextButton(enabled = enabled, onClick = { picker = true }) { Text(tr(R.string.text_choose_a50371)) } },
+                        trailingIcon = { ActionIconButton(R.drawable.ic_clock, tr(R.string.text_choose_time_9f8b0c), enabled = enabled,
+                            modifier = Modifier.testTag("open_reminder_time_$index"), onClick = { picker = true }) },
                         modifier = Modifier.fillMaxWidth().testTag("reminder_time_$index"))
                     if (picker) TodoTimePicker(runCatching { row.effectiveTime(dueDate, dueTime, deadlineZone) }.getOrNull() ?: DEFAULT_REMINDER_TIME,
                         onDismiss = { picker = false }, onTime = { replace(index, row.copy(time = it.toString(), zone = ZoneId.systemDefault().id,

@@ -88,10 +88,17 @@ class RecurrenceCalendarTest {
         val series = runBlocking { db.dao().allSeries().single { it.title == title } }; owned.add(series.id)
         assertEquals(end, runBlocking { db.dao().latestRule(series.id)!!.endDate })
         compose.waitUntil(10_000) { compose.onAllNodesWithTag("task_title").fetchSemanticsNodes().isEmpty() }
-        val task = "task_${occurrenceId(series.id, 1)}"
+        val taskId = occurrenceId(series.id, 1)
+        val task = "task_$taskId"
+        // Closing the editor and committing the database do not mean that the
+        // paged query has presented its new rows yet, especially on older devices.
+        compose.waitUntil(15_000) {
+            androidx.lifecycle.ViewModelProvider(compose.activity)[TodoViewModel::class.java].state.value.tasks.any { it.id == taskId } &&
+                compose.onAllNodesWithTag("toggle_selection").fetchSemanticsNodes().singleOrNull()?.config?.contains(androidx.compose.ui.semantics.SemanticsProperties.Disabled) == false
+        }
         compose.onNodeWithTag("task_list").performScrollToNode(hasTestTag(task))
         compose.onNodeWithTag(task).performClick()
-        compose.onNode(hasText(tr(R.string.text_edit_e0d448)) and hasAnyAncestor(hasTestTag(task))).performClick()
+        compose.onNode(hasActionLabel(tr(R.string.text_edit_e0d448)) and hasAnyAncestor(hasTestTag(task))).performClick()
         compose.waitUntil(15_000) { compose.onAllNodesWithTag("repeat_scope_future").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithTag("repeat_scope_future").performScrollTo().performClick()
         val extended = end.plusDays(7)

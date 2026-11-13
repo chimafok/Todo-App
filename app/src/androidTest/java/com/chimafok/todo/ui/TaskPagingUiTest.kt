@@ -50,7 +50,7 @@ class TaskPagingUiTest {
         search("$prefix-頁外唯一")
         compose.onNodeWithTag("result_count").assertTextEquals("1 項")
         compose.onNodeWithTag("task_$prefix-1").performClick()
-        compose.onNode(hasText("編輯") and hasAnyAncestor(hasTestTag("task_$prefix-1"))).performClick()
+        compose.onNode(hasActionLabel("編輯") and hasAnyAncestor(hasTestTag("task_$prefix-1"))).performClick()
         awaitTag("task_title");compose.onNodeWithTag("task_title").assertTextContains("$prefix-1")
         compose.onNodeWithText("取消",substring=false).performClick();search(prefix)
         selectAll();compose.onNodeWithText("已選 130 項").assertExists()

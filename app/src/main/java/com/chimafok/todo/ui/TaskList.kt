@@ -350,20 +350,24 @@ internal fun TaskCard(
                 if (task.zoneId != null && task.zoneId != clock.zone.id) Text(tr(R.string.text_time_zone_s_4c666b, task.zoneId), style = MaterialTheme.typography.bodySmall)
                 if (inTrash) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilledTonalButton(onClick = { onRestore(task) }, enabled = enabled) { Text(tr(R.string.text_restore_2abdcb)) }
+                        ActionIconButton(R.drawable.ic_restore, tr(R.string.text_restore_2abdcb), enabled = enabled,
+                            modifier = Modifier.testTag("restore_${task.id}"), containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer, onClick = { onRestore(task) })
                         onPurge?.let { purge -> TextButton(onClick = { purge(task) }, enabled = enabled,
                             modifier = Modifier.testTag("purge_${task.id}"), colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text(tr(R.string.text_delete_permanently_15a9d2)) } }
                     }
                 } else if (!readOnly) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilledTonalButton(onClick = { onEdit(task) }, enabled = enabled) { Text(tr(R.string.text_edit_e0d448)) }
+                        ActionIconButton(R.drawable.ic_edit, tr(R.string.text_edit_e0d448), enabled = enabled,
+                            modifier = Modifier.testTag("edit_${task.id}"), containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer, onClick = { onEdit(task) })
                         if (task.status == TaskStatus.COMPLETED) {
                             TextButton(onClick = { onReopen(task) }, enabled = enabled) { Text(tr(R.string.text_reopen_d82e4e)) }
                         } else if (hasProgress) {
                             TextButton(onClick = { onAdvance(task) }, enabled = enabled) { Text(tr(R.string.text_advance_to_s_01798d, statusLabel(nextProgressStatus(task.status, study)))) }
                         }
-                        TextButton(onClick = { onDelete(task) }, enabled = enabled,
-                            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text(tr(R.string.text_delete_3c8f5b)) }
+                        ActionIconButton(R.drawable.ic_trash, tr(R.string.text_delete_3c8f5b), enabled = enabled,
+                            modifier = Modifier.testTag("trash_${task.id}"), contentColor = MaterialTheme.colorScheme.error, onClick = { onDelete(task) })
                         onDeleteFuture?.let { delete ->
                             TextButton(onClick = delete, enabled = enabled,
                                 modifier = Modifier.testTag("delete_future_${task.id}"),
