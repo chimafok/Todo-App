@@ -44,7 +44,7 @@ class TaskConversionUiTest {
     private fun edit(id: String) {
         compose.onNodeWithTag("task_list").performScrollToNode(hasTestTag("task_$id"))
         compose.onNodeWithTag("task_$id").performClick()
-        compose.onNode(hasText("編輯") and hasAnyAncestor(hasTestTag("task_$id"))).performClick()
+        compose.onNode(hasActionLabel("編輯") and hasAnyAncestor(hasTestTag("task_$id"))).performClick()
     }
     private fun hideKeyboard() { androidx.test.espresso.Espresso.closeSoftKeyboard(); compose.waitForIdle() }
     private fun capture(label: String) {

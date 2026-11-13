@@ -93,14 +93,14 @@ class OrganizationImagesUiTest {
         val original = data { db.dao().category(STUDY_ID)!! }
         try {
             organize(); show("org_menu_$STUDY_ID"); compose.onNodeWithTag("org_menu_$STUDY_ID").performClick()
-            compose.onNodeWithText("刪除", substring = false).assertDoesNotExist()
+            compose.onNode(hasActionLabel("刪除")).assertDoesNotExist()
             compose.onNodeWithText("重新命名", substring = false).performClick()
             compose.onNodeWithTag("org_name").performTextReplacement("$prefix-study")
             compose.onNodeWithTag("org_save").performClick()
             compose.waitUntil(15_000) { data { db.dao().category(STUDY_ID)!!.name == "$prefix-study" } }
             show("org_menu_$STUDY_ID"); compose.onNodeWithTag("org_menu_$STUDY_ID").performClick()
             compose.onNodeWithText("重新命名", substring = false).assertExists()
-            compose.onNodeWithText("刪除", substring = false).assertDoesNotExist()
+            compose.onNode(hasActionLabel("刪除")).assertDoesNotExist()
             compose.onNodeWithText("重新命名", substring = false).performClick()
             compose.onNodeWithTag("org_name").assertTextContains("$prefix-study")
             compose.onNodeWithText("取消", substring = false).performClick()

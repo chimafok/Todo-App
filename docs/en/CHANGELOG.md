@@ -4,6 +4,12 @@
 
 This page lists official versions and the current development test build. [Original development/test-version records](../history/CHANGELOG-HISTORY.zh-Hant.md) preserve delivery-time states, not the current version. [Releases](https://github.com/chimafok/Todo-App/releases/latest) is authoritative for official APK downloads.
 
+## 1.5.0-dev02 — 2026-11-13
+
+- Swipe through enlarged images without wrapping at the ends. Dragging while zoomed pans the image; changing pages resets zoom, and rotation preserves the settled image. Blank-space dismissal remains available.
+- Use icons for viewer close/navigation, adding images, time selection/input modes, removing reminders, card edit/trash/restore, and filter/multiselect/select-all toolbars. Keep counts, at least 48 dp tap targets, localized action names and long-press tooltips. Permanent deletion and series-scope actions keep text.
+- Development-signed com.chimafok.todo.debug / code39 can update dev01. Official target remains 1.5.0, pending maintainer testing and approval; no official signing or main merge this round. Room schema10 / backup format6 are unchanged.
+
 ## 1.5.0-dev01 — 2026-11-13
 
 - Add a calendar button to recurring end dates for new tasks and this-and-future edits, retaining typed date shortcuts and inclusive end-date rules.

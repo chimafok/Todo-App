@@ -271,8 +271,8 @@ fun TaskEditor(
                     DeadlineTextField(time, { time = it; deadlineReference = System.currentTimeMillis(); zone = ZoneId.systemDefault().id }, label = tr(R.string.text_due_time_optional_434ef0), placeholder = "HH:mm",
                         supportingText = if (timePreview != null) { { Text(timePreview) } } else null,
                         trailingIcon = {
-                            TextButton(enabled = hasDeadlineDate && !saving, onClick = { showTimePicker = true },
-                                modifier = Modifier.testTag("open_time")) { Text(tr(R.string.text_choose_a50371)) }
+                            ActionIconButton(R.drawable.ic_clock, tr(R.string.text_choose_time_9f8b0c),
+                                enabled = hasDeadlineDate && !saving, onClick = { showTimePicker = true }, modifier = Modifier.testTag("open_time"))
                         }, modifier = Modifier.fillMaxWidth().testTag("task_time"),
                         colors = fieldColors,
                         enabled = !saving && hasDeadlineDate)
@@ -330,8 +330,8 @@ fun TaskEditor(
                             startTimeInput = it; startReference = System.currentTimeMillis(); startZone = ZoneId.systemDefault().id
                         }, label = tr(R.string.text_start_time_optional_7b7f9f), placeholder = "HH:mm",
                             supportingText = if (startTimePreview != null) { { Text(startTimePreview) } } else null,
-                            trailingIcon = { TextButton(enabled = startDateInput.isNotBlank() && !saving, onClick = { showStartTimePicker = true },
-                                modifier = Modifier.testTag("open_start_time")) { Text(tr(R.string.text_choose_a50371)) } },
+                            trailingIcon = { ActionIconButton(R.drawable.ic_clock, tr(R.string.text_choose_time_9f8b0c), enabled = startDateInput.isNotBlank() && !saving,
+                                onClick = { showStartTimePicker = true }, modifier = Modifier.testTag("open_start_time")) },
                             modifier = Modifier.fillMaxWidth().testTag("task_start_time"), colors = fieldColors,
                             enabled = !saving && startDateInput.isNotBlank())
                         if (startDateInput.isNotBlank()) {
