@@ -77,7 +77,7 @@ fun TodoApp(viewModel: TodoViewModel) {
     var restoreSeriesId by rememberSaveable { mutableStateOf<String?>(null) }
     var restoreSeriesRevision by rememberSaveable { mutableLongStateOf(0L) }
     val finishingTasks = remember { mutableStateMapOf<String, com.chimafok.todo.data.TaskEntity>() }
-    val completionProgress = remember { mutableStateMapOf<String, Float>() }
+    val completionProgress = remember { mutableStateMapOf<String, State<Float>>() }
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     val clock = Clock.fixed(Instant.ofEpochMilli(now), ZoneId.systemDefault())
     LaunchedEffect(Unit) {
@@ -140,7 +140,9 @@ fun TodoApp(viewModel: TodoViewModel) {
                     val observed = viewModel.state.first { snapshot -> snapshot.error != null ||
                         snapshot.tasks.none { it.id == task.id && it.status != status } }
                     check(observed.error == null) { tr(R.string.text_completion_saved_but_the_screen_could_413f40) }
-                    animate(0f, 1f, animationSpec = tween(320)) { value, _ -> completionProgress[task.id] = value }
+                    val progress = mutableFloatStateOf(0f)
+                    completionProgress[task.id] = progress
+                    animate(0f, 1f, animationSpec = tween(320)) { value, _ -> progress.floatValue = value }
                 } finally {
                     completionProgress.remove(task.id)
                     finishingTasks.remove(task.id)

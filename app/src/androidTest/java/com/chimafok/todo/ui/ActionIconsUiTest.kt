@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.*
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.chimafok.todo.MainActivity
@@ -91,8 +93,20 @@ class ActionIconsUiTest {
                 val expected = normal[normal.width / 2, normal.height / 6]
                 maxOf(kotlin.math.abs(actual.red - expected.red), kotlin.math.abs(actual.green - expected.green), kotlin.math.abs(actual.blue - expected.blue)) < .02f
             }
+            fun assertSummaryAligned() {
+                fun baseline(node: SemanticsNodeInteraction): Float {
+                    val layouts = mutableListOf<TextLayoutResult>()
+                    node.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+                    return (node.fetchSemanticsNode().boundsInRoot.top + layouts.single().firstBaseline) / compose.density.density
+                }
+                val summary = compose.onNodeWithTag("selection_count", useUnmergedTree = true)
+                val selectAll = compose.onNode(hasText(tr(R.string.text_select_all_results_9951b1)) and hasAnyAncestor(hasTestTag("select_results")), useUnmergedTree = true)
+                assertEquals(baseline(summary), baseline(selectAll), 1.1f / compose.density.density + .01f)
+            }
+            assertSummaryAligned()
             compose.onNodeWithTag("select_results").assertTextContains(tr(R.string.text_select_all_results_9951b1)).performClick(); ready()
             compose.onNodeWithTag("select_$id").assertIsOn()
+            assertSummaryAligned()
             compose.onNodeWithTag("toggle_selection").performClick().assertIsNotSelected()
             reveal("edit_$id"); compose.onNodeWithTag("edit_$id").assertTextContains(tr(R.string.text_edit_e0d448)).performClick(); await("task_title")
             compose.onNodeWithTag("task_title").assertTextContains(id)

@@ -35,7 +35,7 @@ class OrganizationImagesUiTest {
     } }; File(compose.activity.cacheDir, "qa-image.png").delete(); (0..11).forEach { File(compose.activity.cacheDir, "qa-image-$it.png").delete() } }
     private fun organize(tags: Boolean = false) {
         compose.onNodeWithTag("open_menu").performClick(); compose.onNodeWithTag("nav_ORGANIZE").performClick(); await("org_add")
-        if (tags) compose.onNodeWithText("標籤", substring = false).performClick()
+        if (tags) compose.onNodeWithText(tr(R.string.text_tags_9b423a), substring = false).performClick()
     }
     private fun show(tag: String) { compose.onNodeWithTag("org_list").performScrollToNode(hasTestTag(tag)) }
     private fun capture(label: String) { androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand("screencap -p /data/local/tmp/todo130-$label.png").use { java.io.FileInputStream(it.fileDescriptor).use { input -> input.readBytes() } } }
@@ -48,7 +48,7 @@ class OrganizationImagesUiTest {
         compose.onNodeWithTag("org_row_$first").performTouchInput { down(Offset(25f, height/2f)) }
         compose.mainClock.advanceTimeBy(800); Thread.sleep(800)
         capture("drag-hold")
-        compose.onNodeWithTag("org_list").assert(SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.StateDescription,"正在排序"))
+        compose.onNodeWithTag("org_list").assert(SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.StateDescription,tr(R.string.text_reordering_37e5dd)))
         compose.onNodeWithTag("org_row_$first").performTouchInput { moveTo(Offset(25f, height/2f + distance), delayMillis = 300); up() }
         compose.waitForIdle(); capture("drag-end")
     }
@@ -56,7 +56,7 @@ class OrganizationImagesUiTest {
         data { val org = OrganizationRepository(db); listOf("a", "b").forEach { org.saveCategory("$prefix-$it", "$prefix-$it", null); org.saveTag("$prefix-$it", "$prefix-$it", null) } }
         organize(); drag("$prefix-a", "$prefix-b")
         compose.waitUntil(15_000) { data { val ids = db.dao().allCategories().map { it.id }; ids.indexOf("$prefix-a") > ids.indexOf("$prefix-b") } }
-        compose.onNodeWithText("標籤", substring = false).performClick(); drag("$prefix-a", "$prefix-b")
+        compose.onNodeWithText(tr(R.string.text_tags_9b423a), substring = false).performClick(); drag("$prefix-a", "$prefix-b")
         compose.waitUntil(15_000) { data { db.dao().allTags().map { it.id }.takeLast(2) == listOf("$prefix-b", "$prefix-a") } }
         compose.activityRule.scenario.recreate(); await("org_add")
         assertTrue(data { val ids = db.dao().allCategories().map { it.id }; ids.indexOf("$prefix-a") > ids.indexOf("$prefix-b") })

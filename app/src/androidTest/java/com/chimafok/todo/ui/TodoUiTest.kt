@@ -326,8 +326,8 @@ class TodoUiTest {
             // revision. This is deliberately outside Room's observed transaction.
             db.openHelper.writableDatabase.execSQL("UPDATE tasks SET revision = revision + 1 WHERE id = ?", arrayOf(task.id))
             compose.onNodeWithTag("complete_${task.id}").performClick()
-            compose.waitUntil(10_000) { compose.onAllNodesWithText("資料已更新，請重試").fetchSemanticsNodes().isNotEmpty() }
-            compose.onNodeWithText("資料已更新，請重試").assertIsDisplayed()
+            compose.waitUntil(10_000) { compose.onAllNodesWithText(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_data_changed_please_try_again_31aa79)).fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithText(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_data_changed_please_try_again_31aa79)).assertIsDisplayed()
             compose.onNodeWithTag("complete_${task.id}").assertIsOff()
             compose.onNodeWithText(title).assertIsDisplayed()
             val unchanged = runBlocking { db.dao().task(task.id)!! }

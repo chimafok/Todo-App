@@ -84,9 +84,11 @@ fun OrganizationScreen(state: TodoState, viewModel: TodoViewModel) {
     BackHandler(selecting && deletePreview == null && !busy) { selecting = false; selected = emptyList() }
     fun toggle(id: String) { if (!busy && id in deletable) selected = if (id in selected) selected - id else selected + id }
     fun rowModifier(id: String): Modifier {
-        val offset = listState.layoutInfo.visibleItemsInfo.find { it.key == id }?.offset ?: 0
         return Modifier.zIndex(if (dragged == id) 1f else 0f).graphicsLayer {
-            if (dragged == id) { translationY = dragTop - offset; shadowElevation = 12.dp.toPx() }
+            if (dragged == id) {
+                val offset = listState.layoutInfo.visibleItemsInfo.find { it.key == id }?.offset ?: 0
+                translationY = dragTop - offset; shadowElevation = 12.dp.toPx()
+            }
         }.then(if (selecting && id in deletable) Modifier.clickable(enabled = !busy) { toggle(id) } else Modifier)
     }
 
@@ -143,11 +145,10 @@ fun OrganizationScreen(state: TodoState, viewModel: TodoViewModel) {
         }, contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             item(key = "actions") {
                 if (selecting) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(tr(R.string.text_s_selected_a5726a, selected.size), Modifier.weight(1f))
-                        TextButton(enabled = !busy,
+                    SelectionToolbar(tr(R.string.text_s_selected_a5726a, selected.size), summaryTag="org_selection_count") {
+                        SelectionTextButton(enabled = !busy,
                             onClick = { selected = if (selected.size == deletable.size) emptyList() else deletable }, modifier = Modifier.testTag("org_select_all")) { Text(tr(R.string.text_select_all_1ffe5f)) }
-                        TextButton(enabled = !busy, onClick = { selecting = false; selected = emptyList() }) { Text(tr(R.string.text_cancel_2cd0f3)) }
+                        SelectionTextButton(enabled = !busy, onClick = { selecting = false; selected = emptyList() }) { Text(tr(R.string.text_cancel_2cd0f3)) }
                     }
                     Button(enabled = !busy && selected.isNotEmpty(), modifier = Modifier.fillMaxWidth().testTag("org_batch_confirm"), onClick = {
                         runOperation { viewModel.organizationDeleteChoices = emptyMap(); viewModel.organizationDeletePreview = viewModel.previewOrganizationDelete(selected.toSet(), tab == 1) }

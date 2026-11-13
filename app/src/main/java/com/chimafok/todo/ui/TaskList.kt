@@ -16,6 +16,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.Spring
@@ -93,7 +94,7 @@ fun TaskList(
     onComplete: (TaskEntity) -> Unit, onReopen: (TaskEntity) -> Unit,
     onStatus: (TaskEntity) -> Unit, onAdvance: (TaskEntity) -> Unit,
     onDelete: (TaskEntity) -> Unit, onRestore: (TaskEntity) -> Unit, actionsEnabled: Boolean,
-    finishingTasks: Map<String, TaskEntity> = emptyMap(), completionProgress: Map<String, Float> = emptyMap(),
+    finishingTasks: Map<String, TaskEntity> = emptyMap(), completionProgress: Map<String, State<Float>> = emptyMap(),
     selectionMode: Boolean = false, selectedIds: Set<String> = emptySet(),
     onToggleSelection: (String) -> Unit = {}, filtered: Boolean = false,
     onPurge: ((TaskEntity) -> Unit)? = null,
@@ -126,6 +127,10 @@ fun TaskList(
     } }
     val counts = groupCounts ?: groups.associate { it.date to it.tasks.size }
     val listState = rememberLazyListState()
+    val detailMotion = remember { mutableStateMapOf<String, Boolean>() }
+    // Resizing already moves following rows. A second placement spring would lag behind it.
+    val placement = if (detailMotion.isEmpty()) spring<androidx.compose.ui.unit.IntOffset>(
+        dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow) else null
     var scrolledJump by rememberSaveable { mutableStateOf<String?>(null) }
     LaunchedEffect(jumpDate, destination, jumpReady) {
         if(jumpDate==null) scrolledJump=null
@@ -207,8 +212,8 @@ fun TaskList(
                     reminders = remindersByTask[task.id].orEmpty(), onPurge = onPurge,
                     onDeleteFuture = if (destination == Destination.AGENDA && onDeleteFuture != null)
                         occurrencesByTask[task.id]?.let { ref -> { onDeleteFuture(ref.seriesId) } } else null,
-                    modifier = Modifier.animateItem(fadeInSpec = tween(180), fadeOutSpec = tween(180),
-                        placementSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)))
+                    onDetailsMotion = { moving -> if (moving) detailMotion[task.id] = true else detailMotion.remove(task.id) },
+                    modifier = Modifier.animateItem(fadeInSpec = tween(180), fadeOutSpec = tween(180), placementSpec = placement))
             }
         }
         if(moreUndated) item(key="more_undated") {
@@ -225,13 +230,14 @@ internal fun TaskCard(
     onEdit: (TaskEntity) -> Unit, onComplete: (TaskEntity) -> Unit, onReopen: (TaskEntity) -> Unit,
     onStatus: (TaskEntity) -> Unit, onAdvance: (TaskEntity) -> Unit, onDelete: (TaskEntity) -> Unit,
     onRestore: (TaskEntity) -> Unit,
-    modifier: Modifier = Modifier, completion: Float? = null, tags: List<String> = emptyList(),
+    modifier: Modifier = Modifier, completion: State<Float>? = null, tags: List<String> = emptyList(),
     selectionMode: Boolean = false, selected: Boolean = false, onToggleSelection: (String) -> Unit = {},
     recurringLabel: String? = null, historyDescription: String? = null, readOnly: Boolean = false,
     reminders: List<com.chimafok.todo.data.ReminderEntity> = emptyList(),
     onPurge: ((TaskEntity) -> Unit)? = null,
     onDeleteFuture: (() -> Unit)? = null,
     onLongSelect: ((String) -> Unit)? = null,
+    onDetailsMotion: (Boolean) -> Unit = {},
 ) {
     var expanded by rememberSaveable(task.id) { mutableStateOf(false) }
     val assignment = task.categoryId == ASSIGNMENTS_ID
@@ -240,7 +246,12 @@ internal fun TaskCard(
     val progressName = if (study) tr(R.string.text_study_dcb987) else tr(R.string.text_assignments_d87d04)
     val overdue = !readOnly && task.status != TaskStatus.COMPLETED && isOverdue(task.dueDate, task.dueTime, task.zoneId, clock)
     val completed = task.status == TaskStatus.COMPLETED || completion != null
-    val feedback = completion ?: 0f
+    val feedback = completion?.value ?: 0f
+    val details = remember { MutableTransitionState(false) }
+    details.targetState = expanded && !selectionMode
+    val reportMotion by rememberUpdatedState(onDetailsMotion)
+    SideEffect { reportMotion(!details.isIdle) }
+    DisposableEffect(Unit) { onDispose { reportMotion(false) } }
     Card(modifier = modifier.fillMaxWidth().testTag("task_${task.id}")
         .graphicsLayer { scaleX = 1f - feedback * 0.015f; scaleY = 1f - feedback * 0.015f }
         .clip(MaterialTheme.shapes.large)
@@ -257,7 +268,7 @@ internal fun TaskCard(
             overdue -> MaterialTheme.colorScheme.error.copy(alpha = 0.4f)
             else -> MaterialTheme.colorScheme.outlineVariant
         })) {
-        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.padding(14.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
                     if (selectionMode) {
@@ -341,10 +352,10 @@ internal fun TaskCard(
                     }
                 }
             }
-            AnimatedVisibility(visible = expanded && !selectionMode,
-                enter = expandVertically(tween(240)) + fadeIn(tween(180)),
-                exit = shrinkVertically(tween(260)) + fadeOut(tween(220))) {
-                Column(Modifier.testTag("task_details_${task.id}"), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            AnimatedVisibility(visibleState = details,
+                enter = expandVertically(tween(280), expandFrom = Alignment.Top) + fadeIn(tween(180)),
+                exit = shrinkVertically(tween(280), shrinkTowards = Alignment.Top) + fadeOut(tween(220))) {
+                Column(Modifier.padding(top = 12.dp).testTag("task_details_${task.id}"), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 if (task.notes.isNotBlank()) LinkifiedNotes(task.notes)
                 NoteImageGallery(task.imageIds)
@@ -390,7 +401,7 @@ internal fun TaskCard(
 @Composable
 internal fun LinkifiedNotes(notes: String) {
     val color = MaterialTheme.colorScheme.primary
-    Text(buildAnnotatedString {
+    val linked = remember(notes, color) { buildAnnotatedString {
         var offset = 0
         Regex("https?://[^\\s<>]+", RegexOption.IGNORE_CASE).findAll(notes).forEach { match ->
             append(notes.substring(offset, match.range.first))
@@ -400,5 +411,6 @@ internal fun LinkifiedNotes(notes: String) {
             offset = match.range.last + 1
         }
         append(notes.substring(offset))
-    })
+    } }
+    Text(linked)
 }
