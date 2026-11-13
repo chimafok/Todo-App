@@ -14,7 +14,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.res.painterResource
@@ -190,7 +189,7 @@ fun TaskBrowser(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp).testTag("task_search"))
         Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically) {
-            val toolbarIconSize = with(LocalDensity.current) { MaterialTheme.typography.labelLarge.fontSize.toDp() }
+            val toolbarIconSize = 18.dp
             ActionIconButton(R.drawable.ic_filter,
                 if (categoryIds.isEmpty() && tagIds.isEmpty()) tr(R.string.text_filter_9bd5d8) else tr(R.string.text_filter_s_6613a2, categoryIds.size + tagIds.size),
                 modifier = Modifier.testTag("open_filters"), iconSize = toolbarIconSize, badgeCount = categoryIds.size + tagIds.size, onClick = { showFilters = true })
