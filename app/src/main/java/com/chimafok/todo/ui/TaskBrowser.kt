@@ -14,6 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.res.painterResource
@@ -189,21 +190,23 @@ fun TaskBrowser(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp).testTag("task_search"))
         Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically) {
+            val toolbarIconSize = with(LocalDensity.current) { MaterialTheme.typography.labelLarge.fontSize.toDp() }
             ActionIconButton(R.drawable.ic_filter,
                 if (categoryIds.isEmpty() && tagIds.isEmpty()) tr(R.string.text_filter_9bd5d8) else tr(R.string.text_filter_s_6613a2, categoryIds.size + tagIds.size),
-                modifier = Modifier.testTag("open_filters"), badgeCount = categoryIds.size + tagIds.size, onClick = { showFilters = true })
+                modifier = Modifier.testTag("open_filters"), iconSize = toolbarIconSize, badgeCount = categoryIds.size + tagIds.size, onClick = { showFilters = true })
             Text(tr(R.string.text_s_items_cfad0b, resultIds.size), Modifier.weight(1f).testTag("result_count"), style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
             ActionIconButton(if (selecting) R.drawable.ic_check else R.drawable.ic_multi_select,
                 if (selecting) tr(R.string.text_done_selecting_d8c47c) else tr(R.string.text_select_1dc26d),
-                enabled = ready, selected = selecting, contentColor = stableSelectionColors.contentColor, disabledContentColor = stableSelectionColors.disabledContentColor,
+                enabled = ready, selected = selecting, highlightSelected = false, iconSize = toolbarIconSize, contentColor = stableSelectionColors.contentColor, disabledContentColor = stableSelectionColors.disabledContentColor,
                 modifier = Modifier.testTag("toggle_selection"), onClick = { selecting = !selecting; selected = emptyList();selectedTrashSeries=emptyList();selectionGeneration++ })
         }
         if (selecting) {
             FlowRow(Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(tr(R.string.text_s_selected_a5726a, selected.size) + if(scope==TaskScope.TRASH) tr(R.string.text_tasks_s_series_05751e, selectedTrashSeries.size) else "", Modifier.padding(vertical = 12.dp), style = MaterialTheme.typography.labelLarge)
-                ActionIconButton(R.drawable.ic_select_all, if(scope==TaskScope.TRASH)tr(R.string.text_select_all_task_results_e065f9) else tr(R.string.text_select_all_results_9951b1),
-                    enabled = ready && resultIds.isNotEmpty(), onClick = { selected = resultIds.toList() }, modifier = Modifier.testTag("select_results"))
+                TextButton(enabled = ready && resultIds.isNotEmpty(), onClick = { selected = resultIds.toList() }, modifier = Modifier.testTag("select_results")) {
+                    Text(if(scope==TaskScope.TRASH)tr(R.string.text_select_all_task_results_e065f9) else tr(R.string.text_select_all_results_9951b1))
+                }
                 if(scope==TaskScope.TRASH) {
                     TextButton(enabled=ready && (selected.isNotEmpty() || selectedTrashSeries.isNotEmpty()),onClick={previewTrash(true)},modifier=Modifier.testTag("batch_restore")) {Text(tr(R.string.text_restore_selected_4f3a94))}
                     TextButton(enabled=ready && (selected.isNotEmpty() || selectedTrashSeries.isNotEmpty()),onClick={previewTrash(false)},modifier=Modifier.testTag("batch_purge"),colors=ButtonDefaults.textButtonColors(contentColor=MaterialTheme.colorScheme.error)) {Text(tr(R.string.text_delete_selected_permanently_458965))}

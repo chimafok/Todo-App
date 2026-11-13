@@ -93,25 +93,25 @@ class OrganizationImagesUiTest {
         val original = data { db.dao().category(STUDY_ID)!! }
         try {
             organize(); show("org_menu_$STUDY_ID"); compose.onNodeWithTag("org_menu_$STUDY_ID").performClick()
-            compose.onNode(hasActionLabel("刪除")).assertDoesNotExist()
-            compose.onNodeWithText("重新命名", substring = false).performClick()
+            compose.onNode(hasActionLabel(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_delete_3c8f5b))).assertDoesNotExist()
+            compose.onNodeWithText(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_rename_a60560), substring = false).performClick()
             compose.onNodeWithTag("org_name").performTextReplacement("$prefix-study")
             compose.onNodeWithTag("org_save").performClick()
             compose.waitUntil(15_000) { data { db.dao().category(STUDY_ID)!!.name == "$prefix-study" } }
             show("org_menu_$STUDY_ID"); compose.onNodeWithTag("org_menu_$STUDY_ID").performClick()
-            compose.onNodeWithText("重新命名", substring = false).assertExists()
-            compose.onNode(hasActionLabel("刪除")).assertDoesNotExist()
-            compose.onNodeWithText("重新命名", substring = false).performClick()
+            compose.onNodeWithText(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_rename_a60560), substring = false).assertExists()
+            compose.onNode(hasActionLabel(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_delete_3c8f5b))).assertDoesNotExist()
+            compose.onNodeWithText(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_rename_a60560), substring = false).performClick()
             compose.onNodeWithTag("org_name").assertTextContains("$prefix-study")
-            compose.onNodeWithText("取消", substring = false).performClick()
+            compose.onNodeWithText(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_cancel_2cd0f3), substring = false).performClick()
             show("org_batch_delete"); compose.onNodeWithTag("org_batch_delete").performClick()
             show("org_select_$STUDY_ID"); compose.onNodeWithTag("org_select_$STUDY_ID").assertIsNotEnabled()
-            show("org_select_all"); compose.onNodeWithTag("org_select_all").performClick()
+            show("org_select_all"); compose.onNodeWithTag("org_select_all").assertTextContains(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_select_all_1ffe5f)).performClick()
             assertFalse(model.organizationSelection.value.contains(STUDY_ID))
-            compose.onNodeWithText("取消", substring = false).performClick()
+            compose.onNodeWithText(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_cancel_2cd0f3), substring = false).performClick()
             compose.activityRule.scenario.recreate(); await("org_add"); show("org_row_$STUDY_ID")
             compose.onNodeWithText("$prefix-study", substring = false).assertIsDisplayed()
-            compose.onNodeWithText("學習三態・可改名，不可刪除", substring = false).assertExists()
+            compose.onNodeWithText(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_three_study_states_can_rename_cannot_29e987), substring = false).assertExists()
         } finally {
             data { val current = db.dao().category(STUDY_ID)!!; OrganizationRepository(db).saveCategory(STUDY_ID, original.name, current.revision) }
         }

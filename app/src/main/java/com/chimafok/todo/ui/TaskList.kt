@@ -11,7 +11,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.Spring
@@ -239,7 +243,7 @@ internal fun TaskCard(
     val feedback = completion ?: 0f
     Card(modifier = modifier.fillMaxWidth().testTag("task_${task.id}")
         .graphicsLayer { scaleX = 1f - feedback * 0.015f; scaleY = 1f - feedback * 0.015f }
-        .animateContentSize(tween(220)).clip(MaterialTheme.shapes.large)
+        .clip(MaterialTheme.shapes.large)
         .combinedClickable(enabled=enabled,role=Role.Button,
             onLongClickLabel=if(onLongSelect!=null && !readOnly) tr(R.string.text_select_task_6a0154) else null,
             onLongClick=if(onLongSelect!=null && !readOnly && completion==null) ({onLongSelect(task.id)}) else null,
@@ -337,7 +341,10 @@ internal fun TaskCard(
                     }
                 }
             }
-            if (expanded && !selectionMode) {
+            AnimatedVisibility(visible = expanded && !selectionMode,
+                enter = expandVertically(tween(240)) + fadeIn(tween(180)),
+                exit = shrinkVertically(tween(260)) + fadeOut(tween(220))) {
+                Column(Modifier.testTag("task_details_${task.id}"), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 if (task.notes.isNotBlank()) LinkifiedNotes(task.notes)
                 NoteImageGallery(task.imageIds)
@@ -350,30 +357,30 @@ internal fun TaskCard(
                 if (task.zoneId != null && task.zoneId != clock.zone.id) Text(tr(R.string.text_time_zone_s_4c666b, task.zoneId), style = MaterialTheme.typography.bodySmall)
                 if (inTrash) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        ActionIconButton(R.drawable.ic_restore, tr(R.string.text_restore_2abdcb), enabled = enabled,
-                            modifier = Modifier.testTag("restore_${task.id}"), containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer, onClick = { onRestore(task) })
+                        FilledTonalButton(enabled = enabled, modifier = Modifier.testTag("restore_${task.id}"),
+                            onClick = { onRestore(task) }) { Text(tr(R.string.text_restore_2abdcb)) }
                         onPurge?.let { purge -> TextButton(onClick = { purge(task) }, enabled = enabled,
                             modifier = Modifier.testTag("purge_${task.id}"), colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text(tr(R.string.text_delete_permanently_15a9d2)) } }
                     }
                 } else if (!readOnly) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        ActionIconButton(R.drawable.ic_edit, tr(R.string.text_edit_e0d448), enabled = enabled,
-                            modifier = Modifier.testTag("edit_${task.id}"), containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer, onClick = { onEdit(task) })
+                        FilledTonalButton(enabled = enabled, modifier = Modifier.testTag("edit_${task.id}"),
+                            onClick = { onEdit(task) }) { Text(tr(R.string.text_edit_e0d448)) }
                         if (task.status == TaskStatus.COMPLETED) {
                             TextButton(onClick = { onReopen(task) }, enabled = enabled) { Text(tr(R.string.text_reopen_d82e4e)) }
                         } else if (hasProgress) {
                             TextButton(onClick = { onAdvance(task) }, enabled = enabled) { Text(tr(R.string.text_advance_to_s_01798d, statusLabel(nextProgressStatus(task.status, study)))) }
                         }
-                        ActionIconButton(R.drawable.ic_trash, tr(R.string.text_delete_3c8f5b), enabled = enabled,
-                            modifier = Modifier.testTag("trash_${task.id}"), contentColor = MaterialTheme.colorScheme.error, onClick = { onDelete(task) })
+                        TextButton(enabled = enabled, modifier = Modifier.testTag("trash_${task.id}"),
+                            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                            onClick = { onDelete(task) }) { Text(tr(R.string.text_delete_3c8f5b)) }
                         onDeleteFuture?.let { delete ->
                             TextButton(onClick = delete, enabled = enabled,
                                 modifier = Modifier.testTag("delete_future_${task.id}"),
                                 colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text(tr(R.string.text_delete_future_tasks_2d7630)) }
                         }
                     }
+                }
                 }
             }
         }

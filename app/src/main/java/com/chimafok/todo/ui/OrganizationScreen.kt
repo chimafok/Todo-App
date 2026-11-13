@@ -145,9 +145,8 @@ fun OrganizationScreen(state: TodoState, viewModel: TodoViewModel) {
                 if (selecting) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(tr(R.string.text_s_selected_a5726a, selected.size), Modifier.weight(1f))
-                        ActionIconButton(R.drawable.ic_select_all, tr(R.string.text_select_all_1ffe5f), enabled = !busy,
-                            selected = deletable.isNotEmpty() && selected.size == deletable.size,
-                            onClick = { selected = if (selected.size == deletable.size) emptyList() else deletable }, modifier = Modifier.testTag("org_select_all"))
+                        TextButton(enabled = !busy,
+                            onClick = { selected = if (selected.size == deletable.size) emptyList() else deletable }, modifier = Modifier.testTag("org_select_all")) { Text(tr(R.string.text_select_all_1ffe5f)) }
                         TextButton(enabled = !busy, onClick = { selecting = false; selected = emptyList() }) { Text(tr(R.string.text_cancel_2cd0f3)) }
                     }
                     Button(enabled = !busy && selected.isNotEmpty(), modifier = Modifier.fillMaxWidth().testTag("org_batch_confirm"), onClick = {

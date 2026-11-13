@@ -96,6 +96,24 @@ class GallerySwipeUiTest {
         compose.onNodeWithTag("note_image_close").performClick()
         compose.onNodeWithTag("task_notes").assertTextContains("Synthetic gallery notes")
     }
+    @Test fun arrowsAcceptRapidRepeatsAndReversalBeforeThePreviousAnimationSettles() {
+        open()
+        compose.mainClock.autoAdvance = false
+        try {
+            compose.onNodeWithTag("note_image_next").performClick()
+            compose.mainClock.advanceTimeBy(32)
+            compose.onNodeWithTag("note_image_next").assertIsEnabled().performClick()
+            compose.mainClock.advanceTimeBy(32)
+            compose.onNodeWithTag("note_image_next").assertIsNotEnabled()
+            compose.onNodeWithTag("note_image_previous").assertIsEnabled().performClick()
+            compose.mainClock.advanceTimeBy(240)
+            compose.onNodeWithTag("note_image_counter").assertTextEquals(tr(R.string.text_image_s_s_cae5c2, 2, 3))
+            compose.onNodeWithTag("note_image_next").assertIsEnabled().performClick()
+            compose.mainClock.advanceTimeBy(240)
+            compose.onNodeWithTag("note_image_counter").assertTextEquals(tr(R.string.text_image_s_s_cae5c2, 3, 3))
+            compose.onNodeWithTag("note_image_next").assertIsNotEnabled()
+        } finally { compose.mainClock.autoAdvance = true }
+    }
     @Test fun singleImageKeepsBothArrowsDisabledAndBlankTapDismisses() {
         open(1); compose.onNodeWithTag("note_image_previous").assertIsNotEnabled(); compose.onNodeWithTag("note_image_next").assertIsNotEnabled()
         preview().performTouchInput { swipeLeft() }; page(1, 1)
