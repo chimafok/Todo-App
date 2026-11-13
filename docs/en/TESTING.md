@@ -4,6 +4,12 @@
 
 This page separates official-release checks, development checks and historical results. Separate rounds are not presented as one full regression. Original failures/retests remain in shared verification JSON and the [history archive](../history/TESTING-HISTORY.zh-Hant.md). Translating documentation does not mean these app tests were rerun.
 
+## 1.5.0-dev04（2026-11-13）
+
+Restore home filter, multiselect and finish-selection glyphs to the official filter icon size of 18 dp. Keep count text, icon actions, at least 48 dp tap targets and the transparent check background. Debug build passed, Lint has 0 errors / 13 warnings, and 104 fresh unit cases passed. API37/26 each ran four icon/text-action cases, eight overall, covering all three actual glyph sizes, tap bounds, transparent background, long-press help in three languages, card Edit/Delete/Restore and reminder actions. Fresh XML class/count/time and zero failures/errors/skips were verified. Dedicated headless emulators were closed with userdata retained.
+
+Package com.chimafok.todo.debug / code41 uses the existing development certificate to update dev03. No official signing or main merge; Room schema10 / backup format6 unchanged. See [development-1.5.0-dev04.json](../verification/development-1.5.0-dev04.json). This is targeted validation, not phone acceptance, a full historical/language/accessibility matrix, large-data or overnight testing. Gallery and collapse code/previous-round evidence are unchanged and not counted again.
+
 ## 1.5.0-dev03 (2026-11-13)
 
 Debug builds passed with 0 Lint errors / 13 warnings; 104 fresh unit tests across 18 classes passed. API37 and API26 each ran six separate groups: gallery/swipes/rapid or reversed arrows 5, icon/text actions 4, collapse/reopening details 2, search/foreground refresh 3, long selection/Trash/recurring history 7, and protected category Select all 1. This is 22 cases per API, 44 overall, with fresh XML timestamps/classes/counts and zero failures/errors/skips checked each round. Coverage includes actual restored text-button actions, compact glyph bounds/48 dp tap targets, a pixel comparison of the transparent selection-check background, rapid arrow presses and reopening before transitions finish.

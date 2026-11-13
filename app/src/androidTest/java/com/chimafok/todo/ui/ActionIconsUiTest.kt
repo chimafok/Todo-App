@@ -71,14 +71,19 @@ class ActionIconsUiTest {
             ready(); compose.onNodeWithTag("task_search").performTextReplacement(id); ready()
             compose.onNodeWithTag("open_filters").assertContentDescriptionEquals(tr(R.string.text_filter_9bd5d8)).performClick()
             compose.onNodeWithTag("apply_filters").performClick(); ready()
-            val filterGlyph = compose.onNode(hasContentDescription(tr(R.string.text_filter_9bd5d8)) and hasAnyAncestor(hasTestTag("open_filters")), useUnmergedTree = true).getUnclippedBoundsInRoot()
-            val count = compose.onNodeWithTag("result_count").getUnclippedBoundsInRoot()
-            assertTrue((filterGlyph.bottom - filterGlyph.top) <= (count.bottom - count.top))
+            fun assertToolbarSize(tag: String, label: String) {
+                val glyph = compose.onNode(hasContentDescription(label) and hasAnyAncestor(hasTestTag(tag)), useUnmergedTree = true).getUnclippedBoundsInRoot()
+                assertEquals(18f, (glyph.right - glyph.left).value, .1f)
+                assertEquals(18f, (glyph.bottom - glyph.top).value, .1f)
+            }
+            assertToolbarSize("open_filters", tr(R.string.text_filter_9bd5d8))
+            assertToolbarSize("toggle_selection", tr(R.string.text_select_1dc26d))
             val target = compose.onNodeWithTag("open_filters").getUnclippedBoundsInRoot()
             assertTrue((target.right - target.left).value >= 48f && (target.bottom - target.top).value >= 48f)
             val normalImage = compose.onNodeWithTag("toggle_selection").captureToImage()
             val normal = normalImage.toPixelMap()
             compose.onNodeWithTag("toggle_selection").performClick().assertIsSelected()
+            assertToolbarSize("toggle_selection", tr(R.string.text_done_selecting_d8c47c))
             // Android's native ripple uses real render-thread time, not Compose's virtual clock.
             compose.waitUntil(5_000) {
                 val pixels = compose.onNodeWithTag("toggle_selection").captureToImage().toPixelMap()
