@@ -20,7 +20,7 @@
 Windows PowerShell：
 
 ```powershell
-.	oolsuild.ps1 -GradleTask @('assembleDebug', 'testQaUnitTest', 'lintDebug')
+.\tools\build.ps1 -GradleTask @('assembleDebug', 'testQaUnitTest', 'lintDebug')
 ```
 
 macOS／Linux：
@@ -34,7 +34,7 @@ chmod +x gradlew
 
 ```powershell
 $env:ANDROID_SERIAL = 'emulator-5554'
-.	oolsuild.ps1 -GradleTask @('connectedQaAndroidTest')
+.\tools\build.ps1 -GradleTask @('connectedQaAndroidTest')
 ```
 
 SDK／JDK 不在默认位置时可使用 build.ps1 的 -SdkPath／-JavaPath。不要用用户的日用安装作自动测试。
@@ -46,6 +46,8 @@ SDK／JDK 不在默认位置时可使用 build.ps1 的 -SdkPath／-JavaPath。�
 | debug | com.chimafok.todo.debug | Android Studio 日常开发 |
 | qa | com.chimafok.todo.qa | 自动化与虚构数据展示 |
 | release | com.chimafok.todo | 官方发布，建置结果默认未签署 |
+| perf | com.chimafok.todo.debug | 非调试优化对照包，沿用开发签名 |
+| qaPerf | com.chimafok.todo.qa | 最佳化后的隔离 QA 验证 |
 
 CI 建置与测试不使用正式私钥。自行签署的 release 不会取得官方更新身分。
 
@@ -72,3 +74,15 @@ App 有改动时，先完成必要检查并从待验证的 `dev` 来源建置 `a
 数据模型见 [DATA-MODEL](DATA-MODEL.md)，产品规则与验收条件见 [PRD](PRD.md)。
 
 提交前亦执行 `python tools/check-public-content.py` 与 `python tools/check-translations.py`。公开内容检查读取 Git 暂存内容，新增文件须先暂存；不要暂存本机设置或私人数据。文件目录与翻译规则见 [TRANSLATING](TRANSLATING.md)。
+
+## 性能对照测试包（1.5.0-dev06）
+
+使用 `assemblePerf` 构建用户的性能测试 APK（`.debug`、原有开发签名、非调试、R8／资源缩减、允许 shell 分析性能）。普通 `assembleDebug` 仍是可调试的对照包；两者版本码相同，可互相覆盖并保留测试数据。`assembleQaPerf` 使用相同优化设置和 `.qa` 身份，包含明确限定 QA 的合成数据探针，不作为下载交付。perf 只复用 debug 的 App 名称资源，没有引入 debug UI 工具依赖。
+
+正式 `release` 设置和官方密钥不会因为这个对照包自动改变；发布前仍需核对优化设置、来源和授权。R8 使用 Android 默认优化规则及依赖的 consumer rules，不以整包 keep 冒充优化。参见 [Android 官方 R8 指南](https://developer.android.com/topic/performance/app-optimization/enable-app-optimization)。
+
+```sh
+./gradlew assembleDebug assemblePerf assembleQa assembleQaPerf testQaUnitTest lintPerf
+```
+
+`tools/smoke-perf-qa.py` 只接受明确指定的模拟器名称和 `.qa` APK，验证数据保留、详情／滑动、编辑持久化和合成数据清理，输出本轮 JUnit XML。这是黑箱冒烟检查，不是 FPS 或手机性能量测。

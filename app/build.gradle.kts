@@ -14,7 +14,7 @@ android {
         applicationId = "com.chimafok.todo"
         minSdk = 26
         targetSdk = 37
-        versionCode = 42
+        versionCode = 43
         versionName = "1.5.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -31,13 +31,38 @@ android {
     buildTypes {
         // Official releases use com.chimafok.todo.
         // Keep development installs separate from official release data.
-        getByName("debug") { applicationIdSuffix = ".debug"; versionNameSuffix = "-dev05" }
+        getByName("debug") { applicationIdSuffix = ".debug"; versionNameSuffix = "-dev06" }
+        // Optimized comparison build: same update identity as debug, never the official key.
+        create("perf") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-dev06-perf"
+            signingConfig = signingConfigs.getByName("debug")
+            isDebuggable = false
+            isProfileable = true
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            matchingFallbacks += listOf("release")
+        }
+        create("qaPerf") {
+            initWith(getByName("perf"))
+            applicationIdSuffix = ".qa"
+            versionNameSuffix = "-qa-perf"
+            matchingFallbacks += listOf("perf", "release")
+        }
         create("qa") {
             initWith(getByName("debug"))
             applicationIdSuffix = ".qa"
             versionNameSuffix = "-qa"
             matchingFallbacks += listOf("debug")
         }
+    }
+    // Keep the comparison build's app label consistent with existing test installs.
+    sourceSets.getByName("perf").res.srcDir("src/debug/res")
+    sourceSets.getByName("qaPerf").apply {
+        manifest.srcFile("src/qa/AndroidManifest.xml")
+        kotlin.srcDir("src/qa/java")
     }
     testBuildType = "qa"
     sourceSets.getByName("androidTest").assets.directories.add("$projectDir/schemas")
@@ -59,6 +84,13 @@ tasks.matching { it.name == "kspQaKotlin" }.configureEach {
 
 tasks.matching { it.name == "kspReleaseKotlin" }.configureEach {
     mustRunAfter("kspDebugKotlin", "kspQaKotlin")
+}
+
+tasks.matching { it.name == "kspPerfKotlin" }.configureEach {
+    mustRunAfter("kspDebugKotlin", "kspQaKotlin", "kspReleaseKotlin")
+}
+tasks.matching { it.name == "kspQaPerfKotlin" }.configureEach {
+    mustRunAfter("kspDebugKotlin", "kspQaKotlin", "kspReleaseKotlin", "kspPerfKotlin")
 }
 
 kotlin {

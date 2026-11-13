@@ -8,7 +8,7 @@ This page consolidates **current 1.4.1 rules** without adding or removing requir
 
 Recurring end dates offer both typed input and the existing calendar picker when creating, converting or editing this and future occurrences. Resolve the initial selection using the field's saved reference date, falling back to that reference for empty or invalid text. Cancellation preserves text; confirmation writes YYYY-MM-DD. Inclusive end-date rules and validation remain unchanged.
 
-Tap blank space outside the painted image to close an enlarged preview, accounting for current zoom and translation. Image-content taps, pinch and pan keep it open; retain the Close button and previous/next controls. Target official 1.5.0 after maintainer approval of the current 1.5.0-dev05 test build.
+Tap blank space outside the painted image to close an enlarged preview, accounting for current zoom and translation. Image-content taps, pinch and pan keep it open; retain the Close button and previous/next controls. Target official 1.5.0 after maintainer approval of the current 1.5.0-dev06 test build.
 
 At normal scale, swipe left for the next image and right for the previous image, without wrapping at either end. When zoomed, dragging pans the image instead. Keep arrow navigation; changing pages resets zoom and translation, while rotation preserves the settled image. Use an X for closing and chevrons for previous/next.
 

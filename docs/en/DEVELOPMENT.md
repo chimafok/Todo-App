@@ -50,6 +50,8 @@ Before committing, also run `python tools/check-public-content.py` and `python t
 | debug | com.chimafok.todo.debug | Android Studio development |
 | qa | com.chimafok.todo.qa | Isolated automation and synthetic demonstrations |
 | release | com.chimafok.todo | Official distribution; unsigned by default |
+| perf | com.chimafok.todo.debug | Non-debuggable optimized comparison, development certificate |
+| qaPerf | com.chimafok.todo.qa | Isolated optimized QA smoke checks |
 
 CI uses no official private key. A self-signed release has no official update identity.
 
@@ -74,3 +76,15 @@ Use the existing official key and a higher versionCode. Check package, non-debug
 - `app/schemas`: historical Room schemas for non-destructive migration tests.
 
 See the [data model](DATA-MODEL.md), [product specification](PRD.md) and [translation guide](TRANSLATING.md).
+
+## Performance comparison builds (1.5.0-dev06)
+
+Use `assemblePerf` for the user-facing performance test APK (`.debug`, existing development certificate, non-debuggable, R8/resource shrinking, shell-profileable). `assembleDebug` remains the debuggable control. Both have the same versionCode and can replace each other while preserving test data. `assembleQaPerf` applies the same optimization to isolated `.qa` with synthetic QA-only probes and is not distributed. perf reuses only debug app-name resources, not debug UI tooling dependencies.
+
+The official release configuration and key are not automatically changed by this comparison variant; check optimization settings, source and approval before publishing. R8 uses Android default optimization and library consumer rules, without blanket app keep rules. See the [official Android R8 guide](https://developer.android.com/topic/performance/app-optimization/enable-app-optimization).
+
+```sh
+./gradlew assembleDebug assemblePerf assembleQa assembleQaPerf testQaUnitTest lintPerf
+```
+
+`tools/smoke-perf-qa.py` accepts only an explicitly named emulator and `.qa` APKs. It checks retained data, details/scrolling, persistent edits and fixture cleanup, producing fresh JUnit XML. This is a black-box smoke check, not FPS or phone-performance measurement.
