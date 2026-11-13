@@ -74,6 +74,16 @@ class QaSystemProbe : ContentProvider() {
                     statement.close(); occurrence.close()
                 }
             }
+            "seed-perf", "clear-perf" -> db.withTransaction {
+                db.openHelper.writableDatabase.execSQL("DELETE FROM tasks WHERE id LIKE 'qa-perf-%'")
+                if (method == "seed-perf") {
+                    repeat((arg?.toIntOrNull() ?: 20).coerceIn(1, 100)) { i ->
+                        TaskRepository(db).save(TaskDraft("qa-perf-$i", "QA Perf ${i.toString().padStart(2, '0')}",
+                            notes = "Synthetic performance note $i.\n".repeat(8),
+                            dueDate = java.time.LocalDate.now().plusDays((i / 5).toLong())))
+                    }
+                }
+            }
             "refresh" -> ReminderRuntime.engine.reconcile(force = true, recovery = true)
             "inspect" -> Unit
             else -> error("Unknown QA method")
@@ -85,6 +95,7 @@ class QaSystemProbe : ContentProvider() {
             .put("now", System.currentTimeMillis()).put("state", row?.state ?: "NONE")
             .put("at", row?.resolvedAt ?: 0).put("mode", row?.alarmMode ?: "NONE")
             .put("key", row?.alarmKey ?: "NONE").put("zone", ZoneId.systemDefault().id)
+            .put("perfTaskCount", db.openHelper.readableDatabase.query("SELECT COUNT(*) FROM tasks WHERE id LIKE 'qa-perf-%'").use { c -> c.moveToFirst(); c.getInt(0) })
             .put("taskZone", task?.zoneId ?: "NONE").put("revision", task?.revision ?: 0)
             .put("notification", notification != null).put("postTime", notification?.postTime ?: 0)
             .put("exactAllowed", gateway.exactAllowed()).put("notificationsAllowed", gateway.notificationsAllowed())

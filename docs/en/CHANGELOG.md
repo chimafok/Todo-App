@@ -4,6 +4,10 @@
 
 This page lists official versions and the current development test build. [Original development/test-version records](../history/CHANGELOG-HISTORY.zh-Hant.md) preserve delivery-time states, not the current version. [Releases](https://github.com/chimafok/Todo-App/releases/latest) is authoritative for official APK downloads.
 
+## 1.5.0-dev06 — 2026-11-13
+
+- Add a non-debuggable R8/resource-shrunk comparison APK, sharing source, package and development signing identity with the regular test build for replacement in either direction; retain dev05 features and motion.
+
 ## 1.5.0-dev05 — 2026-11-13
 
 - Coordinate task-detail expansion/collapse with adjacent cards and reduce repeated work in completion feedback, image zoom and category dragging.

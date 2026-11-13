@@ -4,6 +4,14 @@
 
 本页区分正式版、开发阶段与历史结果；不同轮不合并成一次全套回归。完整初始失败／补验来源保留于共用 verification JSON 及[历史记录](../history/TESTING-HISTORY.zh-Hant.md)。本次文件翻译不代表重新执行以下 App 测试。
 
+## 1.5.0-dev06 — 2026-11-13
+
+普通、perf、qa 和 qaPerf 构建完成；perf Lint 0 errors／13 warnings，104 项本轮单元测试通过，核对 18 类别和新 XML。perf／qaPerf 非调试、启用 R8 和资源缩减，核对 mapping 和 APK；普通和 perf 交付包均为 com.chimafok.todo.debug／code43、相同开发凭证，不含 QA provider、网络或广泛相册权限，附授权文件。普通 Debug 是同源对照包；主要功能代码与 dev05 一致。
+
+API26 专用后台模拟器通过 5 项黑箱冒烟检查：建立 20 笔合成任务、普通 QA 更新至 qaPerf 后保留身份／数据、详情和垂直滑动、编辑后重启仍保存、只清理合成数据。由 tools/smoke-perf-qa.py 实际输出新 JUnit XML，零 failure／error／skipped；不是 connected instrumentation 或 FPS 量测。初始 shell Bundle 解析／冷启动时序和文字选取断言失败已保留。另发现 qaPerf 未包含 QA Kotlin 类别，修正来源目录后重新构建和验证；没有用整包 keep 掩盖问题。
+
+所有专用模拟器已关闭并保留 userdata。见 [development-1.5.0-dev06.json](../verification/development-1.5.0-dev06.json)。未操作手机，未完成手机性能对比或全套历史回归；既有正式 release 设置、main 和官方签名不变，仍等待维护者确认。
+
 ## 1.5.0-dev05 — 2026-11-13
 
 Debug 构建通过，Lint 0 errors／13 warnings，104 项本轮单元测试通过。专用 API26 后台模拟器分 9 组执行：详情动画 4、多选对齐 1（包含三语／宽度／字号 18 个情境）、图标与文字操作 4、图片滑动／缩放 5、拖拽和边缘滚动各 1、完成成功／失败各 1、长按多选／垃圾桶／重复历史 7，共 25 项。核对新 XML 的类别、数量、时间，零 failure／error／skipped。

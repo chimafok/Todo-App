@@ -4,6 +4,14 @@
 
 This page separates official-release checks, development checks and historical results. Separate rounds are not presented as one full regression. Original failures/retests remain in shared verification JSON and the [history archive](../history/TESTING-HISTORY.zh-Hant.md). Translating documentation does not mean these app tests were rerun.
 
+## 1.5.0-dev06 — 2026-11-13
+
+Debug, perf, qa and qaPerf built successfully. Perf Lint has 0 errors / 13 warnings; 104 fresh unit cases across the expected 18 classes passed with new XML checked. perf/qaPerf are non-debuggable with verified R8/resource shrinking and mappings. Both user-facing APKs use com.chimafok.todo.debug / code43 and the same development certificate, contain no QA providers, Internet or broad-photo permissions, and bundle licenses. The ordinary Debug APK is a source-matched control; main feature sources are unchanged from dev05.
+
+The owned API26 headless emulator passed five black-box smoke checks: seed 20 synthetic tasks, retain installation identity/data across qa-to-qaPerf replacement, use details/vertical scrolling, retain an edit after process restart, and remove only synthetic fixtures. tools/smoke-perf-qa.py generated fresh JUnit XML with zero failures/errors/skips. This is not connected instrumentation or FPS benchmarking. Initial shell Bundle/cold-start and selector assertion failures are preserved. Optimized QA initially lacked its custom Kotlin source classes; correcting the source directory and rebuilding resolved it without blanket keep rules.
+
+All owned emulators were closed with userdata retained. See [development-1.5.0-dev06.json](../verification/development-1.5.0-dev06.json). No phones, phone-performance comparison or full historical regression this round. Existing official release settings, main and the official key remain unchanged, pending maintainer testing.
+
 ## 1.5.0-dev05 — 2026-11-13
 
 Debug build passed, Lint has 0 errors / 13 warnings, and 104 fresh unit cases passed. The owned API26 headless emulator ran nine separate groups: detail motion 4, toolbar alignment 1 (18 language/width/font scenarios), icon/text actions 4, gallery gestures 5, reorder/edge scroll 1 each, successful/failed completion 1 each, and long-selection/Trash/history 7: 25 cases total. Fresh XML class/count/time and zero failures/errors/skips were verified.

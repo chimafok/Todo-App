@@ -2,6 +2,10 @@
 
 <p align="center">語言 / 语言 / Languages：<a href="../USER-GUIDE.md">繁體中文</a> · <a href="../zh-CN/USER-GUIDE.md">简体中文</a> · <strong>English</strong></p>
 
+## Performance comparison builds (1.5.0-dev06)
+
+This round provides a regular test APK and a performance APK with `-perf` in its filename. The performance build is non-debuggable with R8 and resource shrinking; features remain those of dev05. Both share the development package, certificate and versionCode43, allowing replacement in either direction while retaining test data. They remain separate from the official app. Compare the same tasks and images after a few warm-up interactions, then repeat expansion/collapse and scrolling. Improvement must be assessed on the phone.
+
 ## Interface language
 
 Open the navigation drawer → **Settings → App language**, then choose System default, 繁體中文, 简体中文 or English. The choice applies immediately and persists. System default uses the first supported system language, or English if none is supported. Language choices are shown in their own languages so you can switch back.
@@ -40,7 +44,7 @@ Each task has one category and multiple optional tags. In Categories and tags, l
 
 Use the separate **Bulk delete** button to select rows or Select all, then confirm Delete selected. Study, Assignments and Uncategorized cannot be selected for deletion. Study and Assignments can be renamed; Uncategorized cannot. Before deleting a category, choose a surviving destination. Active, completed and trashed tasks and recurring series are moved, not deleted. Moving into Assignments requires per-task status choices. Deleting tags removes their links, not tasks. Cancellation writes nothing; changed data invalidates a preview and the whole batch must be reviewed again.
 
-## Action icons (1.5.0-dev05 test build)
+## Action icons (1.5.0-dev06 test build)
 
 Expand and collapse task details from the top, including spacing, without layering list-placement springs over resizing; allow continuous reversal. Completion frames update only their card rather than rebuilding the list. Read zoom and category-drag transforms during drawing. Align selection summaries and action text by baseline on each wrapped row, with three languages, larger type and 48 dp tap targets.
 
@@ -48,9 +52,9 @@ Use image-plus to add images, the clock to choose time, and keyboard/clock icons
 
 ## Note images
 
-The Notes and images section shows text first, then images. The official version uses **Add images**; 1.5.0-dev05 uses an image-plus icon. Both open Android's system picker. There is no per-note image count limit; add another batch if the picker limits one selection. Todo reads only selected images and saves private local copies without modifying originals. Each input image is limited to 25 MiB. Copies are resized to a longest edge of 1536 pixels and compressed to JPEG of at most 768 KiB, without original location/EXIF metadata. Transparency becomes white; animations become a static image.
+The Notes and images section shows text first, then images. The official version uses **Add images**; 1.5.0-dev06 uses an image-plus icon. Both open Android's system picker. There is no per-note image count limit; add another batch if the picker limits one selection. Todo reads only selected images and saves private local copies without modifying originals. Each input image is limited to 25 MiB. Copies are resized to a longest edge of 1536 pixels and compressed to JPEG of at most 768 KiB, without original location/EXIF metadata. Transparency becomes white; animations become a static image.
 
-In the 1.5.0-dev05 test build, tap a thumbnail to view it. At normal scale, swipe left for the next image or right for the previous one; navigation stops at the ends. Bottom arrows accept quick consecutive or reversed presses without waiting for the previous transition. After pinching to zoom, dragging pans the image without switching pages. Changing pages resets zoom; rotation preserves the settled image. Tap blank space outside the painted image or the top-right X to close. Image-content taps, pinch and pan keep the viewer open. In the form, the X at the thumbnail's top right removes that image while keeping text notes. Scroll the thumbnail strip for more images. Expand a saved task to view images. Cancelling the system picker returns to the form. Images can be retained with a draft, but drafts are not in manual backups.
+In the 1.5.0-dev06 test build, tap a thumbnail to view it. At normal scale, swipe left for the next image or right for the previous one; navigation stops at the ends. Bottom arrows accept quick consecutive or reversed presses without waiting for the previous transition. After pinching to zoom, dragging pans the image without switching pages. Changing pages resets zoom; rotation preserves the settled image. Tap blank space outside the painted image or the top-right X to close. Image-content taps, pinch and pan keep the viewer open. In the form, the X at the thumbnail's top right removes that image while keeping text notes. Scroll the thumbnail strip for more images. Expand a saved task to view images. Cancelling the system picker returns to the form. Images can be retained with a draft, but drafts are not in manual backups.
 
 Images follow recurring templates, edit scopes, historical snapshots and Trash. Unreferenced images are cleaned up when a form closes, checking tasks, series, snapshots and saved drafts. Cleanup never deletes the original phone-library image.
 
