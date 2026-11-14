@@ -4,6 +4,14 @@
 
 This page separates official-release checks, development checks and historical results. Separate rounds are not presented as one full regression. Original failures/retests remain in shared verification JSON and the [history archive](../history/TESTING-HISTORY.zh-Hant.md). Translating documentation does not mean these app tests were rerun.
 
+## Official 1.5.0 release (2026-11-14)
+
+Released after approval of 1.5.0-dev06-perf. App main code/resources are unchanged; release applies the R8/resource-shrinking settings verified by that test build. The official APK and approved perf APK have identical DEX payloads. All 104 fresh unit cases (18 classes) passed; new XML classes/counts/timestamps and zero failure/error/skipped were verified. Release Lint: 0 errors / 11 warnings. Existing RSA4096 official certificate, non-debuggable, unchanged payload after signing; no QA provider, Internet or broad-photo permission; original licenses bundled.
+
+Three official-package black-box cases passed on a dedicated headless API26 emulator: 1.4.1→1.5.0 update retaining UID/first-install time and a synthetic task, details/scrolling, and recurrence end-calendar confirmation with the unsaved form discarded. Fresh JUnit XML has zero failures/skips. The emulator was closed with userdata retained; no phone was operated. Earlier development device checks remain separate historical runs. API37, full historical/phone/keyboard/language/accessibility matrices, overnight and large-data performance were not rerun; no FPS improvement is claimed.
+
+See [approval](../verification/approval-1.5.0.json), [release](../verification/release-1.5.0.json) and [tests](../verification/tests-1.5.0.json). APK SHA-256: `3af2a1764c4d75fa1d680454b54477df2829fc1a5ea27d711e1039d04f44e2b4`.
+
 ## 1.5.0-dev06 — 2026-11-13
 
 Debug, perf, qa and qaPerf built successfully. Perf Lint has 0 errors / 13 warnings; 104 fresh unit cases across the expected 18 classes passed with new XML checked. perf/qaPerf are non-debuggable with verified R8/resource shrinking and mappings. Both user-facing APKs use com.chimafok.todo.debug / code43 and the same development certificate, contain no QA providers, Internet or broad-photo permissions, and bundle licenses. The ordinary Debug APK is a source-matched control; main feature sources are unchanged from dev05.

@@ -2,13 +2,13 @@
 
 <p align="center">語言 / 语言 / Languages：<a href="../PRD.md">繁體中文</a> · <a href="../zh-CN/PRD.md">简体中文</a> · <strong>English</strong></p>
 
-This page consolidates **current 1.4.1 rules** without adding or removing requirements. The [complete original baseline and AC01–AC136](../history/PRODUCT-BASELINE.zh-Hant.md) preserve detailed contracts and historical increments for auditing. Where an older version/format statement conflicts with a later revision, apply the current rules below and subsequent explicit maintainer requirements. Translation does not change that precedence. Acceptance criteria are contracts, not claims that tests ran this round; see [verification](TESTING.md).
+This page consolidates **current 1.5.0 rules** without adding or removing requirements. The [complete original baseline and AC01–AC136](../history/PRODUCT-BASELINE.zh-Hant.md) preserve detailed contracts and historical increments for auditing. Where an older version/format statement conflicts with a later revision, apply the current rules below and subsequent explicit maintainer requirements. Translation does not change that precedence. Acceptance criteria are contracts, not claims that tests ran this round; see [verification](TESTING.md).
 
-## 1.5.0 development increment
+## 1.5.0 images, calendar and motion
 
 Recurring end dates offer both typed input and the existing calendar picker when creating, converting or editing this and future occurrences. Resolve the initial selection using the field's saved reference date, falling back to that reference for empty or invalid text. Cancellation preserves text; confirmation writes YYYY-MM-DD. Inclusive end-date rules and validation remain unchanged.
 
-Tap blank space outside the painted image to close an enlarged preview, accounting for current zoom and translation. Image-content taps, pinch and pan keep it open; retain the Close button and previous/next controls. Target official 1.5.0 after maintainer approval of the current 1.5.0-dev06 test build.
+Tap blank space outside the painted image to close an enlarged preview, accounting for current zoom and translation. Image-content taps, pinch and pan keep it open; retain the Close button and previous/next controls. The maintainer approved 1.5.0-dev06-perf and official 1.5.0 on 2026-11-14; see the [approval record](../verification/approval-1.5.0.json).
 
 At normal scale, swipe left for the next image and right for the previous image, without wrapping at either end. When zoomed, dragging pans the image instead. Keep arrow navigation; changing pages resets zoom and translation, while rotation preserves the settled image. Use an X for closing and chevrons for previous/next.
 
