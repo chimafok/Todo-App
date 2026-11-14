@@ -79,7 +79,7 @@ App 有改動時，先完成必要檢查並從待驗證的 `dev` 來源建置 `a
 
 使用 `assemblePerf` 建置一般使用者的效能測試 APK（`.debug`、原有開發簽章、非偵錯、R8／資源縮減、可供 shell 分析效能）。一般 `assembleDebug` 仍為可偵錯對照包；兩者同一版本碼，可互相覆蓋並保留測試資料。`assembleQaPerf` 使用相同最佳化設定與 `.qa` 身分，包含明確限於 QA 的合成資料探針，不作下載交付。perf 只重用 debug 的 App 名稱資源，未引入 debug UI 工具依賴。
 
-正式 `release` 的設定和官方金鑰不因這個對照包自動改變；發布前須另行核對最佳化設定、來源及授權。R8 規則使用 Android 預設最佳化規則與依賴的 consumer rules，不使用整包 keep 來冒充已最佳化。詳見 [Android 官方 R8 指南](https://developer.android.com/topic/performance/app-optimization/enable-app-optimization)。
+1.5.0 正式 `release` 已套用維護者確認的 perf R8／資源縮減設定；仍使用正式套件及既有正式金鑰，關閉 shell 效能分析入口。CI 的 release 保持未簽署。R8 規則使用 Android 預設最佳化規則與依賴的 consumer rules，不使用整包 keep 來冒充已最佳化。詳見 [Android 官方 R8 指南](https://developer.android.com/topic/performance/app-optimization/enable-app-optimization)。
 
 ```sh
 ./gradlew assembleDebug assemblePerf assembleQa assembleQaPerf testQaUnitTest lintPerf

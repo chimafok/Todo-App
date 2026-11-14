@@ -29,6 +29,13 @@ android {
     // Instrumentation runs against a separate installation so test cleanup
     // cannot uninstall the user's app or touch their todo.db.
     buildTypes {
+        // Publish the optimization settings verified in the approved perf test build.
+        getByName("release") {
+            isDebuggable = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
         // Official releases use com.chimafok.todo.
         // Keep development installs separate from official release data.
         getByName("debug") { applicationIdSuffix = ".debug"; versionNameSuffix = "-dev06" }

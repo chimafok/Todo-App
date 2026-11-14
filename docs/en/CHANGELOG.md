@@ -4,6 +4,14 @@
 
 This page lists official versions and the current development test build. [Original development/test-version records](../history/CHANGELOG-HISTORY.zh-Hant.md) preserve delivery-time states, not the current version. [Releases](https://github.com/chimafok/Todo-App/releases/latest) is authoritative for official APK downloads.
 
+## 1.5.0 — 2026-11-14
+
+- Add a calendar picker for recurrence end dates, retaining typed input, confirmation/cancellation and inclusive end rules.
+- Add image-background dismissal, horizontal swipes, quick consecutive/reversed arrows and an X close control; retain zoom/pan.
+- Use accessible three-language action icons while keeping reminder removal, task edit/trash/restore and Select all as text. Home glyphs remain 18 dp with 48 dp targets and a transparent selection check background.
+- Coordinate detail expansion/collapse with list motion, reduce repeated animation work and align multi-selection text baselines.
+- Official release after approval of 1.5.0-dev06-perf, using its tested R8/resource-shrinking settings. Package com.chimafok.todo / code43 retains the official certificate and updates 1.4.1. Schema10 / backup format6 unchanged.
+
 ## 1.5.0-dev06 — 2026-11-13
 
 - Add a non-debuggable R8/resource-shrunk comparison APK, sharing source, package and development signing identity with the regular test build for replacement in either direction; retain dev05 features and motion.

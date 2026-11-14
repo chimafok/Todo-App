@@ -81,7 +81,7 @@ See the [data model](DATA-MODEL.md), [product specification](PRD.md) and [transl
 
 Use `assemblePerf` for the user-facing performance test APK (`.debug`, existing development certificate, non-debuggable, R8/resource shrinking, shell-profileable). `assembleDebug` remains the debuggable control. Both have the same versionCode and can replace each other while preserving test data. `assembleQaPerf` applies the same optimization to isolated `.qa` with synthetic QA-only probes and is not distributed. perf reuses only debug app-name resources, not debug UI tooling dependencies.
 
-The official release configuration and key are not automatically changed by this comparison variant; check optimization settings, source and approval before publishing. R8 uses Android default optimization and library consumer rules, without blanket app keep rules. See the [official Android R8 guide](https://developer.android.com/topic/performance/app-optimization/enable-app-optimization).
+Official 1.5.0 release applies the approved perf R8/resource-shrinking settings, retaining the official package and existing key with shell profiling disabled. CI release builds remain unsigned. R8 uses Android default optimization and library consumer rules, without blanket app keep rules. See the [official Android R8 guide](https://developer.android.com/topic/performance/app-optimization/enable-app-optimization).
 
 ```sh
 ./gradlew assembleDebug assemblePerf assembleQa assembleQaPerf testQaUnitTest lintPerf

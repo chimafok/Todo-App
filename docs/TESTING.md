@@ -4,6 +4,14 @@
 
 本頁區分正式版、開發階段與歷史結果；不同輪不合併成一次全套回歸。完整初始失敗／補驗來源保留於共用 verification JSON 及[歷史紀錄](history/TESTING-HISTORY.zh-Hant.md)。本次文件翻譯不代表重新執行以下 App 測試。
 
+## 1.5.0 正式發布（2026-11-14）
+
+維護者確認 1.5.0-dev06-perf 後發布。App 主程式與資源未變，正式 release 套用測試包已驗證的 R8／資源縮減設定；正式 APK 與該效能測試 APK 的 DEX 完全一致。當輪 104 項單元測試（18 類別）通過，新 XML 的類別、數量、時間及零 failure／error／skipped 已核對；Release Lint 0 errors／11 warnings。既有 RSA4096 正式憑證、不可偵錯、簽署前後 payload 一致；無 QA provider、網路或廣泛相簿權限，附原授權。
+
+專用 API26 背景模擬器完成 3 項正式包黑箱檢查：1.4.1→1.5.0 覆蓋更新保留 UID／首次安裝時間及虛構任務、詳情展開收起／滑動、重複結束日曆確認及捨棄未儲存表單。核對當輪 JUnit XML，零失敗／略過。模擬器已關閉並保留 userdata，未操作手機。先前開發裝置測試仍為分輪歷史結果；本輪未重跑 API37、完整歷史／手機／鍵盤／語言／無障礙矩陣、隔夜或大量資料效能，也不代表 FPS 改善已被量測。
+
+來源見 [approval-1.5.0.json](verification/approval-1.5.0.json)，正式摘要見 [release-1.5.0.json](verification/release-1.5.0.json)，測試見 [tests-1.5.0.json](verification/tests-1.5.0.json)。APK SHA-256：`3af2a1764c4d75fa1d680454b54477df2829fc1a5ea27d711e1039d04f44e2b4`。
+
 ## 1.5.0-dev06 — 2026-11-13
 
 一般、perf、qa 與 qaPerf 建置完成；perf Lint 0 errors／13 warnings，104 項當輪單元測試通過，核對 18 類別及新 XML。perf／qaPerf 非偵錯、啟用 R8 與資源縮減，mapping 和 APK 已核對；一般與 perf 交付包均為 com.chimafok.todo.debug／code43、相同開發憑證，未含 QA provider、網路或廣泛相簿權限，附授權文件。一般 Debug 為同源對照包；主要功能來源與 dev05 一致。
