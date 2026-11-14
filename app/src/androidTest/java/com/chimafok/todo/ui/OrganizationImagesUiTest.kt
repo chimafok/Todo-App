@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.room.withTransaction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.chimafok.todo.MainActivity
+import com.chimafok.todo.R
+import com.chimafok.todo.i18n.tr
 import com.chimafok.todo.data.*
 import com.chimafok.todo.domain.*
 import com.chimafok.todo.reminders.ReminderRuntime
@@ -33,7 +35,7 @@ class OrganizationImagesUiTest {
     } }; File(compose.activity.cacheDir, "qa-image.png").delete(); (0..11).forEach { File(compose.activity.cacheDir, "qa-image-$it.png").delete() } }
     private fun organize(tags: Boolean = false) {
         compose.onNodeWithTag("open_menu").performClick(); compose.onNodeWithTag("nav_ORGANIZE").performClick(); await("org_add")
-        if (tags) compose.onNodeWithText("標籤", substring = false).performClick()
+        if (tags) compose.onNodeWithText(tr(R.string.text_tags_9b423a), substring = false).performClick()
     }
     private fun show(tag: String) { compose.onNodeWithTag("org_list").performScrollToNode(hasTestTag(tag)) }
     private fun capture(label: String) { androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand("screencap -p /data/local/tmp/todo130-$label.png").use { java.io.FileInputStream(it.fileDescriptor).use { input -> input.readBytes() } } }
@@ -46,7 +48,7 @@ class OrganizationImagesUiTest {
         compose.onNodeWithTag("org_row_$first").performTouchInput { down(Offset(25f, height/2f)) }
         compose.mainClock.advanceTimeBy(800); Thread.sleep(800)
         capture("drag-hold")
-        compose.onNodeWithTag("org_list").assert(SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.StateDescription,"正在排序"))
+        compose.onNodeWithTag("org_list").assert(SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.StateDescription,tr(R.string.text_reordering_37e5dd)))
         compose.onNodeWithTag("org_row_$first").performTouchInput { moveTo(Offset(25f, height/2f + distance), delayMillis = 300); up() }
         compose.waitForIdle(); capture("drag-end")
     }
@@ -54,7 +56,7 @@ class OrganizationImagesUiTest {
         data { val org = OrganizationRepository(db); listOf("a", "b").forEach { org.saveCategory("$prefix-$it", "$prefix-$it", null); org.saveTag("$prefix-$it", "$prefix-$it", null) } }
         organize(); drag("$prefix-a", "$prefix-b")
         compose.waitUntil(15_000) { data { val ids = db.dao().allCategories().map { it.id }; ids.indexOf("$prefix-a") > ids.indexOf("$prefix-b") } }
-        compose.onNodeWithText("標籤", substring = false).performClick(); drag("$prefix-a", "$prefix-b")
+        compose.onNodeWithText(tr(R.string.text_tags_9b423a), substring = false).performClick(); drag("$prefix-a", "$prefix-b")
         compose.waitUntil(15_000) { data { db.dao().allTags().map { it.id }.takeLast(2) == listOf("$prefix-b", "$prefix-a") } }
         compose.activityRule.scenario.recreate(); await("org_add")
         assertTrue(data { val ids = db.dao().allCategories().map { it.id }; ids.indexOf("$prefix-a") > ids.indexOf("$prefix-b") })
@@ -91,25 +93,25 @@ class OrganizationImagesUiTest {
         val original = data { db.dao().category(STUDY_ID)!! }
         try {
             organize(); show("org_menu_$STUDY_ID"); compose.onNodeWithTag("org_menu_$STUDY_ID").performClick()
-            compose.onNodeWithText("刪除", substring = false).assertDoesNotExist()
-            compose.onNodeWithText("重新命名", substring = false).performClick()
+            compose.onNode(hasActionLabel(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_delete_3c8f5b))).assertDoesNotExist()
+            compose.onNodeWithText(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_rename_a60560), substring = false).performClick()
             compose.onNodeWithTag("org_name").performTextReplacement("$prefix-study")
             compose.onNodeWithTag("org_save").performClick()
             compose.waitUntil(15_000) { data { db.dao().category(STUDY_ID)!!.name == "$prefix-study" } }
             show("org_menu_$STUDY_ID"); compose.onNodeWithTag("org_menu_$STUDY_ID").performClick()
-            compose.onNodeWithText("重新命名", substring = false).assertExists()
-            compose.onNodeWithText("刪除", substring = false).assertDoesNotExist()
-            compose.onNodeWithText("重新命名", substring = false).performClick()
+            compose.onNodeWithText(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_rename_a60560), substring = false).assertExists()
+            compose.onNode(hasActionLabel(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_delete_3c8f5b))).assertDoesNotExist()
+            compose.onNodeWithText(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_rename_a60560), substring = false).performClick()
             compose.onNodeWithTag("org_name").assertTextContains("$prefix-study")
-            compose.onNodeWithText("取消", substring = false).performClick()
+            compose.onNodeWithText(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_cancel_2cd0f3), substring = false).performClick()
             show("org_batch_delete"); compose.onNodeWithTag("org_batch_delete").performClick()
             show("org_select_$STUDY_ID"); compose.onNodeWithTag("org_select_$STUDY_ID").assertIsNotEnabled()
-            show("org_select_all"); compose.onNodeWithTag("org_select_all").performClick()
+            show("org_select_all"); compose.onNodeWithTag("org_select_all").assertTextContains(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_select_all_1ffe5f)).performClick()
             assertFalse(model.organizationSelection.value.contains(STUDY_ID))
-            compose.onNodeWithText("取消", substring = false).performClick()
+            compose.onNodeWithText(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_cancel_2cd0f3), substring = false).performClick()
             compose.activityRule.scenario.recreate(); await("org_add"); show("org_row_$STUDY_ID")
             compose.onNodeWithText("$prefix-study", substring = false).assertIsDisplayed()
-            compose.onNodeWithText("學習三態・可改名，不可刪除", substring = false).assertExists()
+            compose.onNodeWithText(com.chimafok.todo.i18n.tr(com.chimafok.todo.R.string.text_three_study_states_can_rename_cannot_29e987), substring = false).assertExists()
         } finally {
             data { val current = db.dao().category(STUDY_ID)!!; OrganizationRepository(db).saveCategory(STUDY_ID, original.name, current.revision) }
         }
@@ -131,14 +133,21 @@ class OrganizationImagesUiTest {
     }
     @Test fun imageDraftThumbnailViewerRotationRemoveAndTextRemain() {
         val image = draftImage(); await("resume_draft"); compose.onNodeWithTag("resume_draft").performClick(); await("task_title"); keyboard()
-        compose.onNodeWithTag("note_add_images").performScrollTo(); capture("image-before"); compose.onNodeWithTag("note_image_0").performClick(); capture("image-after"); await("note_image_close"); compose.onNodeWithTag("note_image_close").performClick()
+        compose.onNodeWithTag("note_add_images").performScrollTo(); capture("image-before"); compose.onNodeWithTag("note_image_0").performClick(); capture("image-after"); await("note_image_preview")
+        compose.onNodeWithTag("note_image_preview").performTouchInput { click(center) }
+        compose.onNodeWithTag("note_image_close").assertExists()
+        compose.onNodeWithTag("note_image_preview").performTouchInput { click(Offset(centerX, 5f)) }
+        compose.onNodeWithTag("note_image_close").assertDoesNotExist()
+        compose.onNodeWithTag("task_notes").assertTextContains("原有文字")
+        compose.onNodeWithTag("note_image_0").performClick(); await("note_image_close")
+        compose.onNodeWithTag("note_image_close").performClick()
         compose.activityRule.scenario.recreate(); await("task_title"); keyboard(); compose.onNodeWithTag("note_add_images").performScrollTo(); compose.onNodeWithTag("note_image_0").assertIsDisplayed()
         compose.onNodeWithTag("task_notes").assertTextContains("原有文字")
         val thumb = compose.onNodeWithTag("note_image_0").getUnclippedBoundsInRoot()
         val remove = compose.onNodeWithTag("note_image_remove_0").getUnclippedBoundsInRoot()
         assertEquals(thumb.top.value, remove.top.value, 1f)
         assertEquals(thumb.right.value, remove.right.value, 1f)
-        compose.onNodeWithContentDescription("移除圖片 1").assertExists()
+        compose.onNodeWithContentDescription(tr(R.string.text_remove_image_s_905d90, 1)).assertExists()
         compose.onNodeWithTag("note_image_remove_0").performClick(); compose.onNodeWithTag("note_image_0").assertDoesNotExist()
         compose.onNodeWithTag("note_image_close").assertDoesNotExist()
         compose.onNodeWithTag("save_task").performClick()

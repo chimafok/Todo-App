@@ -10,6 +10,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.chimafok.todo.data.*
 import com.chimafok.todo.domain.RecurrenceFrequency
+import com.chimafok.todo.domain.parseDateInput
+import java.time.LocalDate
 
 data class RecurringEditorContext(val series: RecurringSeriesEntity, val rule: SeriesRuleEntity, val occurrence: OccurrenceEntity,
     val records: List<com.chimafok.todo.domain.SeriesEditRecord> = emptyList(),
@@ -26,7 +28,7 @@ fun recurrenceLabel(frequency: RecurrenceFrequency): String = when (frequency) {
 @Composable
 fun RecurrenceFields(frequency: String, interval: String, weekdays: List<Int>, endMode: String, endDate: String, count: String,
     allowNone: Boolean, enabled: Boolean, onFrequency: (String) -> Unit, onInterval: (String) -> Unit,
-    onWeekdays: (List<Int>) -> Unit, onEndMode: (String) -> Unit, onEndDate: (String) -> Unit, onCount: (String) -> Unit) {
+    onWeekdays: (List<Int>) -> Unit, onEndMode: (String) -> Unit, onEndDate: (String) -> Unit, onCount: (String) -> Unit, endReference: LocalDate = LocalDate.now()) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (allowNone) FilterChip(frequency == "NONE", onClick = { onFrequency("NONE") }, enabled = enabled,
@@ -54,7 +56,12 @@ fun RecurrenceFields(frequency: String, interval: String, weekdays: List<Int>, e
                 }
             }
             if (endMode == "DATE") OutlinedTextField(endDate, onEndDate, label = { Text(tr(R.string.text_end_date_inclusive_1ac76f)) }, placeholder = { Text("YYYY-MM-DD") },
-                singleLine = true, enabled = enabled, modifier = Modifier.fillMaxWidth().testTag("repeat_end_date"), shape = MaterialTheme.shapes.medium)
+                singleLine = true, enabled = enabled,
+                trailingIcon = {
+                    DatePickerButton(runCatching { parseDateInput(endDate, endReference) }.getOrNull() ?: endReference,
+                        R.string.choose_date, enabled) { onEndDate(it.toString()) }
+                },
+                modifier = Modifier.fillMaxWidth().testTag("repeat_end_date"), shape = MaterialTheme.shapes.medium)
             if (endMode == "COUNT") OutlinedTextField(count, onCount, label = { Text(tr(R.string.text_total_occurrences_including_the_first_and_fe3b61)) },
                 singleLine = true, enabled = enabled, modifier = Modifier.fillMaxWidth().testTag("repeat_count"), shape = MaterialTheme.shapes.medium)
         }

@@ -1,0 +1,39 @@
+{
+  "applicationId": "com.chimafok.todo",
+  "versionName": "1.5.0",
+  "versionCode": 43,
+  "minSdk": 26,
+  "targetSdk": 37,
+  "debuggable": false,
+  "bytes": 2631287,
+  "sha256": "3af2a1764c4d75fa1d680454b54477df2829fc1a5ea27d711e1039d04f44e2b4",
+  "certificateSha256": "a4b166d522cf41ce213923ef054da8e9b4644abf1888580f502002e2aadfd197",
+  "signing": "formal-release",
+  "keyAlgorithm": "RSA-4096",
+  "containsQaProviders": false,
+  "containsInternetPermission": false,
+  "containsBroadPhotoPermission": false,
+  "licensesBundled": true,
+  "schemaVersion": 10,
+  "backupFormatVersion": 6,
+  "approvedTestVersion": "1.5.0-dev06-perf",
+  "approvedTestSource": "753f624b9d1d84229663612c0fc61b78accd3e1d",
+  "approvedTestApkSha256": "4fade74c6070c6e9781397f166aa2e15931deff6511faa784fedcff705f7b792",
+  "approvedRuntimeFingerprint": "dde36a086102c7f2f54a42490da8f8b5e2499f48272e73f7bcf73552e91e41d3",
+  "appMainSourcesUnchanged": true,
+  "releaseBuildChanges": [
+    "release enables the R8 optimization and resource shrinking already tested by perf",
+    "official applicationId, versionName and signing identity; no profileable shell access"
+  ],
+  "signedPayloadMatchesUnsigned": true,
+  "unitCount": 104,
+  "unitClasses": 18,
+  "releaseLint": {
+    "errors": 0,
+    "warnings": 11
+  },
+  "minified": true,
+  "resourcesShrunk": true,
+  "mappingSha256": "7f2d0715f07b52d425e86b89c847dd62e1da0b752be572772844199242a1807a",
+  "dexIdenticalToApprovedPerf": true
+}

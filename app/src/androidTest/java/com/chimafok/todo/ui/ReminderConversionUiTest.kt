@@ -30,7 +30,7 @@ class ReminderConversionUiTest {
         compose.waitUntil(10_000) { model.state.value.tasks.any { it.id == id } }
         compose.waitForIdle()
         compose.onNodeWithTag("task_list").performScrollToNode(hasTestTag("task_$id"))
-        val edit = hasText("編輯") and hasAnyAncestor(hasTestTag("task_$id"))
+        val edit = hasActionLabel("編輯") and hasAnyAncestor(hasTestTag("task_$id"))
         if (compose.onAllNodes(edit).fetchSemanticsNodes().isEmpty()) compose.onNodeWithTag("task_$id").performClick()
         compose.waitUntil(10_000) { runCatching { compose.onAllNodes(edit).fetchSemanticsNodes().isNotEmpty() }.getOrDefault(false) }
         compose.onNode(edit).performScrollTo().assertIsDisplayed().performClick()

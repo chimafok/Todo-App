@@ -31,7 +31,7 @@ fun TaskBrowser(
     onClearJump: () -> Unit, onAdd: (LocalDate?) -> Unit, onEdit: (TaskEntity) -> Unit,
     onComplete: (TaskEntity) -> Unit, onReopen: (TaskEntity) -> Unit, onStatus: (TaskEntity) -> Unit,
     onAdvance: (TaskEntity) -> Unit, onDelete: (TaskEntity) -> Unit, onRestore: (TaskEntity) -> Unit,
-    actionsEnabled: Boolean, finishingTasks: Map<String, TaskEntity>, completionProgress: Map<String, Float>,
+    actionsEnabled: Boolean, finishingTasks: Map<String, TaskEntity>, completionProgress: Map<String, State<Float>>,
     viewModel: TodoViewModel, onSelectionMode: (Boolean) -> Unit,
 ) {
     var deleteFutureSeriesId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -189,27 +189,30 @@ fun TaskBrowser(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp).testTag("task_search"))
         Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically) {
-            TextButton(onClick = { showFilters = true }, modifier = Modifier.testTag("open_filters")) {
-                Icon(painterResource(R.drawable.ic_filter), null, Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp)); Text(if (categoryIds.isEmpty() && tagIds.isEmpty()) tr(R.string.text_filter_9bd5d8) else tr(R.string.text_filter_s_6613a2, categoryIds.size + tagIds.size))
-            }
+            val toolbarIconSize = 18.dp
+            ActionIconButton(R.drawable.ic_filter,
+                if (categoryIds.isEmpty() && tagIds.isEmpty()) tr(R.string.text_filter_9bd5d8) else tr(R.string.text_filter_s_6613a2, categoryIds.size + tagIds.size),
+                modifier = Modifier.testTag("open_filters"), iconSize = toolbarIconSize, badgeCount = categoryIds.size + tagIds.size, onClick = { showFilters = true })
             Text(tr(R.string.text_s_items_cfad0b, resultIds.size), Modifier.weight(1f).testTag("result_count"), style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
-            TextButton(enabled = ready, onClick = { selecting = !selecting; selected = emptyList();selectedTrashSeries=emptyList();selectionGeneration++ },
-                colors = stableSelectionColors, modifier = Modifier.testTag("toggle_selection")) { Text(if (selecting) tr(R.string.text_done_selecting_d8c47c) else tr(R.string.text_select_1dc26d)) }
+            ActionIconButton(if (selecting) R.drawable.ic_check else R.drawable.ic_multi_select,
+                if (selecting) tr(R.string.text_done_selecting_d8c47c) else tr(R.string.text_select_1dc26d),
+                enabled = ready, selected = selecting, highlightSelected = false, iconSize = toolbarIconSize, contentColor = stableSelectionColors.contentColor, disabledContentColor = stableSelectionColors.disabledContentColor,
+                modifier = Modifier.testTag("toggle_selection"), onClick = { selecting = !selecting; selected = emptyList();selectedTrashSeries=emptyList();selectionGeneration++ })
         }
         if (selecting) {
-            FlowRow(Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(tr(R.string.text_s_selected_a5726a, selected.size) + if(scope==TaskScope.TRASH) tr(R.string.text_tasks_s_series_05751e, selectedTrashSeries.size) else "", Modifier.padding(vertical = 12.dp), style = MaterialTheme.typography.labelLarge)
-                TextButton(enabled = ready && resultIds.isNotEmpty(), onClick = { selected = resultIds.toList() },
-                    modifier = Modifier.testTag("select_results")) { Text(if(scope==TaskScope.TRASH)tr(R.string.text_select_all_task_results_e065f9) else tr(R.string.text_select_all_results_9951b1)) }
+            SelectionToolbar(tr(R.string.text_s_selected_a5726a, selected.size) + if(scope==TaskScope.TRASH) tr(R.string.text_tasks_s_series_05751e, selectedTrashSeries.size) else "",
+                Modifier.padding(horizontal = 20.dp)) {
+                SelectionTextButton(enabled = ready && resultIds.isNotEmpty(), onClick = { selected = resultIds.toList() }, modifier = Modifier.testTag("select_results")) {
+                    Text(if(scope==TaskScope.TRASH)tr(R.string.text_select_all_task_results_e065f9) else tr(R.string.text_select_all_results_9951b1))
+                }
                 if(scope==TaskScope.TRASH) {
-                    TextButton(enabled=ready && (selected.isNotEmpty() || selectedTrashSeries.isNotEmpty()),onClick={previewTrash(true)},modifier=Modifier.testTag("batch_restore")) {Text(tr(R.string.text_restore_selected_4f3a94))}
-                    TextButton(enabled=ready && (selected.isNotEmpty() || selectedTrashSeries.isNotEmpty()),onClick={previewTrash(false)},modifier=Modifier.testTag("batch_purge"),colors=ButtonDefaults.textButtonColors(contentColor=MaterialTheme.colorScheme.error)) {Text(tr(R.string.text_delete_selected_permanently_458965))}
+                    SelectionTextButton(enabled=ready && (selected.isNotEmpty() || selectedTrashSeries.isNotEmpty()),onClick={previewTrash(true)},modifier=Modifier.testTag("batch_restore")) {Text(tr(R.string.text_restore_selected_4f3a94))}
+                    SelectionTextButton(enabled=ready && (selected.isNotEmpty() || selectedTrashSeries.isNotEmpty()),onClick={previewTrash(false)},modifier=Modifier.testTag("batch_purge"),colors=ButtonDefaults.textButtonColors(contentColor=MaterialTheme.colorScheme.error)) {Text(tr(R.string.text_delete_selected_permanently_458965))}
                 } else {
-                TextButton(enabled = ready && selected.isNotEmpty(), onClick = { beginBatch("MOVE") }, modifier = Modifier.testTag("batch_move")) { Text(tr(R.string.text_move_category_64bc58)) }
-                TextButton(enabled = ready && selected.isNotEmpty(), onClick = { beginBatch("TAGS") }, modifier = Modifier.testTag("batch_tags")) { Text(tr(R.string.text_add_tags_cd22f2)) }
-                TextButton(enabled = ready && selected.isNotEmpty(), onClick = { beginBatch("TRASH") }, modifier = Modifier.testTag("batch_trash"),
+                SelectionTextButton(enabled = ready && selected.isNotEmpty(), onClick = { beginBatch("MOVE") }, modifier = Modifier.testTag("batch_move")) { Text(tr(R.string.text_move_category_64bc58)) }
+                SelectionTextButton(enabled = ready && selected.isNotEmpty(), onClick = { beginBatch("TAGS") }, modifier = Modifier.testTag("batch_tags")) { Text(tr(R.string.text_add_tags_cd22f2)) }
+                SelectionTextButton(enabled = ready && selected.isNotEmpty(), onClick = { beginBatch("TRASH") }, modifier = Modifier.testTag("batch_trash"),
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text(tr(R.string.text_move_to_trash_f86355)) }
                 }
             }

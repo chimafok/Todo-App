@@ -14,6 +14,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
@@ -147,20 +148,25 @@ fun RecurringRecords(state: TodoState, viewModel: TodoViewModel, clock: Clock, e
         OutlinedTextField(query, { query = it;recordsSelected=emptyMap();seriesSelected=emptyMap();selectionGeneration++ }, singleLine = true, placeholder = { Text(tr(R.string.text_search_recurring_records_70c9b4)) },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search), keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp).testTag("recurring_search"), shape = MaterialTheme.shapes.medium)
-        Row(Modifier.fillMaxWidth().padding(horizontal=20.dp),horizontalArrangement=Arrangement.SpaceBetween) {
+        Row(Modifier.fillMaxWidth().padding(horizontal=20.dp),horizontalArrangement=Arrangement.SpaceBetween, verticalAlignment=Alignment.CenterVertically) {
             Text(if(selectedSeries==null) tr(R.string.text_s_series_84f50c, visibleSeries.size) else tr(R.string.text_s_records_e3339e, window.total),style=MaterialTheme.typography.labelLarge,modifier=Modifier.padding(vertical=12.dp))
             val normal=ButtonDefaults.textButtonColors()
-            TextButton(enabled=canAct,onClick={if(selectingHistory)clearSelection() else {clearSelection();selectingHistory=true}},modifier=Modifier.testTag("history_toggle_selection"),
-                colors=if(enabled && !busy && windowLoading && windowError==null && completedWindowRequest!=null)normal.copy(disabledContentColor=normal.contentColor) else normal) {Text(if(selectingHistory)tr(R.string.text_done_selecting_d8c47c) else tr(R.string.text_select_1dc26d))}
+            ActionIconButton(if(selectingHistory) R.drawable.ic_check else R.drawable.ic_multi_select,
+                if(selectingHistory)tr(R.string.text_done_selecting_d8c47c) else tr(R.string.text_select_1dc26d), selected=selectingHistory, highlightSelected=false,
+                enabled=canAct, contentColor=normal.contentColor,
+                disabledContentColor=if(enabled && !busy && windowLoading && windowError==null && completedWindowRequest!=null)normal.contentColor else normal.disabledContentColor,
+                onClick={if(selectingHistory)clearSelection() else {clearSelection();selectingHistory=true}},modifier=Modifier.testTag("history_toggle_selection"))
         }
-        if(selectingHistory)FlowRow(Modifier.fillMaxWidth().padding(horizontal=20.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-            Text(if(selectedSeries==null)tr(R.string.text_s_series_selected_70f058, seriesSelected.size) else tr(R.string.text_s_records_selected_86fe42, recordsSelected.size),Modifier.padding(vertical=12.dp),style=MaterialTheme.typography.labelLarge)
-            TextButton(enabled=canAct,onClick={if(selectedSeries==null)seriesSelected=visibleSeries.associate {it.id to it.revision} else selectAllRecords()},modifier=Modifier.testTag("history_select_results")) {Text(if(selectedSeries==null)tr(R.string.text_select_all_results_9951b1) else tr(R.string.text_select_all_actionable_records_52b2d0))}
+        if(selectingHistory)SelectionToolbar(if(selectedSeries==null)tr(R.string.text_s_series_selected_70f058, seriesSelected.size) else tr(R.string.text_s_records_selected_86fe42, recordsSelected.size),
+            Modifier.padding(horizontal=20.dp), summaryTag="history_selection_count") {
+            SelectionTextButton(enabled=canAct,onClick={if(selectedSeries==null)seriesSelected=visibleSeries.associate {it.id to it.revision} else selectAllRecords()},modifier=Modifier.testTag("history_select_results")) {
+                Text(if(selectedSeries==null)tr(R.string.text_select_all_results_9951b1) else tr(R.string.text_select_all_actionable_records_52b2d0))
+            }
             if(selectedSeries==null) {
                 val allActive=seriesSelected.isNotEmpty() && seriesSelected.all {(id,rev)->series.any {it.id==id && it.revision==rev && it.lifecycle==SeriesLifecycle.ACTIVE}}
-                TextButton(enabled=canAct && allActive,onClick={previewSeriesBatch(true)},modifier=Modifier.testTag("history_batch_stop")){Text(tr(R.string.text_stop_repeating_5efad6))}
-                TextButton(enabled=canAct && seriesSelected.isNotEmpty(),onClick={previewSeriesBatch(false)},modifier=Modifier.testTag("history_batch_delete")){Text(tr(R.string.text_delete_selected_series_881f8d))}
-            } else TextButton(enabled=canAct && recordsSelected.isNotEmpty(),onClick={viewModel.prepareBatch(recordsSelected.toMap());recordBatch=true},modifier=Modifier.testTag("history_batch_trash")){Text(tr(R.string.text_move_to_trash_f86355))}
+                SelectionTextButton(enabled=canAct && allActive,onClick={previewSeriesBatch(true)},modifier=Modifier.testTag("history_batch_stop")){Text(tr(R.string.text_stop_repeating_5efad6))}
+                SelectionTextButton(enabled=canAct && seriesSelected.isNotEmpty(),onClick={previewSeriesBatch(false)},modifier=Modifier.testTag("history_batch_delete")){Text(tr(R.string.text_delete_selected_series_881f8d))}
+            } else SelectionTextButton(enabled=canAct && recordsSelected.isNotEmpty(),onClick={viewModel.prepareBatch(recordsSelected.toMap());recordBatch=true},modifier=Modifier.testTag("history_batch_trash")){Text(tr(R.string.text_move_to_trash_f86355))}
         }
         DelayedLoadingIndicator(windowLoading, Modifier.testTag("history_loading"), listOf(selectedSeries, query, limit, state.dataEpoch, retry))
         windowError?.let { message -> Row(Modifier.padding(horizontal = 20.dp)) {

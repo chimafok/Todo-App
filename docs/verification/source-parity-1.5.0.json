@@ -1,0 +1,17 @@
+{
+  "approvedDevSource": "753f624b9d1d84229663612c0fc61b78accd3e1d",
+  "approvedTestVersion": "1.5.0-dev06-perf",
+  "approvedTestApkSha256": "4fade74c6070c6e9781397f166aa2e15931deff6511faa784fedcff705f7b792",
+  "approvedMainSourceTree": "5d0ca7e43ff8ad53cf38b65cc0a5df497d2e31f9",
+  "releaseBaseMain": "6b78e7b9fb32b22e365cb83495b17c48b4ef8441",
+  "appMainSourcesUnchanged": true,
+  "dexIdenticalToApprovedPerf": true,
+  "dexPayload": {
+    "classes.dex": "72b09b1bfa8ef6234cdda53f851ee6894932381ba8f6fbefa06fb6b522369036"
+  },
+  "releaseBuildChanges": [
+    "release enables the R8 optimization and resource shrinking already tested by perf",
+    "official applicationId, versionName and signing identity; no profileable shell access"
+  ],
+  "method": "Main-based branch copied the approved dev tree exactly, then enabled the already-approved perf optimization settings for release. App main sources, resources and R8 rules were unchanged. Official and approved perf APK DEX hashes are identical. Official identity and certificate remain separate from development identity."
+}

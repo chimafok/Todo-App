@@ -1,0 +1,952 @@
+{
+  "date": "2026-11-13",
+  "version": "1.5.0-dev03",
+  "versionCode": 40,
+  "applicationId": "com.chimafok.todo.debug",
+  "bytes": 13699873,
+  "apkSha256": "27a597e2b90fbb035b10d78f5cb6f133e960a454542c97ba81cff55120ba53ac",
+  "certificateSha256": "61e51e2dce7d422d046cd6b4a41ea6ac15ef298bf6e4ced05bd9355f6cc63c62",
+  "signing": "development",
+  "debuggable": true,
+  "runtimeFingerprint": "6849995ae6bf6d49a747a3bec7a028f8d019d3a86147a0d19cd0f54c4107ec57",
+  "fingerprintMethod": "SHA-256 of git ls-files -s for runtime/build paths, including normalized Git blob identities",
+  "schemaVersion": 10,
+  "backupFormatVersion": 6,
+  "unitCount": 104,
+  "debugLint": {
+    "errors": 0,
+    "warnings": 13
+  },
+  "officialSigningPerformed": false,
+  "unitTests": {
+    "count": 104,
+    "freshXmlVerified": true,
+    "cases": [
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "sameIdNewerChangesWinAndOldFilesCannotOverwrite"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "canonicalEncodingEscapesStringsAndUsesOrderIndependentKeys"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "linksFollowTheNewerOrdinaryTaskWithoutMatchingNames"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "contradictoryTaskAndReminderModificationTimesRequireAWholeTaskChoice"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "reusedReminderIdAcrossDifferentTasksCannotSilentlyDeleteALocalTask"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "trashNeverResurrectsAutomaticallyEvenWithANewerFile"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "identicalContentSkipsEvenIfFileTimeUnknownOrDifferent"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "sameNameDifferentIdsRemainIndependent"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "equalOrUnknownModificationRequiresAnExplicitVersion"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "conversionConnectsOldOrdinaryIdAndNewSeriesAsOneConflict"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "replaceReportsRemovedTasksAndRetainsOnlyFileRows"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "yearlessSameDayPastTimeRollsButExplicitYearsAndDateOnlyNeverDo"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "impossibleDatesAndUnsupportedLengthsNeverRollIntoAnotherDate"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "both24HourTimeFormsSupportMidnightAndRejectOverflow"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "dstGapIsRejectedAndOverlapUsesVisibleEarlierOffset"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "timedDeadlineKeepsItsInstantAcrossDeviceZones"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "sameDayResolutionUsesSavedZoneAndStrictNextYearIncludingDstOverlap"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "crossingDateLineNeverHidesAPendingTaskOrDuplicatesAnOverdueTask"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "jumpingToPastDateDoesNotReuseAnItemKeyInTwoGroups"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "mixedZonesSortByActualInstantAndDateOnlyDoesNotShift"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "monthDayRollsOnlyEarlierDatesAndNeverChangesAnExplicitYear"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "allDateFormatsAreStrictAndHaveExplicitYearRules"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeviceClockTest",
+        "method": "longLivedClockFollowsTimezoneChangesButExplicitZoneStaysFixed"
+      },
+      {
+        "class": "com.chimafok.todo.domain.LanguageChoiceTest",
+        "method": "followSystemUsesSupportedLanguageListThenEnglishFallback"
+      },
+      {
+        "class": "com.chimafok.todo.domain.LanguageChoiceTest",
+        "method": "renderingLocalesKeepChineseScriptsAndRegionsExplicit"
+      },
+      {
+        "class": "com.chimafok.todo.domain.LanguageChoiceTest",
+        "method": "chineseScriptAndRegionResolveCorrectly"
+      },
+      {
+        "class": "com.chimafok.todo.domain.LanguageChoiceTest",
+        "method": "explicitChoicesOverrideSystem"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ListScalingTest",
+        "method": "equalTimesKeepCreationThenIdOrderAndUnscheduledKeepsNewestFirst"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ListScalingTest",
+        "method": "localDisplayDateAndDeadlineInstantDetermineGroupingAcrossZonesAndMidnight"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ListScalingTest",
+        "method": "inputTraversalIsBoundedWhenEveryTaskHasItsOwnDate"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ListScalingTest",
+        "method": "jumpToPastRemovesOnlyThatLocalDateFromTodayWithoutDuplicates"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ListScalingTest",
+        "method": "indexedTagsKeepConfiguredOrderWithoutRescanningLinksPerRow"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ListScalingTest",
+        "method": "rebuiltIndexReflectsRenamesRemovalsAndLinkChanges"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ListScalingTest",
+        "method": "completedKeepsOriginalDateStableTiesAndExcludesTrash"
+      },
+      {
+        "class": "com.chimafok.todo.domain.NoteImageMergeTest",
+        "method": "replacementDropsUnusedLocalImagesAndIdenticalMergeDeduplicates"
+      },
+      {
+        "class": "com.chimafok.todo.domain.NoteImageMergeTest",
+        "method": "conflictingTaskChoiceCarriesOnlyItsImages"
+      },
+      {
+        "class": "com.chimafok.todo.domain.NoteImageRefsTest",
+        "method": "emptyAndMultipleIdsRoundTripInOrder"
+      },
+      {
+        "class": "com.chimafok.todo.domain.NoteImageRefsTest",
+        "method": "manyImagesRoundTripWithoutCountLimit"
+      },
+      {
+        "class": "com.chimafok.todo.domain.NoteImageRefsTest",
+        "method": "rejectsInvalidIdsAndDuplicates"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "homeProjectionSelectsLatestOverdueThenEarliestPendingWithoutChangingHistory"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "endDateIsInclusiveAndCountIncludesFirstConsumedSlot"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "extremeDatesTerminateWithoutWrappingOrReusingSequenceNumbers"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "malformedRulesAndImpossibleEndConditionsAreRejected"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "monthlyFallsBackToMonthEndThenRestoresTheOriginalDay"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "dailyWeeklyAndEveryNDaysKeepTheirOriginalAnchor"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "selectedWeekdaysStartAtFirstEligibleDateAndRepeatInChronologicalOrder"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "offlineCatchUpIsBoundedAndCursorProducesExactlyTheSameLedgerAsOneBatch"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "generationUsesSeriesLocalMidnightIncludingDstAndDateLine"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "futurePreparationIsOneRowAndRetryingCompletionOrCreationIsIdempotent"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderConversionRulesTest",
+        "method": "relativeOffsetsAndDateOnlyBaselinesAreInheritedWithoutInventingDeadlineTime"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderConversionRulesTest",
+        "method": "unsupportedPrecisionRangesAndDuplicateIdsAreRejectedWithoutTruncating"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderConversionRulesTest",
+        "method": "inheritedWallClockUsesDstCalendarDaysRatherThanFixed24HourOffsets"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderConversionRulesTest",
+        "method": "fixedInstantsBecomeCalendarOffsetsInTheSeriesZoneAndHaveStableIndependentIds"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderConversionRulesTest",
+        "method": "fixedOffsetsCanBeBeforeOrAfterAndUseSavedZoneDuringTravel"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderDefaultsTest",
+        "method": "explicitLegacyTwentyClockDefinitionsKeepTheirOriginalInstants"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderDefaultsTest",
+        "method": "newDefinitionsUseTenClockWhileTypedDeadlineStillWins"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderRulesTest",
+        "method": "fixedTimeFallbackPrefersDeadlineAndConvertsCapturedZoneOtherwiseUsesBase"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderRulesTest",
+        "method": "quantityUnitsConvertExactlyAndLegacyMinutesRoundTrip"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderRulesTest",
+        "method": "rejectsInvalidDependenciesAndMutuallyExclusiveFields"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderRulesTest",
+        "method": "quantityNeverTruncatesClampsOrOverflows"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderRulesTest",
+        "method": "dateOnlyBaseIsSeparateAndEditable"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderRulesTest",
+        "method": "changingDeadlineMovesRelativeButFixedStays"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderRulesTest",
+        "method": "legacyDateOnlyCapturesReminderZoneWithoutChangingDeadline"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderRulesTest",
+        "method": "timedRelativeUsesDeadlineZoneAndElapsedMinutesAcrossDst"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderRulesTest",
+        "method": "fixedInstantDoesNotFollowDeadlineOrDeviceZone"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RetentionRulesTest",
+        "method": "customDaysArePositiveIntegersWithoutSilentTruncation"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RetentionRulesTest",
+        "method": "retentionUsesElapsedDaysAcrossDstAndNotCalendarMonths"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RetentionRulesTest",
+        "method": "trashExpiresAtExactlyThirtyElapsedDays"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RetentionRulesTest",
+        "method": "epochArithmeticDoesNotOverflowOrExpireFutureTimestamps"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesEditPlanTest",
+        "method": "completedPastAndDeletedRowsAreProtectedEvenWithHigherSequence"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesEditPlanTest",
+        "method": "homeProjectionExcludesCancelledRowsWithoutLosingTheirData"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesEditPlanTest",
+        "method": "cancelledRowsCanReactivateButUnchangedCancellationsDoNotChurn"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesEditPlanTest",
+        "method": "newFrequencyUsesGlobalSequenceWithoutResettingCount"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesEditPlanTest",
+        "method": "weekdayRuleUsesFirstEligibleDateAndAnInclusiveEndDate"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesEditPlanTest",
+        "method": "historicalBoundaryUsesEachRecordsSavedZone"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesEditPlanTest",
+        "method": "monthlyClampKeepsOriginalAnchorWhenOnlyContentOrEndChanges"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesEditPlanTest",
+        "method": "invalidSourceAndCountCannotReplanHistory"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesReminderRulesTest",
+        "method": "automaticDstGapsAdvanceAndOverlapsChooseEarlierOffset"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesReminderRulesTest",
+        "method": "blankTemplateTimeInheritsEachDeadlineOrEditableBaseWithoutChangingDeadline"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesReminderRulesTest",
+        "method": "invalidTemplatesAndOutOfRangeDatesAreRejected"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesReminderRulesTest",
+        "method": "fixedRulesGenerateIndependentInstantsAndStableOccurrenceIdentities"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesReminderRulesTest",
+        "method": "generationLooksAheadByLargestLeadWithTwoDayBufferInSeriesZone"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesReminderRulesTest",
+        "method": "futurePlanningRespectsHorizonBatchLimitAndDoesNotConsumeUnneededSlots"
+      },
+      {
+        "class": "com.chimafok.todo.domain.StudyScheduleTest",
+        "method": "optionalStartDateNeedsNoTimeButTimeRequiresDateAndZone"
+      },
+      {
+        "class": "com.chimafok.todo.domain.StudyScheduleTest",
+        "method": "startsUseCapturedTimezoneWhenComparingTimes"
+      },
+      {
+        "class": "com.chimafok.todo.domain.StudyScheduleTest",
+        "method": "deadlineWinsThenStartDateAndTimeBreakTies"
+      },
+      {
+        "class": "com.chimafok.todo.domain.StudyScheduleTest",
+        "method": "nonexistentDstStartIsRejectedInsteadOfShifted"
+      },
+      {
+        "class": "com.chimafok.todo.domain.StudyScheduleTest",
+        "method": "unscheduledStartsSortBeforeBlankAndDoNotCreateDeadline"
+      },
+      {
+        "class": "com.chimafok.todo.domain.StudyStatusRulesTest",
+        "method": "ordinaryAndAssignmentStateContractsStaySeparate"
+      },
+      {
+        "class": "com.chimafok.todo.domain.StudyStatusRulesTest",
+        "method": "learningAdvancesDirectlyFromProgressToCompletion"
+      },
+      {
+        "class": "com.chimafok.todo.domain.StudyStatusRulesTest",
+        "method": "learningAllowsThreeStatesAndRejectsAssignmentOnlyStates"
+      },
+      {
+        "class": "com.chimafok.todo.domain.StudyStatusRulesTest",
+        "method": "categoryConversionsPreserveMeaningfulProgressAndCompletion"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskQueryTest",
+        "method": "scopesNeverMixCompletedTrashAndPendingAndExpireAtThirtyDays"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskQueryTest",
+        "method": "tagAndOrAndCategoryOrCombineWithTextUsingAnd"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskQueryTest",
+        "method": "textSearchUsesTitleNotesCategoryAndTagsCaseInsensitively"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskRulesTest",
+        "method": "dateOnlyIsOverdueAfterItsDayAndTimedTaskUsesInstant"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskRulesTest",
+        "method": "timedItemsSortBeforeDateOnly"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskRulesTest",
+        "method": "agendaKeepsTodayHidesEmptyFutureAndProjectsOverdueWithoutChangingDate"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskRulesTest",
+        "method": "explicitEmptyDateGetsAnAddAnchor"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskRulesTest",
+        "method": "onlyFinalAssignmentStatusIsCompleted"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskRulesTest",
+        "method": "movingIntoAssignmentRequiresAnExplicitChoice"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskRulesTest",
+        "method": "invalidDraftsCannotBeSaved"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskRulesTest",
+        "method": "completedAndTrashNeverLeakIntoAgenda"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskRulesTest",
+        "method": "completedUndatedItemsUseCompletionTimeAndOriginalDatesStayIntact"
+      }
+    ],
+    "failures": []
+  },
+  "deviceTests": {
+    "37": {
+      "gallery": {
+        "count": 5,
+        "freshXmlVerified": true,
+        "cases": [
+          {
+            "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+            "method": "singleImageKeepsBothArrowsDisabledAndBlankTapDismisses"
+          },
+          {
+            "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+            "method": "swipeBothWaysStopsAtEndsAndArrowAndCloseIconsRemainAccessible"
+          },
+          {
+            "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+            "method": "arrowsAcceptRapidRepeatsAndReversalBeforeThePreviousAnimationSettles"
+          },
+          {
+            "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+            "method": "zoomedDragPansAndChangingPageResetsZoomBeforeTheNextSwipe"
+          },
+          {
+            "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+            "method": "chosenThumbnailAndSettledSwipeSurviveActivityRecreation"
+          }
+        ],
+        "failures": []
+      },
+      "icons": {
+        "count": 4,
+        "freshXmlVerified": true,
+        "cases": [
+          {
+            "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+            "method": "seriesReminderClockAndRemoveTextKeepTheirOriginalActions"
+          },
+          {
+            "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+            "method": "singleReminderClockAndRemoveTextKeepTheirOriginalActions"
+          },
+          {
+            "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+            "method": "toolbarIconsAndTextActionsEditTrashAndRestoreOnlyTheChosenTask"
+          },
+          {
+            "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+            "method": "localizedIconsHaveLargeTargetsSelectedStateAndLongPressHelpWithoutInvokingTheAction"
+          }
+        ],
+        "failures": []
+      },
+      "motion": {
+        "count": 2,
+        "freshXmlVerified": true,
+        "cases": [
+          {
+            "class": "com.chimafok.todo.ui.TaskCardMotionUiTest",
+            "method": "detailsAndCardShrinkProgressivelyUntilTheExitAnimationCompletes"
+          },
+          {
+            "class": "com.chimafok.todo.ui.TaskCardMotionUiTest",
+            "method": "reopeningDuringCollapseReturnsToTheFullDetailHeight"
+          }
+        ],
+        "failures": []
+      },
+      "search": {
+        "count": 3,
+        "freshXmlVerified": true,
+        "cases": [
+          {
+            "class": "com.chimafok.todo.ui.SearchRefreshUiTest",
+            "method": "filterCountShareACentreLineAndDeadlineLabelsKeepAccessibleTextWithoutFloatingNotches"
+          },
+          {
+            "class": "com.chimafok.todo.ui.SearchRefreshUiTest",
+            "method": "warmReturnShowsCachedHomeButDisablesStaleActionsUntilTheFreshQueryCompletes"
+          },
+          {
+            "class": "com.chimafok.todo.ui.SearchRefreshUiTest",
+            "method": "chineseLettersAndDigitsKeepTheEmptySearchViewWhileNextQueryIsPending"
+          }
+        ],
+        "failures": []
+      },
+      "history": {
+        "count": 7,
+        "freshXmlVerified": true,
+        "cases": [
+          {
+            "class": "com.chimafok.todo.ui.LongSelectionUiTest",
+            "method": "trashLongSelectCanCancelThenRestoreAndPurgeOnlyTheChosenTasks"
+          },
+          {
+            "class": "com.chimafok.todo.ui.LongSelectionUiTest",
+            "method": "compactEmptySectionsShowZeroAndRealCardsWithCountsAtNormalAndDoubleFont"
+          },
+          {
+            "class": "com.chimafok.todo.ui.LongSelectionUiTest",
+            "method": "historyQueryPendingBlocksLongPressAndCancellingAllSelectionIgnoresLateResults"
+          },
+          {
+            "class": "com.chimafok.todo.ui.LongSelectionUiTest",
+            "method": "seriesLongSelectionKeepsFrozenPreviewAcrossRotationAndRejectsStaleChildren"
+          },
+          {
+            "class": "com.chimafok.todo.ui.LongSelectionUiTest",
+            "method": "historyRecordLongSelectionSelectsAllMatchingPagesAndKeepsCancelledRowsReadOnly"
+          },
+          {
+            "class": "com.chimafok.todo.ui.LongSelectionUiTest",
+            "method": "longPressSelectsWithoutCompletingAndWorksInPendingAndCompletedPages"
+          },
+          {
+            "class": "com.chimafok.todo.ui.LongSelectionUiTest",
+            "method": "deletedSeriesLongSelectionRestoresItsOwnDeletionGroupAndCanPurgeAGroup"
+          }
+        ],
+        "failures": []
+      },
+      "organization": {
+        "count": 1,
+        "freshXmlVerified": true,
+        "cases": [
+          {
+            "class": "com.chimafok.todo.ui.OrganizationImagesUiTest",
+            "method": "renamedStudyKeepsItsIdentityAndCannotBeDeletedOrBatchSelected"
+          }
+        ],
+        "failures": []
+      }
+    },
+    "26": {
+      "gallery": {
+        "count": 5,
+        "freshXmlVerified": true,
+        "cases": [
+          {
+            "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+            "method": "singleImageKeepsBothArrowsDisabledAndBlankTapDismisses"
+          },
+          {
+            "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+            "method": "swipeBothWaysStopsAtEndsAndArrowAndCloseIconsRemainAccessible"
+          },
+          {
+            "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+            "method": "arrowsAcceptRapidRepeatsAndReversalBeforeThePreviousAnimationSettles"
+          },
+          {
+            "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+            "method": "zoomedDragPansAndChangingPageResetsZoomBeforeTheNextSwipe"
+          },
+          {
+            "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+            "method": "chosenThumbnailAndSettledSwipeSurviveActivityRecreation"
+          }
+        ],
+        "failures": []
+      },
+      "icons": {
+        "count": 4,
+        "freshXmlVerified": true,
+        "cases": [
+          {
+            "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+            "method": "seriesReminderClockAndRemoveTextKeepTheirOriginalActions"
+          },
+          {
+            "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+            "method": "singleReminderClockAndRemoveTextKeepTheirOriginalActions"
+          },
+          {
+            "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+            "method": "toolbarIconsAndTextActionsEditTrashAndRestoreOnlyTheChosenTask"
+          },
+          {
+            "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+            "method": "localizedIconsHaveLargeTargetsSelectedStateAndLongPressHelpWithoutInvokingTheAction"
+          }
+        ],
+        "failures": []
+      },
+      "motion": {
+        "count": 2,
+        "freshXmlVerified": true,
+        "cases": [
+          {
+            "class": "com.chimafok.todo.ui.TaskCardMotionUiTest",
+            "method": "detailsAndCardShrinkProgressivelyUntilTheExitAnimationCompletes"
+          },
+          {
+            "class": "com.chimafok.todo.ui.TaskCardMotionUiTest",
+            "method": "reopeningDuringCollapseReturnsToTheFullDetailHeight"
+          }
+        ],
+        "failures": []
+      },
+      "search": {
+        "count": 3,
+        "freshXmlVerified": true,
+        "cases": [
+          {
+            "class": "com.chimafok.todo.ui.SearchRefreshUiTest",
+            "method": "filterCountShareACentreLineAndDeadlineLabelsKeepAccessibleTextWithoutFloatingNotches"
+          },
+          {
+            "class": "com.chimafok.todo.ui.SearchRefreshUiTest",
+            "method": "warmReturnShowsCachedHomeButDisablesStaleActionsUntilTheFreshQueryCompletes"
+          },
+          {
+            "class": "com.chimafok.todo.ui.SearchRefreshUiTest",
+            "method": "chineseLettersAndDigitsKeepTheEmptySearchViewWhileNextQueryIsPending"
+          }
+        ],
+        "failures": []
+      },
+      "history": {
+        "count": 7,
+        "freshXmlVerified": true,
+        "cases": [
+          {
+            "class": "com.chimafok.todo.ui.LongSelectionUiTest",
+            "method": "trashLongSelectCanCancelThenRestoreAndPurgeOnlyTheChosenTasks"
+          },
+          {
+            "class": "com.chimafok.todo.ui.LongSelectionUiTest",
+            "method": "compactEmptySectionsShowZeroAndRealCardsWithCountsAtNormalAndDoubleFont"
+          },
+          {
+            "class": "com.chimafok.todo.ui.LongSelectionUiTest",
+            "method": "historyQueryPendingBlocksLongPressAndCancellingAllSelectionIgnoresLateResults"
+          },
+          {
+            "class": "com.chimafok.todo.ui.LongSelectionUiTest",
+            "method": "seriesLongSelectionKeepsFrozenPreviewAcrossRotationAndRejectsStaleChildren"
+          },
+          {
+            "class": "com.chimafok.todo.ui.LongSelectionUiTest",
+            "method": "historyRecordLongSelectionSelectsAllMatchingPagesAndKeepsCancelledRowsReadOnly"
+          },
+          {
+            "class": "com.chimafok.todo.ui.LongSelectionUiTest",
+            "method": "longPressSelectsWithoutCompletingAndWorksInPendingAndCompletedPages"
+          },
+          {
+            "class": "com.chimafok.todo.ui.LongSelectionUiTest",
+            "method": "deletedSeriesLongSelectionRestoresItsOwnDeletionGroupAndCanPurgeAGroup"
+          }
+        ],
+        "failures": []
+      },
+      "organization": {
+        "count": 1,
+        "freshXmlVerified": true,
+        "cases": [
+          {
+            "class": "com.chimafok.todo.ui.OrganizationImagesUiTest",
+            "method": "renamedStudyKeepsItsIdentityAndCannotBeDeletedOrBatchSelected"
+          }
+        ],
+        "failures": []
+      }
+    }
+  },
+  "deviceCases": 44,
+  "emulatorsClosed": true,
+  "officialMainMerged": false,
+  "maintainerTestApprovalPending": true,
+  "changes": [
+    "Restore text reminder Remove, card Edit/Trash/Restore and all Select all controls; retain remaining icons and accessible labels",
+    "120ms interruptible arrow transitions accepting rapid/reversed presses; preserve bounded swipe navigation, zoom/pan and dismissal",
+    "Retain task detail children through 260ms shrink/fade exit, including reopening mid-collapse",
+    "Text-sized home filter/select glyphs with unchanged 48dp targets and transparent selected check background"
+  ],
+  "initialDeviceRounds": {
+    "api37Motion": {
+      "count": 2,
+      "freshXmlVerified": true,
+      "cases": [
+        {
+          "class": "com.chimafok.todo.ui.TaskCardMotionUiTest",
+          "method": "detailsAndCardShrinkProgressivelyUntilTheExitAnimationCompletes"
+        },
+        {
+          "class": "com.chimafok.todo.ui.TaskCardMotionUiTest",
+          "method": "reopeningDuringCollapseReturnsToTheFullDetailHeight"
+        }
+      ],
+      "failures": [
+        {
+          "class": "com.chimafok.todo.ui.TaskCardMotionUiTest",
+          "method": "detailsAndCardShrinkProgressivelyUntilTheExitAnimationCompletes",
+          "kind": "failure",
+          "text": "java.lang.AssertionError: Failed: assertExists.\nReason: Expected exactly '1' node but could not find any node that satisfies: (TestTag = 'task_details_motion')\nHowever, the unmerged tree contains '1' node that matches. Are you missing `useUnmergedNode = true` in your finder?\n\n\tat androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)\n\tat androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)\n\tat androidx.compose.ui.test.SemanticsNodeInteraction.assertExists(SemanticsNodeInteraction.kt:125)\n\tat androidx.compose.ui.test.SemanticsNodeInteraction.assertExists$default(SemanticsNodeInteraction.kt:124)\n\tat com.chimafok.todo.ui.TaskCardMotionUiTest.detailsAndCardShrinkProgressivelyUntilTheExitAnimationCompletes(TaskCardMotionUiTest.kt:42)\n"
+        },
+        {
+          "class": "com.chimafok.todo.ui.TaskCardMotionUiTest",
+          "method": "reopeningDuringCollapseReturnsToTheFullDetailHeight",
+          "kind": "failure",
+          "text": "java.lang.AssertionError: Failed: assertExists.\nReason: Expected exactly '1' node but could not find any node that satisfies: (TestTag = 'task_details_motion')\nHowever, the unmerged tree contains '1' node that matches. Are you missing `useUnmergedNode = true` in your finder?\n\n\tat androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)\n\tat androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)\n\tat androidx.compose.ui.test.SemanticsNodeInteraction.assertExists(SemanticsNodeInteraction.kt:125)\n\tat androidx.compose.ui.test.SemanticsNodeInteraction.assertExists$default(SemanticsNodeInteraction.kt:124)\n\tat com.chimafok.todo.ui.TaskCardMotionUiTest.reopeningDuringCollapseReturnsToTheFullDetailHeight(TaskCardMotionUiTest.kt:59)\n"
+        }
+      ]
+    },
+    "api37IconsVirtualClockRetry": {
+      "count": 4,
+      "freshXmlVerified": true,
+      "cases": [
+        {
+          "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+          "method": "seriesReminderClockAndRemoveTextKeepTheirOriginalActions"
+        },
+        {
+          "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+          "method": "singleReminderClockAndRemoveTextKeepTheirOriginalActions"
+        },
+        {
+          "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+          "method": "toolbarIconsAndTextActionsEditTrashAndRestoreOnlyTheChosenTask"
+        },
+        {
+          "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+          "method": "localizedIconsHaveLargeTargetsSelectedStateAndLongPressHelpWithoutInvokingTheAction"
+        }
+      ],
+      "failures": [
+        {
+          "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+          "method": "toolbarIconsAndTextActionsEditTrashAndRestoreOnlyTheChosenTask",
+          "kind": "failure",
+          "text": "java.lang.AssertionError: expected:<0.03137255> but was:<0.105882354>\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.failNotEquals(Assert.java:835)\n\tat org.junit.Assert.assertEquals(Assert.java:577)\n\tat org.junit.Assert.assertEquals(Assert.java:701)\n\tat com.chimafok.todo.ui.ActionIconsUiTest.toolbarIconsAndTextActionsEditTrashAndRestoreOnlyTheChosenTask(ActionIconsUiTest.kt:87)\n"
+        }
+      ]
+    },
+    "api37Icons": {
+      "count": 4,
+      "freshXmlVerified": true,
+      "cases": [
+        {
+          "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+          "method": "seriesReminderClockAndRemoveTextKeepTheirOriginalActions"
+        },
+        {
+          "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+          "method": "singleReminderClockAndRemoveTextKeepTheirOriginalActions"
+        },
+        {
+          "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+          "method": "toolbarIconsAndTextActionsEditTrashAndRestoreOnlyTheChosenTask"
+        },
+        {
+          "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+          "method": "localizedIconsHaveLargeTargetsSelectedStateAndLongPressHelpWithoutInvokingTheAction"
+        }
+      ],
+      "failures": [
+        {
+          "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+          "method": "toolbarIconsAndTextActionsEditTrashAndRestoreOnlyTheChosenTask",
+          "kind": "failure",
+          "text": "java.lang.AssertionError: expected:<0.03137255> but was:<0.105882354>\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.failNotEquals(Assert.java:835)\n\tat org.junit.Assert.assertEquals(Assert.java:577)\n\tat org.junit.Assert.assertEquals(Assert.java:701)\n\tat com.chimafok.todo.ui.ActionIconsUiTest.toolbarIconsAndTextActionsEditTrashAndRestoreOnlyTheChosenTask(ActionIconsUiTest.kt:85)\n"
+        }
+      ]
+    },
+    "api37Gallery": {
+      "count": 5,
+      "freshXmlVerified": true,
+      "cases": [
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "singleImageKeepsBothArrowsDisabledAndBlankTapDismisses"
+        },
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "swipeBothWaysStopsAtEndsAndArrowAndCloseIconsRemainAccessible"
+        },
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "arrowsAcceptRapidRepeatsAndReversalBeforeThePreviousAnimationSettles"
+        },
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "zoomedDragPansAndChangingPageResetsZoomBeforeTheNextSwipe"
+        },
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "chosenThumbnailAndSettledSwipeSurviveActivityRecreation"
+        }
+      ],
+      "failures": [
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "singleImageKeepsBothArrowsDisabledAndBlankTapDismisses",
+          "kind": "failure",
+          "text": "androidx.test.espresso.base.RootViewPicker$RootViewWithoutFocusException: Waited for the root of the view hierarchy to have window focus and not request layout for 10 seconds. If you specified a non default root matcher, it may be picking a root that never takes focus. Root:\nRoot{application-window-token=android.view.ViewRootImpl$W@adf9df4, window-token=android.view.ViewRootImpl$W@adf9df4, has-window-focus=false, layout-params-type=2, layout-params-string={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, decor-view-string=DecorView{id=-1, visibility=VISIBLE, width=1080, height=1794, has-focus=false, has-focusable=true, has-window-focus=false, is-clickable=false, is-enabled=true, is-focused=false, is-focusable=false, is-layout-requested=false, is-selected=false, layout-params={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, tag=null, root-is-layout-requested=false, has-input-connection=false, x=0.0, y=0.0, child-count=1}}\n\tat dalvik.system.VMStack.getThreadStackTrace(Native Method)\n\tat java.lang.Thread.getStackTrace(Thread.java:2852)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:34)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:26)\n\tat androidx.test.espresso.base.DefaultFailureHandler$TypedFailureHandler.handle(DefaultFailureHandler.java:158)\n\tat androidx.test.espresso.base.DefaultFailureHandler.handle(DefaultFailureHandler.java:120)\n\tat androidx.test.espresso.ViewInteraction.waitForAndHandleInteractionResults(ViewInteraction.java:385)\n\tat androidx.test.espresso.ViewInteraction.desugaredPerform(ViewInteraction.java:212)\n\tat androidx.test.espresso.ViewInteraction.perform(ViewInteraction.java:140)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.keyboard(GallerySwipeUiTest.kt:34)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open(GallerySwipeUiTest.kt:50)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open$default(GallerySwipeUiTest.kt:37)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.singleImageKeepsBothArrowsDisabledAndBlankTapDismisses(GallerySwipeUiTest.kt:118)\n"
+        },
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "swipeBothWaysStopsAtEndsAndArrowAndCloseIconsRemainAccessible",
+          "kind": "failure",
+          "text": "androidx.test.espresso.base.RootViewPicker$RootViewWithoutFocusException: Waited for the root of the view hierarchy to have window focus and not request layout for 10 seconds. If you specified a non default root matcher, it may be picking a root that never takes focus. Root:\nRoot{application-window-token=android.view.ViewRootImpl$W@623a91c, window-token=android.view.ViewRootImpl$W@623a91c, has-window-focus=false, layout-params-type=2, layout-params-string={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, decor-view-string=DecorView{id=-1, visibility=VISIBLE, width=1080, height=1794, has-focus=false, has-focusable=true, has-window-focus=false, is-clickable=false, is-enabled=true, is-focused=false, is-focusable=false, is-layout-requested=false, is-selected=false, layout-params={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, tag=null, root-is-layout-requested=false, has-input-connection=false, x=0.0, y=0.0, child-count=1}}\n\tat dalvik.system.VMStack.getThreadStackTrace(Native Method)\n\tat java.lang.Thread.getStackTrace(Thread.java:2852)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:34)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:26)\n\tat androidx.test.espresso.base.DefaultFailureHandler$TypedFailureHandler.handle(DefaultFailureHandler.java:158)\n\tat androidx.test.espresso.base.DefaultFailureHandler.handle(DefaultFailureHandler.java:120)\n\tat androidx.test.espresso.ViewInteraction.waitForAndHandleInteractionResults(ViewInteraction.java:385)\n\tat androidx.test.espresso.ViewInteraction.desugaredPerform(ViewInteraction.java:212)\n\tat androidx.test.espresso.ViewInteraction.perform(ViewInteraction.java:140)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.keyboard(GallerySwipeUiTest.kt:34)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open(GallerySwipeUiTest.kt:50)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open$default(GallerySwipeUiTest.kt:37)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.swipeBothWaysStopsAtEndsAndArrowAndCloseIconsRemainAccessible(GallerySwipeUiTest.kt:68)\n"
+        },
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "arrowsAcceptRapidRepeatsAndReversalBeforeThePreviousAnimationSettles",
+          "kind": "failure",
+          "text": "androidx.test.espresso.base.RootViewPicker$RootViewWithoutFocusException: Waited for the root of the view hierarchy to have window focus and not request layout for 10 seconds. If you specified a non default root matcher, it may be picking a root that never takes focus. Root:\nRoot{application-window-token=android.view.ViewRootImpl$W@cd96f26, window-token=android.view.ViewRootImpl$W@cd96f26, has-window-focus=false, layout-params-type=2, layout-params-string={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, decor-view-string=DecorView{id=-1, visibility=VISIBLE, width=1080, height=1794, has-focus=false, has-focusable=true, has-window-focus=false, is-clickable=false, is-enabled=true, is-focused=false, is-focusable=false, is-layout-requested=false, is-selected=false, layout-params={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, tag=null, root-is-layout-requested=false, has-input-connection=false, x=0.0, y=0.0, child-count=1}}\n\tat dalvik.system.VMStack.getThreadStackTrace(Native Method)\n\tat java.lang.Thread.getStackTrace(Thread.java:2852)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:34)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:26)\n\tat androidx.test.espresso.base.DefaultFailureHandler$TypedFailureHandler.handle(DefaultFailureHandler.java:158)\n\tat androidx.test.espresso.base.DefaultFailureHandler.handle(DefaultFailureHandler.java:120)\n\tat androidx.test.espresso.ViewInteraction.waitForAndHandleInteractionResults(ViewInteraction.java:385)\n\tat androidx.test.espresso.ViewInteraction.desugaredPerform(ViewInteraction.java:212)\n\tat androidx.test.espresso.ViewInteraction.perform(ViewInteraction.java:140)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.keyboard(GallerySwipeUiTest.kt:34)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open(GallerySwipeUiTest.kt:50)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open$default(GallerySwipeUiTest.kt:37)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.arrowsAcceptRapidRepeatsAndReversalBeforeThePreviousAnimationSettles(GallerySwipeUiTest.kt:100)\n"
+        },
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "zoomedDragPansAndChangingPageResetsZoomBeforeTheNextSwipe",
+          "kind": "failure",
+          "text": "androidx.test.espresso.base.RootViewPicker$RootViewWithoutFocusException: Waited for the root of the view hierarchy to have window focus and not request layout for 10 seconds. If you specified a non default root matcher, it may be picking a root that never takes focus. Root:\nRoot{application-window-token=android.view.ViewRootImpl$W@f3aa012, window-token=android.view.ViewRootImpl$W@f3aa012, has-window-focus=false, layout-params-type=2, layout-params-string={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, decor-view-string=DecorView{id=-1, visibility=VISIBLE, width=1080, height=1794, has-focus=false, has-focusable=true, has-window-focus=false, is-clickable=false, is-enabled=true, is-focused=false, is-focusable=false, is-layout-requested=false, is-selected=false, layout-params={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, tag=null, root-is-layout-requested=false, has-input-connection=false, x=0.0, y=0.0, child-count=1}}\n\tat dalvik.system.VMStack.getThreadStackTrace(Native Method)\n\tat java.lang.Thread.getStackTrace(Thread.java:2852)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:34)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:26)\n\tat androidx.test.espresso.base.DefaultFailureHandler$TypedFailureHandler.handle(DefaultFailureHandler.java:158)\n\tat androidx.test.espresso.base.DefaultFailureHandler.handle(DefaultFailureHandler.java:120)\n\tat androidx.test.espresso.ViewInteraction.waitForAndHandleInteractionResults(ViewInteraction.java:385)\n\tat androidx.test.espresso.ViewInteraction.desugaredPerform(ViewInteraction.java:212)\n\tat androidx.test.espresso.ViewInteraction.perform(ViewInteraction.java:140)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.keyboard(GallerySwipeUiTest.kt:34)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open(GallerySwipeUiTest.kt:50)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open$default(GallerySwipeUiTest.kt:37)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.zoomedDragPansAndChangingPageResetsZoomBeforeTheNextSwipe(GallerySwipeUiTest.kt:81)\n"
+        },
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "chosenThumbnailAndSettledSwipeSurviveActivityRecreation",
+          "kind": "failure",
+          "text": "androidx.test.espresso.base.RootViewPicker$RootViewWithoutFocusException: Waited for the root of the view hierarchy to have window focus and not request layout for 10 seconds. If you specified a non default root matcher, it may be picking a root that never takes focus. Root:\nRoot{application-window-token=android.view.ViewRootImpl$W@8fb49be, window-token=android.view.ViewRootImpl$W@8fb49be, has-window-focus=false, layout-params-type=2, layout-params-string={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, decor-view-string=DecorView{id=-1, visibility=VISIBLE, width=1080, height=1794, has-focus=false, has-focusable=true, has-window-focus=false, is-clickable=false, is-enabled=true, is-focused=false, is-focusable=false, is-layout-requested=false, is-selected=false, layout-params={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, tag=null, root-is-layout-requested=false, has-input-connection=false, x=0.0, y=0.0, child-count=1}}\n\tat dalvik.system.VMStack.getThreadStackTrace(Native Method)\n\tat java.lang.Thread.getStackTrace(Thread.java:2852)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:34)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:26)\n\tat androidx.test.espresso.base.DefaultFailureHandler$TypedFailureHandler.handle(DefaultFailureHandler.java:158)\n\tat androidx.test.espresso.base.DefaultFailureHandler.handle(DefaultFailureHandler.java:120)\n\tat androidx.test.espresso.ViewInteraction.waitForAndHandleInteractionResults(ViewInteraction.java:385)\n\tat androidx.test.espresso.ViewInteraction.desugaredPerform(ViewInteraction.java:212)\n\tat androidx.test.espresso.ViewInteraction.perform(ViewInteraction.java:140)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.keyboard(GallerySwipeUiTest.kt:34)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open(GallerySwipeUiTest.kt:50)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open$default(GallerySwipeUiTest.kt:37)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.chosenThumbnailAndSettledSwipeSurviveActivityRecreation(GallerySwipeUiTest.kt:94)\n"
+        }
+      ]
+    },
+    "api37GalleryFocusRetry": {
+      "count": 5,
+      "freshXmlVerified": true,
+      "cases": [
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "singleImageKeepsBothArrowsDisabledAndBlankTapDismisses"
+        },
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "swipeBothWaysStopsAtEndsAndArrowAndCloseIconsRemainAccessible"
+        },
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "arrowsAcceptRapidRepeatsAndReversalBeforeThePreviousAnimationSettles"
+        },
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "zoomedDragPansAndChangingPageResetsZoomBeforeTheNextSwipe"
+        },
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "chosenThumbnailAndSettledSwipeSurviveActivityRecreation"
+        }
+      ],
+      "failures": [
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "singleImageKeepsBothArrowsDisabledAndBlankTapDismisses",
+          "kind": "failure",
+          "text": "androidx.test.espresso.base.RootViewPicker$RootViewWithoutFocusException: Waited for the root of the view hierarchy to have window focus and not request layout for 10 seconds. If you specified a non default root matcher, it may be picking a root that never takes focus. Root:\nRoot{application-window-token=android.view.ViewRootImpl$W@a03f3c7, window-token=android.view.ViewRootImpl$W@a03f3c7, has-window-focus=false, layout-params-type=2, layout-params-string={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, decor-view-string=DecorView{id=-1, visibility=VISIBLE, width=1080, height=1794, has-focus=false, has-focusable=true, has-window-focus=false, is-clickable=false, is-enabled=true, is-focused=false, is-focusable=false, is-layout-requested=false, is-selected=false, layout-params={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, tag=null, root-is-layout-requested=false, has-input-connection=false, x=0.0, y=0.0, child-count=1}}\n\tat dalvik.system.VMStack.getThreadStackTrace(Native Method)\n\tat java.lang.Thread.getStackTrace(Thread.java:2852)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:34)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:26)\n\tat androidx.test.espresso.base.DefaultFailureHandler$TypedFailureHandler.handle(DefaultFailureHandler.java:158)\n\tat androidx.test.espresso.base.DefaultFailureHandler.handle(DefaultFailureHandler.java:120)\n\tat androidx.test.espresso.ViewInteraction.waitForAndHandleInteractionResults(ViewInteraction.java:385)\n\tat androidx.test.espresso.ViewInteraction.desugaredPerform(ViewInteraction.java:212)\n\tat androidx.test.espresso.ViewInteraction.perform(ViewInteraction.java:140)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.keyboard(GallerySwipeUiTest.kt:34)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open(GallerySwipeUiTest.kt:50)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open$default(GallerySwipeUiTest.kt:37)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.singleImageKeepsBothArrowsDisabledAndBlankTapDismisses(GallerySwipeUiTest.kt:118)\n"
+        },
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "swipeBothWaysStopsAtEndsAndArrowAndCloseIconsRemainAccessible",
+          "kind": "failure",
+          "text": "androidx.test.espresso.base.RootViewPicker$RootViewWithoutFocusException: Waited for the root of the view hierarchy to have window focus and not request layout for 10 seconds. If you specified a non default root matcher, it may be picking a root that never takes focus. Root:\nRoot{application-window-token=android.view.ViewRootImpl$W@25db925, window-token=android.view.ViewRootImpl$W@25db925, has-window-focus=false, layout-params-type=2, layout-params-string={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, decor-view-string=DecorView{id=-1, visibility=VISIBLE, width=1080, height=1794, has-focus=false, has-focusable=true, has-window-focus=false, is-clickable=false, is-enabled=true, is-focused=false, is-focusable=false, is-layout-requested=false, is-selected=false, layout-params={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, tag=null, root-is-layout-requested=false, has-input-connection=false, x=0.0, y=0.0, child-count=1}}\n\tat dalvik.system.VMStack.getThreadStackTrace(Native Method)\n\tat java.lang.Thread.getStackTrace(Thread.java:2852)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:34)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:26)\n\tat androidx.test.espresso.base.DefaultFailureHandler$TypedFailureHandler.handle(DefaultFailureHandler.java:158)\n\tat androidx.test.espresso.base.DefaultFailureHandler.handle(DefaultFailureHandler.java:120)\n\tat androidx.test.espresso.ViewInteraction.waitForAndHandleInteractionResults(ViewInteraction.java:385)\n\tat androidx.test.espresso.ViewInteraction.desugaredPerform(ViewInteraction.java:212)\n\tat androidx.test.espresso.ViewInteraction.perform(ViewInteraction.java:140)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.keyboard(GallerySwipeUiTest.kt:34)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open(GallerySwipeUiTest.kt:50)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open$default(GallerySwipeUiTest.kt:37)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.swipeBothWaysStopsAtEndsAndArrowAndCloseIconsRemainAccessible(GallerySwipeUiTest.kt:68)\n"
+        },
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "arrowsAcceptRapidRepeatsAndReversalBeforeThePreviousAnimationSettles",
+          "kind": "failure",
+          "text": "androidx.test.espresso.base.RootViewPicker$RootViewWithoutFocusException: Waited for the root of the view hierarchy to have window focus and not request layout for 10 seconds. If you specified a non default root matcher, it may be picking a root that never takes focus. Root:\nRoot{application-window-token=android.view.ViewRootImpl$W@5d61767, window-token=android.view.ViewRootImpl$W@5d61767, has-window-focus=false, layout-params-type=2, layout-params-string={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, decor-view-string=DecorView{id=-1, visibility=VISIBLE, width=1080, height=1794, has-focus=false, has-focusable=true, has-window-focus=false, is-clickable=false, is-enabled=true, is-focused=false, is-focusable=false, is-layout-requested=false, is-selected=false, layout-params={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, tag=null, root-is-layout-requested=false, has-input-connection=false, x=0.0, y=0.0, child-count=1}}\n\tat dalvik.system.VMStack.getThreadStackTrace(Native Method)\n\tat java.lang.Thread.getStackTrace(Thread.java:2852)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:34)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:26)\n\tat androidx.test.espresso.base.DefaultFailureHandler$TypedFailureHandler.handle(DefaultFailureHandler.java:158)\n\tat androidx.test.espresso.base.DefaultFailureHandler.handle(DefaultFailureHandler.java:120)\n\tat androidx.test.espresso.ViewInteraction.waitForAndHandleInteractionResults(ViewInteraction.java:385)\n\tat androidx.test.espresso.ViewInteraction.desugaredPerform(ViewInteraction.java:212)\n\tat androidx.test.espresso.ViewInteraction.perform(ViewInteraction.java:140)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.keyboard(GallerySwipeUiTest.kt:34)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open(GallerySwipeUiTest.kt:50)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open$default(GallerySwipeUiTest.kt:37)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.arrowsAcceptRapidRepeatsAndReversalBeforeThePreviousAnimationSettles(GallerySwipeUiTest.kt:100)\n"
+        },
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "zoomedDragPansAndChangingPageResetsZoomBeforeTheNextSwipe",
+          "kind": "failure",
+          "text": "androidx.test.espresso.base.RootViewPicker$RootViewWithoutFocusException: Waited for the root of the view hierarchy to have window focus and not request layout for 10 seconds. If you specified a non default root matcher, it may be picking a root that never takes focus. Root:\nRoot{application-window-token=android.view.ViewRootImpl$W@8a7d3e3, window-token=android.view.ViewRootImpl$W@8a7d3e3, has-window-focus=false, layout-params-type=2, layout-params-string={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, decor-view-string=DecorView{id=-1, visibility=VISIBLE, width=1080, height=1794, has-focus=false, has-focusable=true, has-window-focus=false, is-clickable=false, is-enabled=true, is-focused=false, is-focusable=false, is-layout-requested=false, is-selected=false, layout-params={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, tag=null, root-is-layout-requested=false, has-input-connection=false, x=0.0, y=0.0, child-count=1}}\n\tat dalvik.system.VMStack.getThreadStackTrace(Native Method)\n\tat java.lang.Thread.getStackTrace(Thread.java:2852)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:34)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:26)\n\tat androidx.test.espresso.base.DefaultFailureHandler$TypedFailureHandler.handle(DefaultFailureHandler.java:158)\n\tat androidx.test.espresso.base.DefaultFailureHandler.handle(DefaultFailureHandler.java:120)\n\tat androidx.test.espresso.ViewInteraction.waitForAndHandleInteractionResults(ViewInteraction.java:385)\n\tat androidx.test.espresso.ViewInteraction.desugaredPerform(ViewInteraction.java:212)\n\tat androidx.test.espresso.ViewInteraction.perform(ViewInteraction.java:140)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.keyboard(GallerySwipeUiTest.kt:34)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open(GallerySwipeUiTest.kt:50)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open$default(GallerySwipeUiTest.kt:37)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.zoomedDragPansAndChangingPageResetsZoomBeforeTheNextSwipe(GallerySwipeUiTest.kt:81)\n"
+        },
+        {
+          "class": "com.chimafok.todo.ui.GallerySwipeUiTest",
+          "method": "chosenThumbnailAndSettledSwipeSurviveActivityRecreation",
+          "kind": "failure",
+          "text": "androidx.test.espresso.base.RootViewPicker$RootViewWithoutFocusException: Waited for the root of the view hierarchy to have window focus and not request layout for 10 seconds. If you specified a non default root matcher, it may be picking a root that never takes focus. Root:\nRoot{application-window-token=android.view.ViewRootImpl$W@a6a7a1f, window-token=android.view.ViewRootImpl$W@a6a7a1f, has-window-focus=false, layout-params-type=2, layout-params-string={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, decor-view-string=DecorView{id=-1, visibility=VISIBLE, width=1080, height=1794, has-focus=false, has-focusable=true, has-window-focus=false, is-clickable=false, is-enabled=true, is-focused=false, is-focusable=false, is-layout-requested=false, is-selected=false, layout-params={(0,0)(fillxwrap) gr=CENTER sim={adjust=pan} ty=APPLICATION fmt=TRANSPARENT wanim=0x103030e\n  fl=DIM_BEHIND SPLIT_TOUCH HARDWARE_ACCELERATED\n  pfl=EDGE_TO_EDGE_ENFORCED\n  bhv=DEFAULT\n  fitTypes=statusBars navigationBars captionBar systemOverlays\n  frameRateBoostOnTouch=true\n  dvrrWindowFrameRateHint=true}, tag=null, root-is-layout-requested=false, has-input-connection=false, x=0.0, y=0.0, child-count=1}}\n\tat dalvik.system.VMStack.getThreadStackTrace(Native Method)\n\tat java.lang.Thread.getStackTrace(Thread.java:2852)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:34)\n\tat androidx.test.espresso.base.EspressoExceptionHandler.handleSafely(EspressoExceptionHandler.java:26)\n\tat androidx.test.espresso.base.DefaultFailureHandler$TypedFailureHandler.handle(DefaultFailureHandler.java:158)\n\tat androidx.test.espresso.base.DefaultFailureHandler.handle(DefaultFailureHandler.java:120)\n\tat androidx.test.espresso.ViewInteraction.waitForAndHandleInteractionResults(ViewInteraction.java:385)\n\tat androidx.test.espresso.ViewInteraction.desugaredPerform(ViewInteraction.java:212)\n\tat androidx.test.espresso.ViewInteraction.perform(ViewInteraction.java:140)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.keyboard(GallerySwipeUiTest.kt:34)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open(GallerySwipeUiTest.kt:50)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.open$default(GallerySwipeUiTest.kt:37)\n\tat com.chimafok.todo.ui.GallerySwipeUiTest.chosenThumbnailAndSettledSwipeSurviveActivityRecreation(GallerySwipeUiTest.kt:94)\n"
+        }
+      ]
+    }
+  },
+  "initialIssues": [
+    {
+      "phase": "API37 gallery first round",
+      "issue": "All five cases failed while closing the editor keyboard because Espresso could not obtain window focus, before their gallery assertions.",
+      "correction": "A wake/keyguard retry still failed. A single-case diagnostic confirmed the focused window was Application Not Responding: com.android.systemui. Restart the owned emulator System UI, verify focus recovery, then rerun. Initial and retry XML/logs remain preserved; no App changes were made for this environment correction."
+    }
+  ],
+  "additionalInitialIssues": [
+    {
+      "phase": "API37 icon/text action regression",
+      "issue": "Three cases passed; the toolbar case sampled the selection button while its normal touch ripple was still visible and failed its persistent-background pixel comparison.",
+      "correction": "The first virtual-clock retry still sampled the native ripple. Wait for Android render-thread touch feedback to actually fade before comparing the persistent background. No production code change; rerun all four cases. Initial XML and log retained."
+    }
+  ],
+  "motionFixtureCorrection": {
+    "initialCases": 2,
+    "issue": "Both new tests used the merged semantics tree for a detail node merged into its clickable parent card.",
+    "correction": "Read that nested test tag from the unmerged semantics tree, then rerun both tests; no production changes."
+  },
+  "limits": [
+    "Six separately executed targeted groups per API, not one full historical suite",
+    "No personal-phone operation or new phone acceptance",
+    "Three-language tooltip checks are not a full translated-screen/TalkBack/large-font matrix",
+    "No new overnight/background/large-data qualification"
+  ],
+  "previousEvidence": "development-1.5.0.json and development-1.5.0-dev02.json retain earlier results; they are not counted in this round."
+}

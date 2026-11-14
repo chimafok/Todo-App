@@ -1,0 +1,20 @@
+{
+  "api": 26,
+  "ownedHeadlessEmulator": true,
+  "previousVersion": "1.4.1",
+  "previousCode": 37,
+  "newVersion": "1.5.0",
+  "newCode": 43,
+  "phoneOperated": false,
+  "sameOfficialCertificateUpdateSucceeded": true,
+  "uidAndFirstInstallTimePreserved": true,
+  "syntheticTaskPreserved": true,
+  "launchSucceeded": true,
+  "detailsAndScrollingUsable": true,
+  "recurrenceCalendarConfirmed": true,
+  "syntheticUnsavedFormDiscarded": true,
+  "schemaVersion": 10,
+  "nonDebuggable": true,
+  "blackBoxCases": 3,
+  "freshXmlVerified": true
+}

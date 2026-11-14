@@ -20,7 +20,7 @@
 Windows PowerShell：
 
 ```powershell
-.	oolsuild.ps1 -GradleTask @('assembleDebug', 'testQaUnitTest', 'lintDebug')
+.\tools\build.ps1 -GradleTask @('assembleDebug', 'testQaUnitTest', 'lintDebug')
 ```
 
 macOS／Linux：
@@ -34,7 +34,7 @@ chmod +x gradlew
 
 ```powershell
 $env:ANDROID_SERIAL = 'emulator-5554'
-.	oolsuild.ps1 -GradleTask @('connectedQaAndroidTest')
+.\tools\build.ps1 -GradleTask @('connectedQaAndroidTest')
 ```
 
 SDK／JDK 不在預設位置時可使用 build.ps1 的 -SdkPath／-JavaPath。不要用使用者的日用安裝作自動測試。
@@ -46,6 +46,8 @@ SDK／JDK 不在預設位置時可使用 build.ps1 的 -SdkPath／-JavaPath。�
 | debug | com.chimafok.todo.debug | Android Studio 日常開發 |
 | qa | com.chimafok.todo.qa | 自動化與虛構資料展示 |
 | release | com.chimafok.todo | 官方發布，建置結果預設未簽署 |
+| perf | com.chimafok.todo.debug | 非偵錯最佳化對照包，沿用開發簽章 |
+| qaPerf | com.chimafok.todo.qa | 最佳化後的隔離 QA 驗證 |
 
 CI 建置與測試不使用正式私鑰。自行簽署的 release 不會取得官方更新身分。
 
@@ -72,3 +74,15 @@ App 有改動時，先完成必要檢查並從待驗證的 `dev` 來源建置 `a
 資料模型見 [DATA-MODEL](DATA-MODEL.md)，產品規則與驗收條件見 [PRD](PRD.md)。
 
 提交前亦執行 `python tools/check-public-content.py` 與 `python tools/check-translations.py`。公開內容檢查讀取 Git 暫存內容，新增文件須先暫存；不要暫存本機設定或私人資料。文件目錄與翻譯規則見 [TRANSLATING](TRANSLATING.md)。
+
+## 效能對照測試包（1.5.0-dev06）
+
+使用 `assemblePerf` 建置一般使用者的效能測試 APK（`.debug`、原有開發簽章、非偵錯、R8／資源縮減、可供 shell 分析效能）。一般 `assembleDebug` 仍為可偵錯對照包；兩者同一版本碼，可互相覆蓋並保留測試資料。`assembleQaPerf` 使用相同最佳化設定與 `.qa` 身分，包含明確限於 QA 的合成資料探針，不作下載交付。perf 只重用 debug 的 App 名稱資源，未引入 debug UI 工具依賴。
+
+1.5.0 正式 `release` 已套用維護者確認的 perf R8／資源縮減設定；仍使用正式套件及既有正式金鑰，關閉 shell 效能分析入口。CI 的 release 保持未簽署。R8 規則使用 Android 預設最佳化規則與依賴的 consumer rules，不使用整包 keep 來冒充已最佳化。詳見 [Android 官方 R8 指南](https://developer.android.com/topic/performance/app-optimization/enable-app-optimization)。
+
+```sh
+./gradlew assembleDebug assemblePerf assembleQa assembleQaPerf testQaUnitTest lintPerf
+```
+
+`tools/smoke-perf-qa.py` 僅接受明確指定的模擬器名稱與 `.qa` APK，執行資料保留、詳情／滑動、編輯持久化及合成資料清理；輸出當輪 JUnit XML。此為黑箱冒煙檢查，不是 FPS 或真機效能量測。

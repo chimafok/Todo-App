@@ -11,7 +11,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.Spring
@@ -89,7 +94,7 @@ fun TaskList(
     onComplete: (TaskEntity) -> Unit, onReopen: (TaskEntity) -> Unit,
     onStatus: (TaskEntity) -> Unit, onAdvance: (TaskEntity) -> Unit,
     onDelete: (TaskEntity) -> Unit, onRestore: (TaskEntity) -> Unit, actionsEnabled: Boolean,
-    finishingTasks: Map<String, TaskEntity> = emptyMap(), completionProgress: Map<String, Float> = emptyMap(),
+    finishingTasks: Map<String, TaskEntity> = emptyMap(), completionProgress: Map<String, State<Float>> = emptyMap(),
     selectionMode: Boolean = false, selectedIds: Set<String> = emptySet(),
     onToggleSelection: (String) -> Unit = {}, filtered: Boolean = false,
     onPurge: ((TaskEntity) -> Unit)? = null,
@@ -122,6 +127,10 @@ fun TaskList(
     } }
     val counts = groupCounts ?: groups.associate { it.date to it.tasks.size }
     val listState = rememberLazyListState()
+    val detailMotion = remember { mutableStateMapOf<String, Boolean>() }
+    // Resizing already moves following rows. A second placement spring would lag behind it.
+    val placement = if (detailMotion.isEmpty()) spring<androidx.compose.ui.unit.IntOffset>(
+        dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow) else null
     var scrolledJump by rememberSaveable { mutableStateOf<String?>(null) }
     LaunchedEffect(jumpDate, destination, jumpReady) {
         if(jumpDate==null) scrolledJump=null
@@ -203,8 +212,8 @@ fun TaskList(
                     reminders = remindersByTask[task.id].orEmpty(), onPurge = onPurge,
                     onDeleteFuture = if (destination == Destination.AGENDA && onDeleteFuture != null)
                         occurrencesByTask[task.id]?.let { ref -> { onDeleteFuture(ref.seriesId) } } else null,
-                    modifier = Modifier.animateItem(fadeInSpec = tween(180), fadeOutSpec = tween(180),
-                        placementSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)))
+                    onDetailsMotion = { moving -> if (moving) detailMotion[task.id] = true else detailMotion.remove(task.id) },
+                    modifier = Modifier.animateItem(fadeInSpec = tween(180), fadeOutSpec = tween(180), placementSpec = placement))
             }
         }
         if(moreUndated) item(key="more_undated") {
@@ -221,13 +230,14 @@ internal fun TaskCard(
     onEdit: (TaskEntity) -> Unit, onComplete: (TaskEntity) -> Unit, onReopen: (TaskEntity) -> Unit,
     onStatus: (TaskEntity) -> Unit, onAdvance: (TaskEntity) -> Unit, onDelete: (TaskEntity) -> Unit,
     onRestore: (TaskEntity) -> Unit,
-    modifier: Modifier = Modifier, completion: Float? = null, tags: List<String> = emptyList(),
+    modifier: Modifier = Modifier, completion: State<Float>? = null, tags: List<String> = emptyList(),
     selectionMode: Boolean = false, selected: Boolean = false, onToggleSelection: (String) -> Unit = {},
     recurringLabel: String? = null, historyDescription: String? = null, readOnly: Boolean = false,
     reminders: List<com.chimafok.todo.data.ReminderEntity> = emptyList(),
     onPurge: ((TaskEntity) -> Unit)? = null,
     onDeleteFuture: (() -> Unit)? = null,
     onLongSelect: ((String) -> Unit)? = null,
+    onDetailsMotion: (Boolean) -> Unit = {},
 ) {
     var expanded by rememberSaveable(task.id) { mutableStateOf(false) }
     val assignment = task.categoryId == ASSIGNMENTS_ID
@@ -236,10 +246,15 @@ internal fun TaskCard(
     val progressName = if (study) tr(R.string.text_study_dcb987) else tr(R.string.text_assignments_d87d04)
     val overdue = !readOnly && task.status != TaskStatus.COMPLETED && isOverdue(task.dueDate, task.dueTime, task.zoneId, clock)
     val completed = task.status == TaskStatus.COMPLETED || completion != null
-    val feedback = completion ?: 0f
+    val feedback = completion?.value ?: 0f
+    val details = remember { MutableTransitionState(false) }
+    details.targetState = expanded && !selectionMode
+    val reportMotion by rememberUpdatedState(onDetailsMotion)
+    SideEffect { reportMotion(!details.isIdle) }
+    DisposableEffect(Unit) { onDispose { reportMotion(false) } }
     Card(modifier = modifier.fillMaxWidth().testTag("task_${task.id}")
         .graphicsLayer { scaleX = 1f - feedback * 0.015f; scaleY = 1f - feedback * 0.015f }
-        .animateContentSize(tween(220)).clip(MaterialTheme.shapes.large)
+        .clip(MaterialTheme.shapes.large)
         .combinedClickable(enabled=enabled,role=Role.Button,
             onLongClickLabel=if(onLongSelect!=null && !readOnly) tr(R.string.text_select_task_6a0154) else null,
             onLongClick=if(onLongSelect!=null && !readOnly && completion==null) ({onLongSelect(task.id)}) else null,
@@ -253,7 +268,7 @@ internal fun TaskCard(
             overdue -> MaterialTheme.colorScheme.error.copy(alpha = 0.4f)
             else -> MaterialTheme.colorScheme.outlineVariant
         })) {
-        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.padding(14.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
                     if (selectionMode) {
@@ -337,7 +352,10 @@ internal fun TaskCard(
                     }
                 }
             }
-            if (expanded && !selectionMode) {
+            AnimatedVisibility(visibleState = details,
+                enter = expandVertically(tween(280), expandFrom = Alignment.Top) + fadeIn(tween(180)),
+                exit = shrinkVertically(tween(280), shrinkTowards = Alignment.Top) + fadeOut(tween(220))) {
+                Column(Modifier.padding(top = 12.dp).testTag("task_details_${task.id}"), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 if (task.notes.isNotBlank()) LinkifiedNotes(task.notes)
                 NoteImageGallery(task.imageIds)
@@ -350,26 +368,30 @@ internal fun TaskCard(
                 if (task.zoneId != null && task.zoneId != clock.zone.id) Text(tr(R.string.text_time_zone_s_4c666b, task.zoneId), style = MaterialTheme.typography.bodySmall)
                 if (inTrash) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilledTonalButton(onClick = { onRestore(task) }, enabled = enabled) { Text(tr(R.string.text_restore_2abdcb)) }
+                        FilledTonalButton(enabled = enabled, modifier = Modifier.testTag("restore_${task.id}"),
+                            onClick = { onRestore(task) }) { Text(tr(R.string.text_restore_2abdcb)) }
                         onPurge?.let { purge -> TextButton(onClick = { purge(task) }, enabled = enabled,
                             modifier = Modifier.testTag("purge_${task.id}"), colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text(tr(R.string.text_delete_permanently_15a9d2)) } }
                     }
                 } else if (!readOnly) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilledTonalButton(onClick = { onEdit(task) }, enabled = enabled) { Text(tr(R.string.text_edit_e0d448)) }
+                        FilledTonalButton(enabled = enabled, modifier = Modifier.testTag("edit_${task.id}"),
+                            onClick = { onEdit(task) }) { Text(tr(R.string.text_edit_e0d448)) }
                         if (task.status == TaskStatus.COMPLETED) {
                             TextButton(onClick = { onReopen(task) }, enabled = enabled) { Text(tr(R.string.text_reopen_d82e4e)) }
                         } else if (hasProgress) {
                             TextButton(onClick = { onAdvance(task) }, enabled = enabled) { Text(tr(R.string.text_advance_to_s_01798d, statusLabel(nextProgressStatus(task.status, study)))) }
                         }
-                        TextButton(onClick = { onDelete(task) }, enabled = enabled,
-                            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text(tr(R.string.text_delete_3c8f5b)) }
+                        TextButton(enabled = enabled, modifier = Modifier.testTag("trash_${task.id}"),
+                            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                            onClick = { onDelete(task) }) { Text(tr(R.string.text_delete_3c8f5b)) }
                         onDeleteFuture?.let { delete ->
                             TextButton(onClick = delete, enabled = enabled,
                                 modifier = Modifier.testTag("delete_future_${task.id}"),
                                 colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text(tr(R.string.text_delete_future_tasks_2d7630)) }
                         }
                     }
+                }
                 }
             }
         }
@@ -379,7 +401,7 @@ internal fun TaskCard(
 @Composable
 internal fun LinkifiedNotes(notes: String) {
     val color = MaterialTheme.colorScheme.primary
-    Text(buildAnnotatedString {
+    val linked = remember(notes, color) { buildAnnotatedString {
         var offset = 0
         Regex("https?://[^\\s<>]+", RegexOption.IGNORE_CASE).findAll(notes).forEach { match ->
             append(notes.substring(offset, match.range.first))
@@ -389,5 +411,6 @@ internal fun LinkifiedNotes(notes: String) {
             offset = match.range.last + 1
         }
         append(notes.substring(offset))
-    })
+    } }
+    Text(linked)
 }

@@ -26,7 +26,7 @@ class SeriesReminderUiTest {
     private fun keyboard(){androidx.test.espresso.Espresso.closeSoftKeyboard();compose.waitForIdle()}
     private fun edit(id:String){
         compose.onNodeWithTag("task_list").performScrollToNode(hasTestTag("task_$id"))
-        val edit=hasText("編輯") and hasAnyAncestor(hasTestTag("task_$id"))
+        val edit=hasActionLabel("編輯") and hasAnyAncestor(hasTestTag("task_$id"))
         if(compose.onAllNodes(edit).fetchSemanticsNodes().isEmpty())compose.onNodeWithTag("task_$id").performClick()
         compose.onNode(edit).performClick()
     }

@@ -40,17 +40,23 @@ Each task has one category and multiple optional tags. In Categories and tags, l
 
 Use the separate **Bulk delete** button to select rows or Select all, then confirm Delete selected. Study, Assignments and Uncategorized cannot be selected for deletion. Study and Assignments can be renamed; Uncategorized cannot. Before deleting a category, choose a surviving destination. Active, completed and trashed tasks and recurring series are moved, not deleted. Moving into Assignments requires per-task status choices. Deleting tags removes their links, not tasks. Cancellation writes nothing; changed data invalidates a preview and the whole batch must be reviewed again.
 
+## Action icons (1.5.0)
+
+Tap a task card to expand or collapse details, including while the transition is still running. Completing a task shows brief feedback. Selection actions wrap when needed for longer text or larger type.
+
+Use image-plus to add images, the clock to choose time, and keyboard/clock icons to switch time-entry modes. The funnel opens filters, the selection icon enters multiselect, and a transparent-background check finishes selection. Reminder Remove, card Edit/Delete (move to Trash)/Restore, and all Select all actions are text buttons. Result, selection and filter counts remain visible. Home filter, multiselect and finish-selection glyphs use the official filter icon size while retaining at least 48 dp tap targets. Long-press an icon for its tooltip; assistive tools read the action in the current language. Tapping a task card expands or collapses details with transitions in both directions. Permanent deletion and series-scope actions keep text and existing confirmations.
+
 ## Note images
 
-The Notes and images section shows text first, then images. Use **Add images** and Android's system picker. There is no per-note image count limit; add another batch if the picker limits one selection. Todo reads only selected images and saves private local copies without modifying originals. Each input image is limited to 25 MiB. Copies are resized to a longest edge of 1536 pixels and compressed to JPEG of at most 768 KiB, without original location/EXIF metadata. Transparency becomes white; animations become a static image.
+The Notes and images section shows text first, then images. Use the image-plus icon (**Add images**) to open Android's system picker. There is no per-note image count limit; add another batch if the picker limits one selection. Todo reads only selected images and saves private local copies without modifying originals. Each input image is limited to 25 MiB. Copies are resized to a longest edge of 1536 pixels and compressed to JPEG of at most 768 KiB, without original location/EXIF metadata. Transparency becomes white; animations become a static image.
 
-Tap a thumbnail to view it, pinch to zoom, pan, or switch images. In the form, the X at the thumbnail's top right removes that image while keeping text notes. Scroll the thumbnail strip for more images. Expand a saved task to view images. Cancelling the system picker returns to the form. Images can be retained with a draft, but drafts are not in manual backups.
+In 1.5.0, tap a thumbnail to view it. At normal scale, swipe left for the next image or right for the previous one; navigation stops at the ends. Bottom arrows accept quick consecutive or reversed presses without waiting for the previous transition. After pinching to zoom, dragging pans the image without switching pages. Changing pages resets zoom; rotation preserves the settled image. Tap blank space outside the painted image or the top-right X to close. Image-content taps, pinch and pan keep the viewer open. In the form, the X at the thumbnail's top right removes that image while keeping text notes. Scroll the thumbnail strip for more images. Expand a saved task to view images. Cancelling the system picker returns to the form. Images can be retained with a draft, but drafts are not in manual backups.
 
 Images follow recurring templates, edit scopes, historical snapshots and Trash. Unreferenced images are cleaned up when a form closes, checking tasks, series, snapshots and saved drafts. Cleanup never deletes the original phone-library image.
 
 ## Recurring tasks
 
-Choose daily, weekly, selected weekdays, monthly or every N days. Weekday options run Monday through Sunday. **First deadline date (blank means today)** anchors the recurrence; it is separate from Study's start date. You may set an end date or occurrence count.
+Choose daily, weekly, selected weekdays, monthly or every N days. Weekday options run Monday through Sunday. **First deadline date (blank means today)** anchors the recurrence; it is separate from Study's start date. You may set an end date or occurrence count. From 1.5.0, a calendar button beside the end date is available for new tasks and this-and-future rule edits. Typed input remains available; calendar confirmation writes YYYY-MM-DD, while cancellation keeps the original text.
 
 An initial In progress Study state applies only to the first occurrence; future occurrences start Not started. Series edits preserve existing progress.
 

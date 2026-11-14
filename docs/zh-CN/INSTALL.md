@@ -2,6 +2,10 @@
 
 <p align="center">語言 / 语言 / Languages：<a href="../INSTALL.md">繁體中文</a> · <strong>简体中文</strong> · <a href="../en/INSTALL.md">English</a></p>
 
+## 1.5.0 更新
+
+可直接覆盖更新正式 1.4.1，保留数据，无需卸载。本版增加重复结束日历、图片空白关闭／滑动和箭头切换，调整操作图标、详情动画和多选对齐，并启用已测试的 R8 优化与资源缩减。正式包名 com.chimafok.todo／code43，沿用既有正式凭证；Room schema10／备份格式6不变。测试版 .debug 与正式版数据分开。
+
 ## 1.4.1 更新
 
 可直接覆盖更新正式 1.4.0，保留数据和语言设置，无需卸载。本版修复时间栏居中／裁切、两位小时自动换栏，并保留默认 10:00。正式包名 com.chimafok.todo／code37；Room schema10／备份格式6不变。

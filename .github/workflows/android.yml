@@ -36,7 +36,7 @@ jobs:
       - name: Build, unit tests and Lint
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon --console=plain assembleDebug assembleQaAndroidTest assembleRelease testQaUnitTest lintDebug lintRelease
+          ./gradlew --no-daemon --console=plain assembleDebug assembleQaAndroidTest assembleRelease assemblePerf assembleQaPerf testQaUnitTest lintDebug lintRelease lintPerf
       - name: Upload verification reports
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
