@@ -61,7 +61,7 @@ class HistoryPagingUiTest {
         compose.onNodeWithTag("recurring_search").performImeAction();loaded()
         compose.onNodeWithTag("history_page_summary").assertTextContains("1 / 1",substring=true)
         compose.onNodeWithTag("task_$series-1").performClick()
-        compose.onNode(hasText("編輯") and hasAnyAncestor(hasTestTag("task_$series-1"))).performClick()
+        compose.onNode(hasActionLabel("編輯") and hasAnyAncestor(hasTestTag("task_$series-1"))).performClick()
         awaitTag("task_title");compose.onNodeWithTag("task_title").assertTextContains("entry1")
         assertEquals(123,model.state.value.occurrences.count { it.seriesId==series })
         compose.onNodeWithText("取消",substring=false).performClick()

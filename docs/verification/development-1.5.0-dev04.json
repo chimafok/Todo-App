@@ -1,0 +1,507 @@
+{
+  "date": "2026-11-13",
+  "version": "1.5.0-dev04",
+  "versionCode": 41,
+  "applicationId": "com.chimafok.todo.debug",
+  "bytes": 13699869,
+  "apkSha256": "baf3d8ca7d67d93d8484e37f9a0792cd7aded0d080939ee8ed9d267695495714",
+  "certificateSha256": "61e51e2dce7d422d046cd6b4a41ea6ac15ef298bf6e4ced05bd9355f6cc63c62",
+  "signing": "development",
+  "debuggable": true,
+  "runtimeFingerprint": "96a784519453b21ab71195930c90cc007a6d661d3e5de6aa15df18810492f008",
+  "fingerprintMethod": "SHA-256 of git ls-files -s for runtime/build paths, including normalized Git blob identities",
+  "schemaVersion": 10,
+  "backupFormatVersion": 6,
+  "unitCount": 104,
+  "debugLint": {
+    "errors": 0,
+    "warnings": 13
+  },
+  "officialSigningPerformed": false,
+  "officialBaseline": "6b78e7b9fb32b22e365cb83495b17c48b4ef8441",
+  "baseDev": "e8a0a893697c88f7b11b30fca9a5f9da3e5f6efd",
+  "toolbarGlyphDp": 18,
+  "minimumTapTargetDp": 48,
+  "unitTests": {
+    "count": 104,
+    "freshXmlVerified": true,
+    "cases": [
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "sameIdNewerChangesWinAndOldFilesCannotOverwrite"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "canonicalEncodingEscapesStringsAndUsesOrderIndependentKeys"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "linksFollowTheNewerOrdinaryTaskWithoutMatchingNames"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "contradictoryTaskAndReminderModificationTimesRequireAWholeTaskChoice"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "reusedReminderIdAcrossDifferentTasksCannotSilentlyDeleteALocalTask"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "trashNeverResurrectsAutomaticallyEvenWithANewerFile"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "identicalContentSkipsEvenIfFileTimeUnknownOrDifferent"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "sameNameDifferentIdsRemainIndependent"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "equalOrUnknownModificationRequiresAnExplicitVersion"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "conversionConnectsOldOrdinaryIdAndNewSeriesAsOneConflict"
+      },
+      {
+        "class": "com.chimafok.todo.domain.BackupMergeTest",
+        "method": "replaceReportsRemovedTasksAndRetainsOnlyFileRows"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "yearlessSameDayPastTimeRollsButExplicitYearsAndDateOnlyNeverDo"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "impossibleDatesAndUnsupportedLengthsNeverRollIntoAnotherDate"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "both24HourTimeFormsSupportMidnightAndRejectOverflow"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "dstGapIsRejectedAndOverlapUsesVisibleEarlierOffset"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "timedDeadlineKeepsItsInstantAcrossDeviceZones"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "sameDayResolutionUsesSavedZoneAndStrictNextYearIncludingDstOverlap"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "crossingDateLineNeverHidesAPendingTaskOrDuplicatesAnOverdueTask"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "jumpingToPastDateDoesNotReuseAnItemKeyInTwoGroups"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "mixedZonesSortByActualInstantAndDateOnlyDoesNotShift"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "monthDayRollsOnlyEarlierDatesAndNeverChangesAnExplicitYear"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeadlineInputTest",
+        "method": "allDateFormatsAreStrictAndHaveExplicitYearRules"
+      },
+      {
+        "class": "com.chimafok.todo.domain.DeviceClockTest",
+        "method": "longLivedClockFollowsTimezoneChangesButExplicitZoneStaysFixed"
+      },
+      {
+        "class": "com.chimafok.todo.domain.LanguageChoiceTest",
+        "method": "followSystemUsesSupportedLanguageListThenEnglishFallback"
+      },
+      {
+        "class": "com.chimafok.todo.domain.LanguageChoiceTest",
+        "method": "renderingLocalesKeepChineseScriptsAndRegionsExplicit"
+      },
+      {
+        "class": "com.chimafok.todo.domain.LanguageChoiceTest",
+        "method": "chineseScriptAndRegionResolveCorrectly"
+      },
+      {
+        "class": "com.chimafok.todo.domain.LanguageChoiceTest",
+        "method": "explicitChoicesOverrideSystem"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ListScalingTest",
+        "method": "equalTimesKeepCreationThenIdOrderAndUnscheduledKeepsNewestFirst"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ListScalingTest",
+        "method": "localDisplayDateAndDeadlineInstantDetermineGroupingAcrossZonesAndMidnight"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ListScalingTest",
+        "method": "inputTraversalIsBoundedWhenEveryTaskHasItsOwnDate"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ListScalingTest",
+        "method": "jumpToPastRemovesOnlyThatLocalDateFromTodayWithoutDuplicates"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ListScalingTest",
+        "method": "indexedTagsKeepConfiguredOrderWithoutRescanningLinksPerRow"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ListScalingTest",
+        "method": "rebuiltIndexReflectsRenamesRemovalsAndLinkChanges"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ListScalingTest",
+        "method": "completedKeepsOriginalDateStableTiesAndExcludesTrash"
+      },
+      {
+        "class": "com.chimafok.todo.domain.NoteImageMergeTest",
+        "method": "replacementDropsUnusedLocalImagesAndIdenticalMergeDeduplicates"
+      },
+      {
+        "class": "com.chimafok.todo.domain.NoteImageMergeTest",
+        "method": "conflictingTaskChoiceCarriesOnlyItsImages"
+      },
+      {
+        "class": "com.chimafok.todo.domain.NoteImageRefsTest",
+        "method": "emptyAndMultipleIdsRoundTripInOrder"
+      },
+      {
+        "class": "com.chimafok.todo.domain.NoteImageRefsTest",
+        "method": "manyImagesRoundTripWithoutCountLimit"
+      },
+      {
+        "class": "com.chimafok.todo.domain.NoteImageRefsTest",
+        "method": "rejectsInvalidIdsAndDuplicates"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "homeProjectionSelectsLatestOverdueThenEarliestPendingWithoutChangingHistory"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "endDateIsInclusiveAndCountIncludesFirstConsumedSlot"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "extremeDatesTerminateWithoutWrappingOrReusingSequenceNumbers"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "malformedRulesAndImpossibleEndConditionsAreRejected"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "monthlyFallsBackToMonthEndThenRestoresTheOriginalDay"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "dailyWeeklyAndEveryNDaysKeepTheirOriginalAnchor"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "selectedWeekdaysStartAtFirstEligibleDateAndRepeatInChronologicalOrder"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "offlineCatchUpIsBoundedAndCursorProducesExactlyTheSameLedgerAsOneBatch"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "generationUsesSeriesLocalMidnightIncludingDstAndDateLine"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RecurrenceRulesTest",
+        "method": "futurePreparationIsOneRowAndRetryingCompletionOrCreationIsIdempotent"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderConversionRulesTest",
+        "method": "relativeOffsetsAndDateOnlyBaselinesAreInheritedWithoutInventingDeadlineTime"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderConversionRulesTest",
+        "method": "unsupportedPrecisionRangesAndDuplicateIdsAreRejectedWithoutTruncating"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderConversionRulesTest",
+        "method": "inheritedWallClockUsesDstCalendarDaysRatherThanFixed24HourOffsets"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderConversionRulesTest",
+        "method": "fixedInstantsBecomeCalendarOffsetsInTheSeriesZoneAndHaveStableIndependentIds"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderConversionRulesTest",
+        "method": "fixedOffsetsCanBeBeforeOrAfterAndUseSavedZoneDuringTravel"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderDefaultsTest",
+        "method": "explicitLegacyTwentyClockDefinitionsKeepTheirOriginalInstants"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderDefaultsTest",
+        "method": "newDefinitionsUseTenClockWhileTypedDeadlineStillWins"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderRulesTest",
+        "method": "fixedTimeFallbackPrefersDeadlineAndConvertsCapturedZoneOtherwiseUsesBase"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderRulesTest",
+        "method": "quantityUnitsConvertExactlyAndLegacyMinutesRoundTrip"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderRulesTest",
+        "method": "rejectsInvalidDependenciesAndMutuallyExclusiveFields"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderRulesTest",
+        "method": "quantityNeverTruncatesClampsOrOverflows"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderRulesTest",
+        "method": "dateOnlyBaseIsSeparateAndEditable"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderRulesTest",
+        "method": "changingDeadlineMovesRelativeButFixedStays"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderRulesTest",
+        "method": "legacyDateOnlyCapturesReminderZoneWithoutChangingDeadline"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderRulesTest",
+        "method": "timedRelativeUsesDeadlineZoneAndElapsedMinutesAcrossDst"
+      },
+      {
+        "class": "com.chimafok.todo.domain.ReminderRulesTest",
+        "method": "fixedInstantDoesNotFollowDeadlineOrDeviceZone"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RetentionRulesTest",
+        "method": "customDaysArePositiveIntegersWithoutSilentTruncation"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RetentionRulesTest",
+        "method": "retentionUsesElapsedDaysAcrossDstAndNotCalendarMonths"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RetentionRulesTest",
+        "method": "trashExpiresAtExactlyThirtyElapsedDays"
+      },
+      {
+        "class": "com.chimafok.todo.domain.RetentionRulesTest",
+        "method": "epochArithmeticDoesNotOverflowOrExpireFutureTimestamps"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesEditPlanTest",
+        "method": "completedPastAndDeletedRowsAreProtectedEvenWithHigherSequence"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesEditPlanTest",
+        "method": "homeProjectionExcludesCancelledRowsWithoutLosingTheirData"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesEditPlanTest",
+        "method": "cancelledRowsCanReactivateButUnchangedCancellationsDoNotChurn"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesEditPlanTest",
+        "method": "newFrequencyUsesGlobalSequenceWithoutResettingCount"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesEditPlanTest",
+        "method": "weekdayRuleUsesFirstEligibleDateAndAnInclusiveEndDate"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesEditPlanTest",
+        "method": "historicalBoundaryUsesEachRecordsSavedZone"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesEditPlanTest",
+        "method": "monthlyClampKeepsOriginalAnchorWhenOnlyContentOrEndChanges"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesEditPlanTest",
+        "method": "invalidSourceAndCountCannotReplanHistory"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesReminderRulesTest",
+        "method": "automaticDstGapsAdvanceAndOverlapsChooseEarlierOffset"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesReminderRulesTest",
+        "method": "blankTemplateTimeInheritsEachDeadlineOrEditableBaseWithoutChangingDeadline"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesReminderRulesTest",
+        "method": "invalidTemplatesAndOutOfRangeDatesAreRejected"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesReminderRulesTest",
+        "method": "fixedRulesGenerateIndependentInstantsAndStableOccurrenceIdentities"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesReminderRulesTest",
+        "method": "generationLooksAheadByLargestLeadWithTwoDayBufferInSeriesZone"
+      },
+      {
+        "class": "com.chimafok.todo.domain.SeriesReminderRulesTest",
+        "method": "futurePlanningRespectsHorizonBatchLimitAndDoesNotConsumeUnneededSlots"
+      },
+      {
+        "class": "com.chimafok.todo.domain.StudyScheduleTest",
+        "method": "optionalStartDateNeedsNoTimeButTimeRequiresDateAndZone"
+      },
+      {
+        "class": "com.chimafok.todo.domain.StudyScheduleTest",
+        "method": "startsUseCapturedTimezoneWhenComparingTimes"
+      },
+      {
+        "class": "com.chimafok.todo.domain.StudyScheduleTest",
+        "method": "deadlineWinsThenStartDateAndTimeBreakTies"
+      },
+      {
+        "class": "com.chimafok.todo.domain.StudyScheduleTest",
+        "method": "nonexistentDstStartIsRejectedInsteadOfShifted"
+      },
+      {
+        "class": "com.chimafok.todo.domain.StudyScheduleTest",
+        "method": "unscheduledStartsSortBeforeBlankAndDoNotCreateDeadline"
+      },
+      {
+        "class": "com.chimafok.todo.domain.StudyStatusRulesTest",
+        "method": "ordinaryAndAssignmentStateContractsStaySeparate"
+      },
+      {
+        "class": "com.chimafok.todo.domain.StudyStatusRulesTest",
+        "method": "learningAdvancesDirectlyFromProgressToCompletion"
+      },
+      {
+        "class": "com.chimafok.todo.domain.StudyStatusRulesTest",
+        "method": "learningAllowsThreeStatesAndRejectsAssignmentOnlyStates"
+      },
+      {
+        "class": "com.chimafok.todo.domain.StudyStatusRulesTest",
+        "method": "categoryConversionsPreserveMeaningfulProgressAndCompletion"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskQueryTest",
+        "method": "scopesNeverMixCompletedTrashAndPendingAndExpireAtThirtyDays"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskQueryTest",
+        "method": "tagAndOrAndCategoryOrCombineWithTextUsingAnd"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskQueryTest",
+        "method": "textSearchUsesTitleNotesCategoryAndTagsCaseInsensitively"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskRulesTest",
+        "method": "dateOnlyIsOverdueAfterItsDayAndTimedTaskUsesInstant"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskRulesTest",
+        "method": "timedItemsSortBeforeDateOnly"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskRulesTest",
+        "method": "agendaKeepsTodayHidesEmptyFutureAndProjectsOverdueWithoutChangingDate"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskRulesTest",
+        "method": "explicitEmptyDateGetsAnAddAnchor"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskRulesTest",
+        "method": "onlyFinalAssignmentStatusIsCompleted"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskRulesTest",
+        "method": "movingIntoAssignmentRequiresAnExplicitChoice"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskRulesTest",
+        "method": "invalidDraftsCannotBeSaved"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskRulesTest",
+        "method": "completedAndTrashNeverLeakIntoAgenda"
+      },
+      {
+        "class": "com.chimafok.todo.domain.TaskRulesTest",
+        "method": "completedUndatedItemsUseCompletionTimeAndOriginalDatesStayIntact"
+      }
+    ],
+    "failures": []
+  },
+  "deviceCases": 8,
+  "deviceGroups": {
+    "37": {
+      "count": 4,
+      "freshXmlVerified": true,
+      "cases": [
+        {
+          "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+          "method": "seriesReminderClockAndRemoveTextKeepTheirOriginalActions"
+        },
+        {
+          "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+          "method": "singleReminderClockAndRemoveTextKeepTheirOriginalActions"
+        },
+        {
+          "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+          "method": "toolbarIconsAndTextActionsEditTrashAndRestoreOnlyTheChosenTask"
+        },
+        {
+          "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+          "method": "localizedIconsHaveLargeTargetsSelectedStateAndLongPressHelpWithoutInvokingTheAction"
+        }
+      ],
+      "failures": []
+    },
+    "26": {
+      "count": 4,
+      "freshXmlVerified": true,
+      "cases": [
+        {
+          "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+          "method": "seriesReminderClockAndRemoveTextKeepTheirOriginalActions"
+        },
+        {
+          "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+          "method": "singleReminderClockAndRemoveTextKeepTheirOriginalActions"
+        },
+        {
+          "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+          "method": "toolbarIconsAndTextActionsEditTrashAndRestoreOnlyTheChosenTask"
+        },
+        {
+          "class": "com.chimafok.todo.ui.ActionIconsUiTest",
+          "method": "localizedIconsHaveLargeTargetsSelectedStateAndLongPressHelpWithoutInvokingTheAction"
+        }
+      ],
+      "failures": []
+    }
+  },
+  "emulatorsClosed": true,
+  "userdataRetained": true,
+  "initialFailures": [],
+  "limitations": [
+    "Targeted toolbar/action checks on isolated QA emulators, not phone acceptance or a full historical regression.",
+    "Gallery and collapse code unchanged; their previous-round results are preserved separately, not counted again.",
+    "Full language, accessibility, large-data and overnight matrices not run this round."
+  ],
+  "officialMainMerged": false,
+  "testApprovalPending": true
+}

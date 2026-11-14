@@ -4,6 +4,46 @@
 
 This page lists official versions and the current development test build. [Original development/test-version records](../history/CHANGELOG-HISTORY.zh-Hant.md) preserve delivery-time states, not the current version. [Releases](https://github.com/chimafok/Todo-App/releases/latest) is authoritative for official APK downloads.
 
+## 1.5.0 — 2026-11-14
+
+- Add a calendar picker for recurrence end dates, retaining typed input, confirmation/cancellation and inclusive end rules.
+- Add image-background dismissal, horizontal swipes, quick consecutive/reversed arrows and an X close control; retain zoom/pan.
+- Use accessible three-language action icons while keeping reminder removal, task edit/trash/restore and Select all as text. Home glyphs remain 18 dp with 48 dp targets and a transparent selection check background.
+- Coordinate detail expansion/collapse with list motion, reduce repeated animation work and align multi-selection text baselines.
+- Official release after approval of 1.5.0-dev06-perf, using its tested R8/resource-shrinking settings. Package com.chimafok.todo / code43 retains the official certificate and updates 1.4.1. Schema10 / backup format6 unchanged.
+
+## 1.5.0-dev06 — 2026-11-13
+
+- Add a non-debuggable R8/resource-shrunk comparison APK, sharing source, package and development signing identity with the regular test build for replacement in either direction; retain dev05 features and motion.
+
+## 1.5.0-dev05 — 2026-11-13
+
+- Coordinate task-detail expansion/collapse with adjacent cards and reduce repeated work in completion feedback, image zoom and category dragging.
+- Align selection summaries and action text in tasks, Trash, recurring history and category/tag management while retaining wrapping and larger type.
+
+## 1.5.0-dev04 — 2026-11-13
+
+- Restore home filter, multiselect and finish-selection glyphs to the official filter icon size of 18 dp; retain icon actions, count text, 48 dp tap targets and the transparent check background.
+
+## 1.5.0-dev03 — 2026-11-13
+
+- Restore text buttons for reminder Remove, card edit/trash/restore and every Select all action; keep other icons.
+- Shorten arrow navigation and accept consecutive/reversed presses, retaining swipes, zoomed pan, bounded endpoints and blank-space dismissal.
+- Animate task-detail collapse while retaining children until completion, including reopening mid-transition. Size home filter/selection glyphs to adjacent text, keep 48 dp tap targets, and remove the selection check background.
+- Development-signed com.chimafok.todo.debug / code40 updates dev02. Official target remains 1.5.0 pending testing and approval; no official signing or main merge. Room schema10 / backup format6 are unchanged.
+
+## 1.5.0-dev02 — 2026-11-13
+
+- Swipe through enlarged images without wrapping at the ends. Dragging while zoomed pans the image; changing pages resets zoom, and rotation preserves the settled image. Blank-space dismissal remains available.
+- Use icons for viewer close/navigation, adding images, time selection/input modes, removing reminders, card edit/trash/restore, and filter/multiselect/select-all toolbars. Keep counts, at least 48 dp tap targets, localized action names and long-press tooltips. Permanent deletion and series-scope actions keep text.
+- Development-signed com.chimafok.todo.debug / code39 can update dev01. Official target remains 1.5.0, pending maintainer testing and approval; no official signing or main merge this round. Room schema10 / backup format6 are unchanged.
+
+## 1.5.0-dev01 — 2026-11-13
+
+- Add a calendar button to recurring end dates for new tasks and this-and-future edits, retaining typed date shortcuts and inclusive end-date rules.
+- Tap blank space around an enlarged image to close the viewer. Tapping image content keeps it open; pinch, pan and image navigation remain available.
+- Development-signed com.chimafok.todo.debug / code38 targets the next regular release, 1.5.0, pending test approval. Room schema10 / backup format6 are unchanged.
+
 ## 1.4.1 — 2026-11-06
 
 - Two valid hour digits automatically focus minutes; manual selection, clock mode and cancellation remain available.

@@ -2,6 +2,10 @@
 
 <p align="center">語言 / 语言 / Languages：<strong>繁體中文</strong> · <a href="zh-CN/INSTALL.md">简体中文</a> · <a href="en/INSTALL.md">English</a></p>
 
+## 1.5.0 更新
+
+可直接覆蓋更新正式 1.4.1，保留資料，無須卸載。此版新增重複結束日曆、圖片空白關閉／滑動與箭頭切換，調整操作圖示、詳情動畫及多選對齊，並啟用已測試的 R8 最佳化與資源縮減。正式套件 com.chimafok.todo／code43，沿用既有正式憑證；Room schema10／備份格式6不變。測試版 .debug 與正式版資料分開。
+
 ## 1.4.1 更新
 
 可直接覆蓋更新正式 1.4.0，保留資料與語言設定，無須卸載。此版修正時間欄置中／裁切、兩位小時自動換欄，並保留預設 10:00。正式套件 com.chimafok.todo／code37；Room schema10／備份格式6不變。

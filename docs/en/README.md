@@ -2,7 +2,7 @@
 
 <p align="center">語言 / 语言 / Languages：<a href="../README.md">繁體中文</a> · <a href="../zh-CN/README.md">简体中文</a> · <strong>English</strong></p>
 
-These three-language guides describe official **1.4.1** (2026-11-06). The repository homepage defaults to Traditional Chinese. Use the language links at the top of each page; changing documentation language does not change the app language.
+These three-language guides describe official **1.5.0** (2026-11-14). The repository homepage defaults to Traditional Chinese. Use the language links at the top of each page; changing documentation language does not change the app language.
 
 ## Use and support
 

@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-14",
+  "maintainer": "chimafok",
+  "approvedVersion": "1.5.0-dev06-perf",
+  "approvedSourceCommit": "753f624b9d1d84229663612c0fc61b78accd3e1d",
+  "approvedFeatureSource": "cc8c7b74a7563f05d0f512a3a91f04532064d4bb",
+  "approvedApkSha256": "4fade74c6070c6e9781397f166aa2e15931deff6511faa784fedcff705f7b792",
+  "approvedRuntimeFingerprint": "dde36a086102c7f2f54a42490da8f8b5e2499f48272e73f7bcf73552e91e41d3",
+  "approvedActions": [
+    "formal signing with existing key",
+    "PR merge to main after required checks",
+    "publish official 1.5.0 APK",
+    "sync release records into dev"
+  ],
+  "appMainSourceChangesAfterApproval": false,
+  "releaseBuildChanges": [
+    "release enables the R8 optimization and resource shrinking already tested by perf",
+    "official applicationId, versionName and signing identity; no profileable shell access"
+  ]
+}

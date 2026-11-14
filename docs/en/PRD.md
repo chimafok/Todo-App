@@ -2,7 +2,21 @@
 
 <p align="center">語言 / 语言 / Languages：<a href="../PRD.md">繁體中文</a> · <a href="../zh-CN/PRD.md">简体中文</a> · <strong>English</strong></p>
 
-This page consolidates **current 1.4.1 rules** without adding or removing requirements. The [complete original baseline and AC01–AC136](../history/PRODUCT-BASELINE.zh-Hant.md) preserve detailed contracts and historical increments for auditing. Where an older version/format statement conflicts with a later revision, apply the current rules below and subsequent explicit maintainer requirements. Translation does not change that precedence. Acceptance criteria are contracts, not claims that tests ran this round; see [verification](TESTING.md).
+This page consolidates **current 1.5.0 rules** without adding or removing requirements. The [complete original baseline and AC01–AC136](../history/PRODUCT-BASELINE.zh-Hant.md) preserve detailed contracts and historical increments for auditing. Where an older version/format statement conflicts with a later revision, apply the current rules below and subsequent explicit maintainer requirements. Translation does not change that precedence. Acceptance criteria are contracts, not claims that tests ran this round; see [verification](TESTING.md).
+
+## 1.5.0 images, calendar and motion
+
+Recurring end dates offer both typed input and the existing calendar picker when creating, converting or editing this and future occurrences. Resolve the initial selection using the field's saved reference date, falling back to that reference for empty or invalid text. Cancellation preserves text; confirmation writes YYYY-MM-DD. Inclusive end-date rules and validation remain unchanged.
+
+Tap blank space outside the painted image to close an enlarged preview, accounting for current zoom and translation. Image-content taps, pinch and pan keep it open; retain the Close button and previous/next controls. The maintainer approved 1.5.0-dev06-perf and official 1.5.0 on 2026-11-14; see the [approval record](../verification/approval-1.5.0.json).
+
+At normal scale, swipe left for the next image and right for the previous image, without wrapping at either end. When zoomed, dragging pans the image instead. Keep arrow navigation; changing pages resets zoom and translation, while rotation preserves the settled image. Use an X for closing and chevrons for previous/next.
+
+Use icons for add images, choose due/study-start/reminder time, keyboard/clock modes, filter/select/finish-selection. Keep text for reminder Remove, card Edit/Move to Trash/Restore, and Select all in tasks, categories/tags, Trash and recurring history. Keep counts, at least 48 dp tap targets, localized accessible names and icon long-press tooltips. Pending searches keep stable selection styling while stale actions remain blocked. Use the official filter glyph size of 18 dp for home filter, multiselect and finish-selection icons, with at least 48 dp tap targets; the finish-selection check has a transparent background. Create/save/add-next, permanent deletion and series-scope actions retain text and confirmations.
+
+Image arrows use a short transition and accept consecutive or reversed presses without waiting for the previous animation to finish, while staying within the image list. Task details fade and change height on both expansion and collapse; keep children until the exit completes and allow reopening during collapse.
+
+Expand and collapse task details from the top, including spacing, without layering list-placement springs over resizing; allow continuous reversal. Completion frames update only their card rather than rebuilding the list. Read zoom and category-drag transforms during drawing. Align selection summaries and action text by baseline on each wrapped row, with three languages, larger type and 48 dp tap targets.
 
 ## 1.4.1 time input
 

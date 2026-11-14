@@ -72,7 +72,7 @@ class ReminderUiTest {
             ReminderSpec("fixed-$id",ReminderKind.FIXED,"Asia/Hong_Kong",fixedAt=fixed),
             ReminderSpec("relative-$id",ReminderKind.RELATIVE_DUE,"Asia/Hong_Kong",offsetMinutes=60))))};reload()
         compose.onNodeWithTag("task_list").performScrollToNode(hasTestTag("task_$id"));compose.onNodeWithTag("task_$id").performClick()
-        compose.onNode(hasText("編輯") and hasAnyAncestor(hasTestTag("task_$id"))).performClick()
+        compose.onNode(hasActionLabel("編輯") and hasAnyAncestor(hasTestTag("task_$id"))).performClick()
         compose.onNodeWithTag("task_date").performTextReplacement(date.plusDays(2).toString());keyboard()
         compose.onNodeWithTag("save_task").performClick()
         compose.waitUntil(10_000){data{it.dao().task(id)!!.dueDate==date.plusDays(2)}}

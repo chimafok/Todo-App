@@ -101,7 +101,8 @@ internal fun SeriesReminderFields(encoded: String, onChange: (String) -> Unit, d
                         modifier=Modifier.fillMaxWidth().testTag("series_reminder_days_$index"))
                     var picker by rememberSaveable { mutableStateOf(false) }
                     OutlinedTextField(row.time,{replace(index,row.copy(time=it))},label={Text(tr(R.string.text_reminder_time_optional_ae1363))},placeholder={Text("HH:mm")},
-                        enabled=enabled,singleLine=true,trailingIcon={TextButton(onClick={picker=true},enabled=enabled){Text(tr(R.string.text_choose_a50371))}},
+                        enabled=enabled,singleLine=true,trailingIcon={ActionIconButton(R.drawable.ic_clock, tr(R.string.text_choose_time_9f8b0c), enabled=enabled,
+                            modifier=Modifier.testTag("open_series_reminder_time_$index"), onClick={picker=true})},
                         modifier=Modifier.fillMaxWidth().testTag("series_reminder_time_$index"))
                     if(picker) TodoTimePicker(runCatching{parseTimeInput(row.time)}.getOrNull() ?: time ?: runCatching{parseTimeInput(row.base)}.getOrNull() ?: DEFAULT_REMINDER_TIME,
                         onDismiss={picker=false},onTime={replace(index,row.copy(time=it.toString()));picker=false})

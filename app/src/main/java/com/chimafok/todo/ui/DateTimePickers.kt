@@ -116,12 +116,13 @@ fun TodoTimePicker(initial: LocalTime, onDismiss: () -> Unit, onTime: (LocalTime
             Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).testTag("time_picker"),
                 horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = !dial, onClick = {
+                    ActionIconButton(R.drawable.ic_keyboard, tr(R.string.text_enter_time_341b45), selected = !dial, onClick = {
                         hourValue = TextFieldValue(state.hour.toString().padStart(2, '0'))
                         minuteValue = TextFieldValue(state.minute.toString().padStart(2, '0'))
                         dial = false
-                    }, modifier = Modifier.testTag("time_input_mode"), label = { Text(tr(R.string.text_enter_time_341b45)) })
-                    FilterChip(selected = dial, onClick = { dial = true }, modifier = Modifier.testTag("time_dial_mode"), label = { Text(tr(R.string.text_clock_119cdf)) })
+                    }, modifier = Modifier.testTag("time_input_mode"))
+                    ActionIconButton(R.drawable.ic_clock, tr(R.string.text_clock_119cdf), selected = dial,
+                        onClick = { dial = true }, modifier = Modifier.testTag("time_dial_mode"))
                 }
                 if (dial) TimePicker(state = state, layoutType = TimePickerLayoutType.Vertical) else TodoTimeInput(
                     hourValue, minuteValue,

@@ -67,7 +67,7 @@ class HistoryUiTest {
         compose.onNodeWithTag("confirm_retention").performClick()
         compose.waitUntil(10_000){data{it.dao().task(task.id)!!.deletedAt!=null}}
         assertEquals(30,data{HistoryRepository(it).policy().days});nav("TRASH");expand(task.id)
-        compose.onNode(hasText("復原") and hasAnyAncestor(hasTestTag("task_${task.id}"))).performClick()
+        compose.onNode(hasActionLabel("復原") and hasAnyAncestor(hasTestTag("task_${task.id}"))).performClick()
         compose.waitUntil(10_000){data{it.dao().task(task.id)!!.deletedAt==null}}
         data{HistoryRepository(it).maintain()}
         assertNull(data{it.dao().task(task.id)!!.deletedAt});assertEquals(task.completedAt,data{it.dao().task(task.id)!!.completedAt})

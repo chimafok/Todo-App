@@ -136,11 +136,11 @@ class RecurringUiTest {
             compose.onNodeWithTag("task_search").performImeAction()
             compose.onNodeWithTag("task_list").performScrollToNode(hasTestTag("task_$second"))
             compose.onNodeWithTag("task_$second").performClick()
-            compose.onNodeWithText("復原", substring = false).performClick()
+            compose.onNode(hasActionLabel("復原")).performClick()
             compose.onNodeWithTag("restore_series_confirm").assertExists()
             compose.onNodeWithText("取消", substring = false).performClick()
             assertNotNull(runBlocking { db.dao().task(second)!!.deletedAt })
-            compose.onNodeWithText("復原", substring = false).performClick()
+            compose.onNode(hasActionLabel("復原")).performClick()
             compose.onNodeWithTag("restore_series_confirm").performClick()
             compose.waitUntil(10_000) { runBlocking { db.dao().series(series.id)!!.deletedAt == null } }
             assertNull(runBlocking { db.dao().task(first)!!.deletedAt })
